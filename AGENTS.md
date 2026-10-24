@@ -19,3 +19,4 @@
 - `reference/hoi-source-2d45022/` is the read-only original Cloudflare source; do not edit or deploy it.
 - Attachments: every record type that carries files (submission, document, sensitive_case, task) goes through `Attachments`/`FilePicker`; the DB trigger `verify_attachment_object` requires the storage object to exist with matching size/MIME, and access is decided by `can_read_owner`/`can_write_owner` — why: no fake records, one permission path for upload/view/download.
 - Office "Mở Sổ" is a read-only UI mode (`ctx.officeView`) using the Office's own permissions — why: never impersonate a chapter account or write on its behalf (e.g. no false "đã đọc").
+- Private file reads go only through `/api/files/:id` (bearer token, attachments RLS re-checked every request, `Cache-Control: no-store`); storage.objects has no SELECT policy for signed-in users — why: signed links/storage proxy cache could outlive a revocation.
