@@ -34,6 +34,17 @@ async function login(email: string): Promise<SupabaseClient> {
   return c;
 }
 
+/** Opens a file through the app's per-request permission gateway (/api/files/:id). Returns HTTP status. */
+const APP = process.env.APP_URL ?? "http://localhost:8080";
+async function gw(c: SupabaseClient | null, path: string): Promise<number> {
+  const { data: att } = await admin.from("attachments").select("id").eq("path", path).maybeSingle();
+  if (!att) return -1;
+  const token = c ? (await c.auth.getSession()).data.session?.access_token : undefined;
+  const r = await fetch(`${APP}/api/files/${att.id}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+  await r.arrayBuffer();
+  return r.status;
+}
+
 async function main() {
   // Catalogue
   const { data: ch } = await admin.from("chapters").select("id,name,households");
@@ -185,12 +196,12 @@ async function main() {
   const up = await ca.storage.from("evidence").upload(path, pdf, { contentType: "application/pdf" });
   check("T11 A uploads evidence", !up.error, up.error?.message);
   await ca.from("attachments").insert({ owner_type: "submission", owner_id: s2.data!.id, path, filename: "minh-chung.pdf", mime: "application/pdf", size_bytes: 13, created_by: "" });
-  const sa = await ca.storage.from("evidence").createSignedUrl(path, 60);
-  check("T11 A gets short-lived link to own file", !!sa.data?.signedUrl, sa.error?.message);
-  check("T11 link serves file", sa.data ? (await fetch(sa.data.signedUrl)).ok : false);
-  check("T11 office downloads file", !(await A.storage.from("evidence").download(path)).error);
-  check("T11 B cannot download A file", !!(await cb.storage.from("evidence").download(path)).error);
-  check("T11 outsider cannot download", !!(await out.storage.from("evidence").download(path)).error);
+  check("T11 A opens own file via gateway", (await gw(ca, path)) === 200);
+  check("T11 gateway without token refused", (await gw(null, path)) === 401);
+  check("T11 office opens file via gateway", (await gw(A, path)) === 200);
+  check("T11 B refused A file via gateway", (await gw(cb, path)) === 403);
+  check("T11 outsider refused via gateway", (await gw(out, path)) === 403);
+  check("T11 direct storage read disabled even for owner", !!(await ca.storage.from("evidence").download(path)).error);
   check("T11 B cannot upload into A report", !!(await cb.storage.from("evidence").upload(`submission/${s2.data!.id}/x.pdf`, pdf)).error);
   check("T11 bad path rejected", !!(await ca.storage.from("evidence").upload(`other/${run}.pdf`, pdf)).error);
   const signed = await cb.storage.from("evidence").createSignedUrl(path, 60);
@@ -210,8 +221,8 @@ async function main() {
   check("T11t chapter cannot upload into task", !!(await ca.storage.from("evidence").upload(`task/${t2.data!.id}/x.pdf`, pdf, { contentType: "application/pdf" })).error);
   check("T11t office uploads task PDF", !(await A.storage.from("evidence").upload(tp, pdf, { contentType: "application/pdf" })).error);
   check("T11t office records task PDF", !(await A.from("attachments").insert({ owner_type: "task", owner_id: t2.data!.id, path: tp, filename: "huong-dan.pdf", mime: "application/pdf", size_bytes: 13, created_by: "" })).error);
-  check("T11t assigned chapter downloads task PDF", !(await ca.storage.from("evidence").download(tp)).error);
-  check("T11t other chapter cannot download task PDF", !!(await cb.storage.from("evidence").download(tp)).error);
+  check("T11t assigned chapter opens task PDF via gateway", (await gw(ca, tp)) === 200);
+  check("T11t other chapter refused task PDF", (await gw(cb, tp)) === 403);
   // Result with evidence linked to task: Office reads, then withdrawn → Office loses it
   const r1 = await ca.from("submissions").insert({ chapter_id: "ch01", kind: "result", task_id: t2.data!.id, title: `${tag} KQ`, body: "ket qua", is_test: true, created_by: "" }).select().single();
   check("T11r chapter sends task result", !r1.error, r1.error?.message);
@@ -219,23 +230,23 @@ async function main() {
   await ca.storage.from("evidence").upload(rp, pdf, { contentType: "application/pdf" });
   await ca.from("attachments").insert({ owner_type: "submission", owner_id: r1.data!.id, path: rp, filename: "kq.pdf", mime: "application/pdf", size_bytes: 13, created_by: "" });
   check("T11r office sees result for task", ((await A.from("submissions").select("id").eq("task_id", t2.data!.id)).data?.length ?? 0) === 1);
-  check("T11r office downloads result evidence", !(await A.storage.from("evidence").download(rp)).error);
+  check("T11r office opens result evidence via gateway", (await gw(A, rp)) === 200);
   await ca.rpc("withdraw_submission", { _id: r1.data!.id });
-  { const x = await A.storage.from("evidence").createSignedUrl(rp, 60); check("T11r after withdraw office cannot open (signed link refused)", !!x.error || !x.data?.signedUrl); }
+  { const st = await gw(A, rp); check("T11r after withdraw office gateway refused", st === 403, `status ${st}`); }
   check("T11r after withdraw office cannot list record", ((await A.from("attachments").select("id").eq("owner_id", r1.data!.id)).data?.length ?? 0) === 0);
   check("T11r after withdraw author cannot add files", !!(await ca.storage.from("evidence").upload(`submission/${r1.data!.id}/y.pdf`, pdf, { contentType: "application/pdf" })).error);
   await A.from("tasks").update({ status: "withdrawn" }).eq("id", t2.data!.id);
-  { const x = await ca.storage.from("evidence").createSignedUrl(tp, 60); check("T11t withdrawn task: chapter cannot open (signed link refused)", !!x.error || !x.data?.signedUrl); }
+  { const st = await gw(ca, tp); check("T11t withdrawn task: chapter gateway refused", st === 403, `status ${st}`); }
   check("T11t withdrawn task: chapter cannot list file", ((await ca.from("attachments").select("id").eq("owner_id", t2.data!.id)).data?.length ?? 0) === 0);
 
   // Revoke (JWT still valid)
   check("T12 revoke A", !(await A.rpc("revoke_user_access", { _email: mail("a") })).error);
   check("T12 revoked: 0 chapters", ((await ca.from("chapters").select("id")).data?.length ?? -1) === 0);
   check("T12 revoked: loses own reports", ((await ca.from("submissions").select("id")).data?.length ?? -1) === 0);
-  const rs = await ca.storage.from("evidence").createSignedUrl(path, 60);
-  check("T12 revoked: cannot create file link", !!rs.error || !rs.data?.signedUrl);
-  const dl = await ca.storage.from("evidence").download(path);
-  check("T12 revoked: cannot download", !!dl.error, dl.error ? "" : "download still succeeded");
+  { const st = await gw(ca, path); check("T12 revoked (JWT still valid): file gateway refuses", st === 403, `status ${st}`); }
+  for (let i = 0; i < 3; i++) { const st = await gw(ca, path); check(`T12 revoked: repeated request #${i + 1} still refused (no cache)`, st === 403, `status ${st}`); }
+  { const rs = await ca.storage.from("evidence").createSignedUrl(path, 60); check("T12 revoked: cannot create signed link", !!rs.error || !rs.data?.signedUrl); }
+  { const dl = await ca.storage.from("evidence").download(`${path}?r=${Date.now()}`); check("T12 revoked: direct storage read refused", !!dl.error); }
   const info = await ca.storage.from("evidence").list(`submission/${s2.data!.id}`);
   check("T12 revoked: cannot list files", (info.data?.length ?? 0) === 0);
   check("T12 revoked: write rejected", !!(await ca.from("submissions").insert({ chapter_id: "ch01", kind: "report", title: tag, created_by: "" })).error);
