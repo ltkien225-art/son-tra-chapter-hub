@@ -310,6 +310,99 @@ export type Database = {
           },
         ]
       }
+      notification_outbox: {
+        Row: {
+          attempts: number
+          body: string
+          created_at: string
+          dedupe_key: string
+          delivered_devices: number
+          id: string
+          kind: string
+          last_error: string | null
+          next_attempt_at: string
+          recipient_email: string
+          status: string
+          title: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          attempts?: number
+          body: string
+          created_at?: string
+          dedupe_key: string
+          delivered_devices?: number
+          id?: string
+          kind: string
+          last_error?: string | null
+          next_attempt_at?: string
+          recipient_email: string
+          status?: string
+          title: string
+          updated_at?: string
+          url?: string
+        }
+        Update: {
+          attempts?: number
+          body?: string
+          created_at?: string
+          dedupe_key?: string
+          delivered_devices?: number
+          id?: string
+          kind?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          recipient_email?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          device_label: string
+          disabled: boolean
+          email: string
+          endpoint: string
+          fail_count: number
+          id: string
+          last_error: string | null
+          last_ok_at: string | null
+          p256dh: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          device_label?: string
+          disabled?: boolean
+          email: string
+          endpoint: string
+          fail_count?: number
+          id?: string
+          last_error?: string | null
+          last_ok_at?: string | null
+          p256dh: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          device_label?: string
+          disabled?: boolean
+          email?: string
+          endpoint?: string
+          fail_count?: number
+          id?: string
+          last_error?: string | null
+          last_ok_at?: string | null
+          p256dh?: string
+        }
+        Relationships: []
+      }
       sensitive_cases: {
         Row: {
           category: string
@@ -506,8 +599,21 @@ export type Database = {
         Args: { _id: string; _type: string }
         Returns: boolean
       }
+      chapter_recipients: { Args: { _chs: string[] }; Returns: string[] }
       current_email: { Args: never; Returns: string }
       doc_addressed_to_me: { Args: { _doc: string }; Returns: boolean }
+      enqueue: {
+        Args: {
+          _body: string
+          _emails: string[]
+          _key: string
+          _kind: string
+          _title: string
+        }
+        Returns: undefined
+      }
+      enqueue_due_reminders: { Args: never; Returns: number }
+      enqueue_test_push: { Args: never; Returns: undefined }
       export_backup: { Args: never; Returns: Json }
       has_any_chapter: { Args: never; Returns: boolean }
       has_sensitive: { Args: never; Returns: boolean }
@@ -540,6 +646,7 @@ export type Database = {
         Returns: undefined
       }
       my_access: { Args: never; Returns: Json }
+      office_recipients: { Args: never; Returns: string[] }
       office_summary: {
         Args: { _period?: string }
         Returns: {
