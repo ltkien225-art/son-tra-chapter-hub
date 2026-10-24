@@ -195,6 +195,36 @@ async function main() {
   check("T11 bad path rejected", !!(await ca.storage.from("evidence").upload(`other/${run}.pdf`, pdf)).error);
   const signed = await cb.storage.from("evidence").createSignedUrl(path, 60);
   check("T11 B cannot sign A file", !!signed.error || !signed.data?.signedUrl);
+  // Fake / mismatched attachment records are rejected by the server
+  check("T11 fake record without file rejected", !!(await ca.from("attachments").insert({ owner_type: "submission", owner_id: s2.data!.id, path: `submission/${s2.data!.id}/fake.pdf`, filename: "x.pdf", mime: "application/pdf", size_bytes: 13, created_by: "" })).error);
+  const p2 = `submission/${s2.data!.id}/${run}-2.png`;
+  const png = new Blob([new Uint8Array([0x89, 0x50, 0x4e, 0x47, 13, 10, 26, 10, 0, 0])], { type: "image/png" });
+  check("T11 A uploads image", !(await ca.storage.from("evidence").upload(p2, png, { contentType: "image/png" })).error);
+  check("T11 mismatched size/type rejected", !!(await ca.from("attachments").insert({ owner_type: "submission", owner_id: s2.data!.id, path: p2, filename: "a.png", mime: "application/pdf", size_bytes: 999, created_by: "" })).error);
+  check("T11 matching image record accepted", !(await ca.from("attachments").insert({ owner_type: "submission", owner_id: s2.data!.id, path: p2, filename: "anh.png", mime: "image/png", size_bytes: 10, created_by: "" })).error);
+  check("T11 office lists 2 files of report", ((await A.from("attachments").select("id").eq("owner_id", s2.data!.id)).data?.length ?? 0) === 2);
+  // Task files: Office attaches; only assigned Chi hội can read; withdrawn task hides them
+  const t2 = await A.from("tasks").insert({ title: `${tag} NV file`, is_test: true, created_by: "" }).select().single();
+  await A.from("task_assignments").insert({ task_id: t2.data!.id, chapter_id: "ch01" });
+  const tp = `task/${t2.data!.id}/${run}.pdf`;
+  check("T11t chapter cannot upload into task", !!(await ca.storage.from("evidence").upload(`task/${t2.data!.id}/x.pdf`, pdf, { contentType: "application/pdf" })).error);
+  check("T11t office uploads task PDF", !(await A.storage.from("evidence").upload(tp, pdf, { contentType: "application/pdf" })).error);
+  check("T11t office records task PDF", !(await A.from("attachments").insert({ owner_type: "task", owner_id: t2.data!.id, path: tp, filename: "huong-dan.pdf", mime: "application/pdf", size_bytes: 13, created_by: "" })).error);
+  check("T11t assigned chapter downloads task PDF", !(await ca.storage.from("evidence").download(tp)).error);
+  check("T11t other chapter cannot download task PDF", !!(await cb.storage.from("evidence").download(tp)).error);
+  // Result with evidence linked to task: Office reads, then withdrawn → Office loses it
+  const r1 = await ca.from("submissions").insert({ chapter_id: "ch01", kind: "result", task_id: t2.data!.id, title: `${tag} KQ`, body: "ket qua", is_test: true, created_by: "" }).select().single();
+  check("T11r chapter sends task result", !r1.error, r1.error?.message);
+  const rp = `submission/${r1.data!.id}/${run}.pdf`;
+  await ca.storage.from("evidence").upload(rp, pdf, { contentType: "application/pdf" });
+  await ca.from("attachments").insert({ owner_type: "submission", owner_id: r1.data!.id, path: rp, filename: "kq.pdf", mime: "application/pdf", size_bytes: 13, created_by: "" });
+  check("T11r office sees result for task", ((await A.from("submissions").select("id").eq("task_id", t2.data!.id)).data?.length ?? 0) === 1);
+  check("T11r office downloads result evidence", !(await A.storage.from("evidence").download(rp)).error);
+  await ca.rpc("withdraw_submission", { _id: r1.data!.id });
+  check("T11r after withdraw office cannot download", !!(await A.storage.from("evidence").download(rp)).error);
+  check("T11r after withdraw author cannot add files", !!(await ca.storage.from("evidence").upload(`submission/${r1.data!.id}/y.pdf`, pdf, { contentType: "application/pdf" })).error);
+  await A.from("tasks").update({ status: "withdrawn" }).eq("id", t2.data!.id);
+  check("T11t withdrawn task: chapter cannot download", !!(await ca.storage.from("evidence").download(tp)).error);
 
   // Revoke (JWT still valid)
   check("T12 revoke A", !(await A.rpc("revoke_user_access", { _email: mail("a") })).error);
