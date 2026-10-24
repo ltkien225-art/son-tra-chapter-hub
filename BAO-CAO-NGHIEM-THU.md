@@ -22,3 +22,8 @@ URL dùng chung cho Văn phòng và 42 Sổ Chi hội: https://son-tra-chapter-h
 
 ## Dữ liệu thử
 Mọi mục [TEST] do kiểm thử tạo đã được xóa; nhật ký thao tác (chỉ mã định danh) được giữ làm bằng chứng. Không có tài khoản, thiết bị Push hay dữ liệu thật nào bị đụng tới.
+
+## Cập nhật bảo mật tệp (2026-10-24)
+- Finding CRITICAL `lov_db_storage_objects_owner_unbound_v1` ("A rule lets any signed-in user download files in evidence"): policy đọc kho `evidence` không ràng buộc chủ hồ sơ. Đã SỬA (không ignore): bỏ hoàn toàn quyền đọc trực tiếp kho; mọi xem/tải đi qua `/api/files/:id`, kiểm quyền hiện hành mỗi request, `no-store`. Security scan lại: 0 finding.
+- Thu hồi: sau thu hồi (JWT còn hạn) gateway trả 403 ngay và lặp lại 3 lần vẫn 403; không cấp được signed URL; đọc trực tiếp kho bị từ chối. Không có liên kết TTL nào còn hiệu lực. Bản đã tải về máy trước khi thu hồi không thể thu hồi.
+- Backend thật: 113/113 đạt; Vitest 7/7; typecheck + build OK.
