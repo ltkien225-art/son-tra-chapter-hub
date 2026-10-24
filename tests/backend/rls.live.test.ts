@@ -256,12 +256,15 @@ async function cleanup() {
   // remove only this run's rows
   const like = `%${tag}%`;
   const subs = (await admin.from("submissions").select("id").like("title", like)).data?.map((x) => x.id) ?? [];
-  const atts = (await admin.from("attachments").select("path").in("owner_id", subs.length ? subs : ["00000000-0000-0000-0000-000000000000"])).data?.map((x) => x.path) ?? [];
+  const tks = (await admin.from("tasks").select("id").like("title", like)).data?.map((x) => x.id) ?? [];
+  const owners = [...subs, ...tks];
+  const atts = (await admin.from("attachments").select("path").in("owner_id", owners.length ? owners : ["00000000-0000-0000-0000-000000000000"])).data?.map((x) => x.path) ?? [];
   if (atts.length) await admin.storage.from("evidence").remove(atts);
   await admin.from("attachments").delete().in("path", atts.length ? atts : ["-"]);
   if (subs.length) await admin.from("submission_feedback").delete().in("submission_id", subs);
   await admin.from("submissions").delete().like("title", like);
   await admin.from("sensitive_cases").delete().like("summary", like);
+  if (tks.length) await admin.from("task_assignments").delete().in("task_id", tks);
   await admin.from("tasks").delete().like("title", like);
   await admin.from("documents").delete().like("title", like);
   await admin.from("member_counts").delete().eq("chapter_id", "ch01").eq("period", "2026-10").like("updated_by", `test+${run}-%`);
