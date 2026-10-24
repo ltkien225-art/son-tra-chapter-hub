@@ -82,6 +82,7 @@ async function main() {
   const d3 = await A.from("documents").insert({ direction: "in", title: `${tag} VB nhap`, status: "draft", is_test: true, created_by: "" }).select().single();
   const yesterday = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
   const t1 = await A.from("tasks").insert({ title: `${tag} NV`, due_at: yesterday, is_test: true, created_by: "" }).select().single();
+  if (t1.error) throw new Error("task: " + t1.error.message);
   await A.from("task_assignments").insert([{ task_id: t1.data!.id, chapter_id: "ch01" }, { task_id: t1.data!.id, chapter_id: "ch02" }]);
   const upd = await A.from("documents").update({ title: `${tag} VB chung (sua)` }).eq("id", d1.data!.id);
   check("T5 document update", !upd.error);
