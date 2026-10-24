@@ -189,3 +189,35 @@ function NoAccess({ email, userId, onSignOut }: { email: string; userId: string;
     </div>
   );
 }
+
+function SyncBar() {
+  const qc = useQueryClient();
+  const fetching = useIsFetching();
+  const [online, setOnline] = useState(true);
+  const [last, setLast] = useState<Date | null>(null);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    setOnline(onlineManager.isOnline());
+    const un1 = onlineManager.subscribe((o) => setOnline(o));
+    const un2 = qc.getQueryCache().subscribe((e) => {
+      if (e.type !== "updated") return;
+      const st = e.query.state;
+      if (st.status === "error" && st.fetchStatus === "idle") setFailed(true);
+      if (st.status === "success" && st.fetchStatus === "idle") { setFailed(false); setLast(new Date(st.dataUpdatedAt)); }
+    });
+    return () => { un1(); un2(); };
+  }, [qc]);
+  const label = !online ? "Mất mạng — sẽ tự đồng bộ khi có mạng lại"
+    : fetching > 0 ? "Đang đồng bộ…"
+    : failed ? "Đồng bộ lỗi — bấm Làm mới để thử lại"
+    : last ? `Đã đồng bộ lúc ${last.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}` : "Đã kết nối";
+  const tone = !online || failed ? "bg-destructive/10 text-destructive" : "bg-secondary text-secondary-foreground";
+  return (
+    <div role="status" aria-live="polite" className={`${tone} px-4 py-2 text-sm`}>
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
+        <span>{label}</span>
+        <Button size="sm" variant="outline" disabled={!online || fetching > 0} onClick={() => qc.invalidateQueries()}>Làm mới</Button>
+      </div>
+    </div>
+  );
+}
