@@ -229,6 +229,7 @@ async function cleanup() {
   const atts = (await admin.from("attachments").select("path").in("owner_id", subs.length ? subs : ["00000000-0000-0000-0000-000000000000"])).data?.map((x) => x.path) ?? [];
   if (atts.length) await admin.storage.from("evidence").remove(atts);
   await admin.from("attachments").delete().in("path", atts.length ? atts : ["-"]);
+  if (subs.length) await admin.from("submission_feedback").delete().in("submission_id", subs);
   await admin.from("submissions").delete().like("title", like);
   await admin.from("sensitive_cases").delete().like("summary", like);
   await admin.from("tasks").delete().like("title", like);
