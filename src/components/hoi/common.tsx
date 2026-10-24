@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { flushPush } from "@/lib/push.functions";
 import { viError, type Access, type Chapter } from "@/lib/hoi";
 
-export type Ctx = { access: Access; chapters: Chapter[]; chapterId: string | null };
+export type Ctx = { access: Access; chapters: Chapter[]; chapterId: string | null; officeView?: boolean };
 
 export function Section({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
   return (

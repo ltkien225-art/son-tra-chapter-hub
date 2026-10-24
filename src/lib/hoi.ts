@@ -10,6 +10,7 @@ export const KIND_LABEL: Record<string, string> = {
   activity: "Hoạt động, mô hình",
   situation: "Tình hình",
   feedback: "Phản ánh, kiến nghị",
+  result: "Kết quả nhiệm vụ",
 };
 export const DOC_STATUS: Record<string, string> = { draft: "Nháp", published: "Đã phát hành", withdrawn: "Đã thu hồi" };
 export const TASK_STATUS: Record<string, string> = { active: "Đang thực hiện", withdrawn: "Đã thu hồi", archived: "Lưu trữ" };
