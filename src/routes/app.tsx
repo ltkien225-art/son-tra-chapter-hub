@@ -50,6 +50,7 @@ function Workspace({ email, userId }: { email: string; userId: string }) {
     if (t && /^[a-z]+$/.test(t)) setTab(t);
   }, []);
   const [chapterId, setChapterId] = useState<string | null>(null);
+  const [book, setBook] = useState<string | null>(null); // Office viewing one Chi hội book (read-only, Office permissions)
 
   useEffect(() => {
     const own = access.data?.chapters ?? [];
@@ -63,8 +64,18 @@ function Workspace({ email, userId }: { email: string; userId: string }) {
   const hasAny = a.office || a.chapters.length > 0;
   if (!hasAny) return <NoAccess email={email} userId={userId} onSignOut={signOut} />;
 
-  const ctx: Ctx = { access: a, chapters: chapters.data ?? [], chapterId };
-  const tabs: Tab[] = a.office
+  const viewing = a.office && book ? book : null;
+  const ctx: Ctx = viewing
+    ? { access: { ...a, office: false, chapters: [viewing] }, chapters: chapters.data ?? [], chapterId: viewing, officeView: true }
+    : { access: a, chapters: chapters.data ?? [], chapterId };
+  const openBook = (id: string) => { setBook(id); setTab("docs"); window.scrollTo({ top: 0 }); };
+  const closeBook = () => { setBook(null); setTab("home"); };
+  const tabs: Tab[] = viewing
+    ? [
+        { id: "docs", label: "Văn bản nhận" }, { id: "tasks", label: "Nhiệm vụ" }, { id: "subs", label: "Báo cáo đã gửi" },
+        { id: "members", label: "Hội viên" }, ...(a.sensitive ? [{ id: "sens", label: "Hồ sơ bảo mật" }] : []),
+      ]
+    : a.office
     ? [
         { id: "home", label: "Tổng quan" }, { id: "docs", label: "Văn bản" }, { id: "tasks", label: "Nhiệm vụ" },
         { id: "subs", label: "Báo cáo" }, { id: "members", label: "Hội viên" },
@@ -79,7 +90,7 @@ function Workspace({ email, userId }: { email: string; userId: string }) {
         { id: "push", label: "Thông báo" }, { id: "guide", label: "Hướng dẫn" },
       ];
   const current = tabs.some((t) => t.id === tab) ? tab : (tabs[0]?.id ?? "guide");
-  const chName = ctx.chapters.find((c) => c.id === chapterId)?.name;
+  const chName = ctx.chapters.find((c) => c.id === ctx.chapterId)?.name;
 
   return (
     <div className="min-h-screen bg-background pb-10">
@@ -87,7 +98,8 @@ function Workspace({ email, userId }: { email: string; userId: string }) {
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-[11px] font-semibold tracking-[0.16em] opacity-90">HỘI LHPN PHƯỜNG SƠN TRÀ</p>
-            <h1 className="text-xl font-bold md:text-2xl">✿ {a.office ? "Văn phòng Hội" : `Sổ Chi hội ${chName ?? ""}`}</h1>
+            <h1 className="text-xl font-bold md:text-2xl">✿ {viewing ? `Sổ Chi hội ${chName ?? ""}` : a.office ? "Văn phòng Hội" : `Sổ Chi hội ${chName ?? ""}`}</h1>
+            {viewing && <p className="text-xs font-semibold">Văn phòng đang xem (chỉ xem, theo quyền Văn phòng)</p>}
             <p className="text-xs opacity-90">{email}</p>
           </div>
           <div className="flex items-center gap-2">
@@ -96,6 +108,7 @@ function Workspace({ email, userId }: { email: string; userId: string }) {
                 {ctx.chapters.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             )}
+            {viewing && <Button variant="hero" size="sm" onClick={closeBook}>← Về Văn phòng</Button>}
             <Button variant="hero" size="sm" onClick={signOut}>Đăng xuất</Button>
           </div>
         </div>
@@ -110,7 +123,7 @@ function Workspace({ email, userId }: { email: string; userId: string }) {
       </header>
       <SyncBar />
       <main className="mx-auto max-w-6xl px-4 py-6">
-        {current === "home" && <Dashboard ctx={ctx} go={setTab} />}
+        {current === "home" && <Dashboard ctx={ctx} go={setTab} openBook={openBook} />}
         {current === "docs" && <Documents ctx={ctx} />}
         {current === "tasks" && <Tasks ctx={ctx} />}
         {current === "subs" && <Submissions ctx={ctx} />}
@@ -126,7 +139,7 @@ function Workspace({ email, userId }: { email: string; userId: string }) {
   );
 }
 
-function Dashboard({ ctx, go }: { ctx: Ctx; go: (t: string) => void }) {
+function Dashboard({ ctx, go, openBook }: { ctx: Ctx; go: (t: string) => void; openBook: (id: string) => void }) {
   const { data = [] } = useSummary(null);
   const households = data.reduce((s, r) => s + (r.households ?? 0), 0);
   const subs = data.reduce((s, r) => s + Number(r.submissions_count), 0);
@@ -151,6 +164,17 @@ function Dashboard({ ctx, go }: { ctx: Ctx; go: (t: string) => void }) {
         {overdue.length === 0 ? <p className="mt-2 text-sm text-muted-foreground">Không có.</p> : (
           <ul className="mt-2 flex flex-wrap gap-2">{overdue.map((r) => <li key={r.chapter_id} className="chip chip-danger">{r.name}: {r.overdue_tasks}</li>)}</ul>
         )}
+      </div>
+      <div className="panel p-5">
+        <h3 className="font-bold text-primary">Danh mục 42 Chi hội — mở Sổ từng Chi hội</h3>
+        <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {data.map((r) => (
+            <li key={r.chapter_id} className="flex items-center justify-between gap-2 rounded-xl bg-muted px-3 py-2">
+              <span className="text-sm"><b>{r.name}</b><br /><span className="text-xs text-muted-foreground">{r.households == null ? "Không có số hộ" : `${fmtNum(r.households)} hộ`}{Number(r.overdue_tasks) > 0 ? ` · ${r.overdue_tasks} việc quá hạn` : ""}</span></span>
+              <Button size="sm" onClick={() => openBook(r.chapter_id)}>Mở Sổ {r.name}</Button>
+            </li>
+          ))}
+        </ul>
       </div>
       <p className="text-xs text-muted-foreground">Số hộ là số liệu dân cư, không phải số hội viên; Chi hội Công An không có số hộ. Dữ liệu tự làm mới khi bạn quay lại ứng dụng hoặc có mạng lại.{ctx.access.admin ? "" : ""}</p>
     </div>

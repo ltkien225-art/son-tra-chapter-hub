@@ -57,6 +57,13 @@
       "when": 1792881106142,
       "tag": "0007_submission_feedback",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792881670922,
+      "tag": "0008_task_attachments_and_results",
+      "breakpoints": true
     }
   ]
 }

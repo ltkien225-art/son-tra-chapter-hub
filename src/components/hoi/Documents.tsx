@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { DOC_STATUS, fmtDate } from "@/lib/hoi";
-import { Attachments } from "./Attachments";
+import { Attachments, FilePicker } from "./Attachments";
 import { ChapterPicker, Empty, Section, useAction, type Ctx } from "./common";
 
 type Doc = {
@@ -21,6 +21,8 @@ export function Documents({ ctx }: { ctx: Ctx }) {
   const [form, setForm] = useState<typeof blank | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
   const [open, setOpen] = useState<string | null>(null);
+  const [pending, setPending] = useState<File[]>([]);
+  const [auto, setAuto] = useState<File[] | undefined>(undefined);
 
   const { data: docs = [] } = useQuery({
     queryKey: ["documents", office, filter],
@@ -46,8 +48,8 @@ export function Documents({ ctx }: { ctx: Ctx }) {
       direction: form.direction, code: form.code, title: form.title.trim(), body: form.body, issuer: form.issuer,
       doc_date: form.doc_date || null, scope: form.scope, created_by: "",
     };
+    let id = editId;
     const ok = await run(async () => {
-      let id = editId;
       if (editId) {
         const r = await supabase.from("documents").update(payload).eq("id", editId);
         if (r.error) return r;
@@ -61,12 +63,15 @@ export function Documents({ ctx }: { ctx: Ctx }) {
         return supabase.from("document_recipients").insert(form.recipients.map((c) => ({ document_id: id!, chapter_id: c })));
       return undefined;
     }, "Đã lưu văn bản (trạng thái nháp nếu tạo mới).");
-    if (ok) { setForm(null); setEditId(null); refresh(); }
+    if (!ok) return; // form stays open, nothing typed is lost
+    refresh();
+    if (!editId && pending.length) { setAuto(pending); setPending([]); setEditId(id); return; }
+    setForm(null); setEditId(null); setAuto(undefined);
   }
 
   async function edit(d: Doc) {
     const { data } = await supabase.from("document_recipients").select("chapter_id").eq("document_id", d.id);
-    setEditId(d.id);
+    setEditId(d.id); setAuto(undefined); setPending([]);
     setForm({ direction: d.direction, code: d.code, title: d.title, body: d.body, issuer: d.issuer, doc_date: d.doc_date ?? "", scope: d.scope, recipients: (data ?? []).map((x) => x.chapter_id) });
   }
 
@@ -75,12 +80,12 @@ export function Documents({ ctx }: { ctx: Ctx }) {
 
   async function openDoc(d: Doc) {
     setOpen(open === d.id ? null : d.id);
-    if (!office && ctx.chapterId && d.scope === "selected") await supabase.rpc("mark_document_read", { _doc: d.id, _chapter: ctx.chapterId });
+    if (!office && !ctx.officeView && ctx.chapterId && d.scope === "selected") await supabase.rpc("mark_document_read", { _doc: d.id, _chapter: ctx.chapterId });
   }
 
   return (
     <Section title={office ? "Văn bản đến / đi" : "Văn bản nhận"}
-      action={office && !form && <Button size="xl" onClick={() => { setEditId(null); setForm({ ...blank }); }}>＋ Văn bản mới</Button>}>
+      action={office && !form && <Button size="xl" onClick={() => { setEditId(null); setAuto(undefined); setPending([]); setForm({ ...blank }); }}>＋ Văn bản mới</Button>}>
       {form && (
         <div className="panel space-y-4 p-5">
           <div className="grid gap-4 sm:grid-cols-2">
@@ -97,11 +102,12 @@ export function Documents({ ctx }: { ctx: Ctx }) {
             <select className="field" value={form.scope} onChange={(e) => setForm({ ...form, scope: e.target.value })}>
               <option value="all">Tất cả Chi hội</option><option value="selected">Chi hội được chọn</option><option value="office">Chỉ nội bộ Văn phòng</option></select></div>
           {form.scope === "selected" && <ChapterPicker chapters={ctx.chapters} value={form.recipients} onChange={(v) => setForm({ ...form, recipients: v })} />}
+          {editId ? <Attachments ownerType="document" ownerId={editId} canUpload autoFiles={auto} title="Tệp đính kèm văn bản (PDF/ảnh)" />
+            : <FilePicker files={pending} onChange={setPending} />}
           <div className="flex flex-wrap gap-2">
-            <Button size="xl" disabled={busy || !form.title.trim()} onClick={save}>Lưu</Button>
-            <Button size="xl" variant="soft" onClick={() => { setForm(null); setEditId(null); }}>Hủy</Button>
+            <Button size="xl" disabled={busy || !form.title.trim()} onClick={save}>{editId ? "Lưu thay đổi" : pending.length ? `Lưu & tải ${pending.length} tệp` : "Lưu"}</Button>
+            <Button size="xl" variant="soft" onClick={() => { setForm(null); setEditId(null); setAuto(undefined); setPending([]); }}>{editId ? "Xong" : "Hủy"}</Button>
           </div>
-          {editId && <Attachments ownerType="document" ownerId={editId} canUpload />}
         </div>
       )}
 

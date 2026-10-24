@@ -61,8 +61,8 @@ function ChapterMembers({ ctx }: { ctx: Ctx }) {
   });
   const valid = [f.members_total, f.members_new, f.members_left].every((v) => /^\d+$/.test(v));
   return (
-    <Section title="Cập nhật hội viên theo kỳ">
-      <div className="panel space-y-4 p-5">
+    <Section title={ctx.officeView ? "Hội viên theo kỳ" : "Cập nhật hội viên theo kỳ"}>
+      {!ctx.officeView && <div className="panel space-y-4 p-5">
         <div className="grid gap-4 sm:grid-cols-4">
           <div><label className="label">Kỳ</label><input type="month" className="field" value={f.period} onChange={(e) => setF({ ...f, period: e.target.value })} /></div>
           <div><label className="label">Tổng hội viên</label><input inputMode="numeric" className="field" value={f.members_total} onChange={(e) => setF({ ...f, members_total: e.target.value })} /></div>
@@ -72,7 +72,7 @@ function ChapterMembers({ ctx }: { ctx: Ctx }) {
         <Button size="xl" disabled={busy || !valid || !f.period} onClick={() => run(() => supabase.from("member_counts").upsert({
           chapter_id: ctx.chapterId!, period: f.period, members_total: +f.members_total, members_new: +f.members_new, members_left: +f.members_left, updated_by: "",
         }), "Đã lưu số liệu hội viên.").then(() => qc.invalidateQueries({ queryKey: ["member_counts"] }))}>Lưu</Button>
-      </div>
+      </div>}
       {data.length === 0 ? <Empty>Chưa có số liệu.</Empty> : (
         <div className="panel overflow-auto"><table className="tbl">
           <thead><tr><th>Kỳ</th><th>Tổng</th><th>Mới</th><th>Giảm</th><th>Cập nhật</th></tr></thead>
