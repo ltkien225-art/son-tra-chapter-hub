@@ -122,6 +122,22 @@ async function main() {
   const mc = await ca.from("member_counts").upsert({ chapter_id: "ch01", period: "2026-10", members_total: 120, members_new: 3, members_left: 1, updated_by: "" }).select().single();
   check("T6 A member count stamped", mc.data?.updated_by === mail("a"), mc.error?.message);
   check("T6 A updates own task progress", !(await ca.rpc("update_assignment", { _task: t1.data!.id, _chapter: "ch01", _status: "in_progress", _progress: 50, _note: tag })).error);
+  {
+    const ob2 = (await admin.from("notification_outbox").select("recipient_email,kind,url,title,body,dedupe_key").like("recipient_email", `test+${run}-%`)).data ?? [];
+    const prog = ob2.filter((o) => o.kind === "progress");
+    check("T6p office notified of chapter progress", prog.some((o) => o.recipient_email === mail("admin")) && prog.every((o) => o.url === "/app?tab=tasks"));
+    check("T6p chapters not notified of other chapter progress", !prog.some((o) => o.recipient_email === mail("b")));
+    check("T6p office notified of new submission", ob2.some((o) => o.kind === "submission" && o.recipient_email === mail("admin") && o.url === "/app?tab=subs"));
+    // Office feedback → chapter (two-way)
+    const fb = await A.from("submission_feedback").insert({ submission_id: s1.data!.id, body: `${tag} phan hoi` }).select().single();
+    check("T6f office replies to submission", !fb.error, fb.error?.message);
+    check("T6f chapter cannot post office feedback", !!(await ca.from("submission_feedback").insert({ submission_id: s1.data!.id, body: tag })).error);
+    check("T6f author chapter reads feedback", ((await ca.from("submission_feedback").select("id").eq("submission_id", s1.data!.id)).data?.length ?? 0) === 1);
+    check("T6f other chapter cannot read feedback", ((await cb.from("submission_feedback").select("id").eq("submission_id", s1.data!.id)).data?.length ?? 0) === 0);
+    check("T6f outsider cannot read feedback", ((await out.from("submission_feedback").select("id")).data?.length ?? 0) === 0);
+    const fbn = ((await admin.from("notification_outbox").select("recipient_email,url,title,body").like("dedupe_key", `fb:${fb.data?.id}%`)).data ?? []);
+    check("T6f feedback push only to ch01 users, generic, deep link", fbn.map((o) => o.recipient_email).sort().join() === [mail("a"), mail("sens")].sort().join() && fbn.every((o) => o.url === "/app?tab=subs" && !(o.title + o.body).includes("[TEST")), JSON.stringify(fbn));
+  }
   check("T6 A cannot read audit log", ((await ca.from("audit_log").select("id")).data?.length ?? 0) === 0);
 
   // Chapter B
@@ -213,6 +229,7 @@ async function cleanup() {
   const atts = (await admin.from("attachments").select("path").in("owner_id", subs.length ? subs : ["00000000-0000-0000-0000-000000000000"])).data?.map((x) => x.path) ?? [];
   if (atts.length) await admin.storage.from("evidence").remove(atts);
   await admin.from("attachments").delete().in("path", atts.length ? atts : ["-"]);
+  if (subs.length) await admin.from("submission_feedback").delete().in("submission_id", subs);
   await admin.from("submissions").delete().like("title", like);
   await admin.from("sensitive_cases").delete().like("summary", like);
   await admin.from("tasks").delete().like("title", like);

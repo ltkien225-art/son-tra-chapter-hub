@@ -104,6 +104,7 @@ export function Submissions({ ctx }: { ctx: Ctx }) {
                       : <p className="whitespace-pre-wrap text-sm">{r.body || "—"}</p>}
                     <p className="text-xs text-muted-foreground">Người gửi: {r.created_by}</p>
                     {(r.status === "submitted" || mine) && <Attachments ownerType="submission" ownerId={r.id} canUpload={mine && r.status === "submitted"} />}
+                    {(r.status === "submitted" || mine) && <Feedback submissionId={r.id} canReply={office && r.status === "submitted"} />}
                     {(mine || ctx.access.admin) && r.status === "submitted" && (
                       <Button variant="destructive" size="xl" disabled={busy}
                         onClick={() => confirm("Thu hồi mục này? Văn phòng sẽ không còn đọc được nội dung.") && run(() => supabase.rpc("withdraw_submission", { _id: r.id }), "Đã thu hồi.").then(refresh)}>
@@ -119,5 +120,39 @@ export function Submissions({ ctx }: { ctx: Ctx }) {
       )}
       <Pager page={page} total={Number(total)} size={SIZE} onPage={setPage} />
     </Section>
+  );
+}
+
+function Feedback({ submissionId, canReply }: { submissionId: string; canReply: boolean }) {
+  const qc = useQueryClient();
+  const { busy, run } = useAction();
+  const [text, setText] = useState("");
+  const key = ["feedback", submissionId];
+  const { data = [] } = useQuery({
+    queryKey: key,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("submission_feedback").select("id,body,created_by,created_at").eq("submission_id", submissionId).order("created_at");
+      if (error) throw error;
+      return data;
+    },
+  });
+  return (
+    <div className="space-y-2">
+      <p className="text-sm font-bold text-primary">Phản hồi của Văn phòng</p>
+      {data.length === 0 ? <p className="text-sm text-muted-foreground">Chưa có phản hồi.</p> : (
+        <ul className="space-y-2">{data.map((f) => (
+          <li key={f.id} className="rounded-xl bg-secondary p-3 text-sm"><p className="whitespace-pre-wrap">{f.body}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{f.created_by} · {fmtDateTime(f.created_at)}</p></li>
+        ))}</ul>
+      )}
+      {canReply && (
+        <div className="flex flex-col gap-2">
+          <textarea className="field min-h-20" maxLength={4000} placeholder="Nhập phản hồi cho Chi hội…" value={text} onChange={(e) => setText(e.target.value)} />
+          <Button size="lg" disabled={busy || !text.trim()} onClick={() =>
+            run(() => supabase.from("submission_feedback").insert({ submission_id: submissionId, body: text.trim() }), "Đã gửi phản hồi.")
+              .then((ok) => { if (!ok) return; setText(""); qc.invalidateQueries({ queryKey: key }); })}>Gửi phản hồi</Button>
+        </div>
+      )}
+    </div>
   );
 }
