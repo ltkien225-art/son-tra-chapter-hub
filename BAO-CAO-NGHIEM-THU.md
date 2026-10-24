@@ -6,9 +6,11 @@ URL dùng chung cho Văn phòng và 42 Sổ Chi hội: https://son-tra-chapter-h
 ## Đã kiểm thử
 | Hạng mục | Cách kiểm | Kết quả |
 |---|---|---|
-| Quyền, thu hồi, chéo Chi hội, outsider, giả chapter/role, văn bản, nhiệm vụ, báo cáo/thu hồi, tệp, thống kê, sao lưu/khôi phục, rollback | `bun tests/backend/rls.live.test.ts` — tài khoản đăng nhập thật trên backend thật | 90/90 đạt |
+| Quyền, thu hồi, chéo Chi hội, outsider, giả chapter/role, văn bản, nhiệm vụ, báo cáo/thu hồi, tệp, thống kê, sao lưu/khôi phục, rollback | `bun tests/backend/rls.live.test.ts` — tài khoản đăng nhập thật trên backend thật | 108/108 đạt |
 | Đồng bộ hai chiều + thông báo: Chi hội cập nhật tiến độ → Văn phòng; báo cáo mới → Văn phòng; Văn phòng phản hồi → đúng Chi hội; nội dung chung, link mở đúng mục | trong bộ test trên (T5p, T6p, T6f) | đạt (kiểm tại hàng chờ gửi) |
 | Xử lý gửi Push: chọn người nhận, 42×2 = 84 thiết bị, chia lô, retry, chống trùng, loại máy hỏng, thu hồi quyền ngừng gửi | `bunx vitest run` | 7/7 đạt — **MÔ PHỎNG** |
+| Đính kèm thật: Văn phòng tạo văn bản + nhiệm vụ kèm PDF/ảnh (tệp giả bị chặn) → tải lại trang → Chi hội Thành Vinh 1 xem/phóng to/tải; Chi hội gửi kết quả kèm ảnh và báo cáo kèm PDF → Văn phòng thấy đúng tệp; nút “Mở Sổ Thành Vinh 1” + “← Về Văn phòng” | Playwright với tài khoản [TEST] (Văn phòng desktop 1280px, Chi hội khổ điện thoại 390px) | đạt, không lỗi trang |
+| Bảo mật tệp: tệp giả/không khớp bị máy chủ từ chối, chéo Chi hội, Chi hội không gắn tệp vào nhiệm vụ, sau thu hồi báo cáo/nhiệm vụ không mở được tệp | backend test T11, T11t, T11r | đạt |
 | Giao diện Văn phòng sau đăng nhập (tạo/phát hành văn bản, giao nhiệm vụ, mở mọi mục) | Playwright, desktop 1280px + khổ iPhone 390px | đạt, không lỗi trang |
 
 ## Chưa kiểm chứng (chưa nghiệm thu)
