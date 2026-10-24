@@ -129,7 +129,7 @@ export function Backup() {
     setBusy(true);
     const { data, error } = await supabase.rpc("export_backup");
     setBusy(false);
-    if (error) return toast.error(viError(error));
+    if (error) { toast.error(viError(error)); return; }
     downloadJson(`sao-luu-hoi-lhpn-son-tra-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-")}.json`, data);
     toast.success("Đã tải tệp sao lưu. Cất giữ an toàn, không chia sẻ công khai.");
   }
@@ -140,8 +140,8 @@ export function Backup() {
     const { data, error } = await supabase.rpc("restore_backup", { _b: file as never, _dry_run: dry });
     setBusy(false);
     if (error) {
-      if (error.message.startsWith("DRY_RUN:")) return setReport("Kiểm tra thử (chưa ghi gì): sẽ thêm " + error.message.slice(8));
-      return toast.error(viError(error));
+      if (error.message.startsWith("DRY_RUN:")) { setReport("Kiểm tra thử (chưa ghi gì): sẽ thêm " + error.message.slice(8)); return; }
+      { toast.error(viError(error)); return; }
     }
     setReport("Đã khôi phục, số dòng thêm mới: " + JSON.stringify(data));
   }
@@ -158,7 +158,7 @@ export function Backup() {
         <p className="text-sm text-muted-foreground">Chỉ thêm các dòng còn thiếu, không xóa hay ghi đè dữ liệu hiện có. Từ chối nếu danh mục 42 Chi hội không khớp. Luôn chạy “Kiểm tra thử” trước.</p>
         <input type="file" accept="application/json" className="field" onChange={async (e) => {
           const f = e.target.files?.[0]; setReport(null);
-          if (!f) return setFile(null);
+          if (!f) { setFile(null); return; }
           try { setFile(JSON.parse(await f.text())); } catch { toast.error("Tệp không phải JSON hợp lệ."); setFile(null); }
         }} />
         <div className="flex flex-wrap gap-2">

@@ -59,6 +59,7 @@ export function Documents({ ctx }: { ctx: Ctx }) {
       await supabase.from("document_recipients").delete().eq("document_id", id!);
       if (form.scope === "selected" && form.recipients.length)
         return supabase.from("document_recipients").insert(form.recipients.map((c) => ({ document_id: id!, chapter_id: c })));
+      return undefined;
     }, "Đã lưu văn bản (trạng thái nháp nếu tạo mới).");
     if (ok) { setForm(null); setEditId(null); refresh(); }
   }

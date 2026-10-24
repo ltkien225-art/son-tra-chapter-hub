@@ -85,7 +85,7 @@ export function PushSettings({ ctx }: { ctx: Ctx }) {
   async function test(): Promise<unknown> {
     setBusy(true);
     const { error } = await supabase.rpc("enqueue_test_push");
-    if (error) { setBusy(false); return toast.error(viError(error)); }
+    if (error) { setBusy(false); { toast.error(viError(error)); return; } }
     try {
       const r = await flushPush();
       toast.success(`Đã gửi thử: ${r.deliveries} thiết bị nhận.`);
