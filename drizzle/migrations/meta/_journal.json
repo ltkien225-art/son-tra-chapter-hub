@@ -43,6 +43,13 @@
       "when": 1792880782329,
       "tag": "0005_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792881004227,
+      "tag": "0006_push_deeplinks_and_chapter_updates",
+      "breakpoints": true
     }
   ]
 }
