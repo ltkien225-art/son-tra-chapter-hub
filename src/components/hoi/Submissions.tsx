@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { KIND_LABEL, downloadCsv, fmtDateTime, thisPeriod } from "@/lib/hoi";
-import { Attachments } from "./Attachments";
+import { Attachments, FilePicker } from "./Attachments";
 import { ChapterName, Empty, Pager, Section, useAction, type Ctx } from "./common";
 
 type Row = { id: string; chapter_id: string; kind: string; title: string; body: string | null; period: string | null; status: string; created_by: string; created_at: string; total: number };
@@ -17,6 +17,8 @@ export function Submissions({ ctx }: { ctx: Ctx }) {
   const [f, setF] = useState({ chapter: "", kind: "", status: "" });
   const [form, setForm] = useState({ kind: "report", title: "", body: "", period: thisPeriod() });
   const [open, setOpen] = useState<string | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
+  const [autoFor, setAutoFor] = useState<{ id: string; files: File[] } | null>(null);
   const chapter = office ? f.chapter || null : ctx.chapterId;
 
   const { data: rows = [] } = useQuery({
@@ -34,10 +36,17 @@ export function Submissions({ ctx }: { ctx: Ctx }) {
 
   async function submit() {
     if (!ctx.chapterId) return;
-    const ok = await run(() => supabase.from("submissions").insert({
-      chapter_id: ctx.chapterId!, kind: form.kind, title: form.title.trim(), body: form.body, period: form.period || null, created_by: "",
-    }), "Đã gửi lên Văn phòng Hội. Bạn có thể đính kèm minh chứng trong lịch sử gửi.");
-    if (ok) { setForm({ ...form, title: "", body: "" }); setPage(0); refresh(); }
+    let id = "";
+    const ok = await run(async () => {
+      const r = await supabase.from("submissions").insert({
+        chapter_id: ctx.chapterId!, kind: form.kind, title: form.title.trim(), body: form.body, period: form.period || null, created_by: "",
+      }).select("id").single();
+      if (!r.error) id = r.data.id;
+      return r;
+    }, files.length ? "Đã gửi. Đang tải tệp đính kèm…" : "Đã gửi lên Văn phòng Hội.");
+    if (!ok) return; // keep what was typed
+    if (files.length) { setAutoFor({ id, files }); setOpen(id); }
+    setFiles([]); setForm({ ...form, title: "", body: "" }); setPage(0); refresh();
   }
 
   async function exportCsv() {
@@ -57,7 +66,7 @@ export function Submissions({ ctx }: { ctx: Ctx }) {
   return (
     <Section title={office ? "Tổng hợp báo cáo, hoạt động, phản ánh" : "Gửi báo cáo & lịch sử"}
       action={office && <Button size="xl" variant="soft" onClick={exportCsv}>Xuất CSV (không kèm nội dung)</Button>}>
-      {!office && ctx.chapterId && (
+      {!office && !ctx.officeView && ctx.chapterId && (
         <div className="panel space-y-4 p-5">
           <div className="grid gap-4 sm:grid-cols-2">
             <div><label className="label">Loại</label>
@@ -68,7 +77,8 @@ export function Submissions({ ctx }: { ctx: Ctx }) {
           <div><label className="label">Tiêu đề *</label><input className="field" maxLength={180} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
           <div><label className="label">Nội dung</label><textarea className="field" maxLength={10000} value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })}
             placeholder="Không ghi họ tên, số điện thoại, địa chỉ của phụ nữ/trẻ em cần hỗ trợ. Hồ sơ nhạy cảm dùng mục riêng." /></div>
-          <Button size="xl" className="w-full sm:w-auto" disabled={busy || !form.title.trim()} onClick={submit}>Gửi lên Văn phòng</Button>
+          <FilePicker files={files} onChange={setFiles} />
+          <Button size="xl" className="w-full sm:w-auto" disabled={busy || !form.title.trim()} onClick={submit}>{files.length ? `Gửi lên Văn phòng & ${files.length} tệp` : "Gửi lên Văn phòng"}</Button>
         </div>
       )}
 
@@ -103,7 +113,7 @@ export function Submissions({ ctx }: { ctx: Ctx }) {
                     {r.body === null ? <p className="text-sm italic text-muted-foreground">Nội dung đã được Chi hội thu hồi.</p>
                       : <p className="whitespace-pre-wrap text-sm">{r.body || "—"}</p>}
                     <p className="text-xs text-muted-foreground">Người gửi: {r.created_by}</p>
-                    {(r.status === "submitted" || mine) && <Attachments ownerType="submission" ownerId={r.id} canUpload={mine && r.status === "submitted"} />}
+                    {(r.status === "submitted" || mine) && <Attachments ownerType="submission" ownerId={r.id} canUpload={mine && r.status === "submitted"} autoFiles={autoFor?.id === r.id ? autoFor.files : undefined} title="Tệp/minh chứng đính kèm" />}
                     {(r.status === "submitted" || mine) && <Feedback submissionId={r.id} canReply={office && r.status === "submitted"} />}
                     {(mine || ctx.access.admin) && r.status === "submitted" && (
                       <Button variant="destructive" size="xl" disabled={busy}
