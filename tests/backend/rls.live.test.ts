@@ -165,7 +165,12 @@ async function main() {
   check("T12 revoke A", !(await A.rpc("revoke_user_access", { _email: mail("a") })).error);
   check("T12 revoked: 0 chapters", ((await ca.from("chapters").select("id")).data?.length ?? -1) === 0);
   check("T12 revoked: loses own reports", ((await ca.from("submissions").select("id")).data?.length ?? -1) === 0);
-  check("T12 revoked: cannot download", !!(await ca.storage.from("evidence").download(path)).error);
+  const rs = await ca.storage.from("evidence").createSignedUrl(path, 60);
+  check("T12 revoked: cannot create file link", !!rs.error || !rs.data?.signedUrl);
+  const dl = await ca.storage.from("evidence").download(path);
+  check("T12 revoked: cannot download", !!dl.error, dl.error ? "" : "download still succeeded");
+  const info = await ca.storage.from("evidence").list(`submission/${s2.data!.id}`);
+  check("T12 revoked: cannot list files", (info.data?.length ?? 0) === 0);
   check("T12 revoked: write rejected", !!(await ca.from("submissions").insert({ chapter_id: "ch01", kind: "report", title: tag, created_by: "" })).error);
   check("T12 bootstrap admin not revocable", !!(await A.rpc("revoke_user_access", { _email: "ubmttqvnphuongsontra@gmail.com" })).error);
 
