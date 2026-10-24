@@ -90,11 +90,11 @@ function PickButton({ label, onFiles, disabled }: { label: string; onFiles: (f: 
   );
 }
 
-type QItem = { key: string; file: File; status: "waiting" | "uploading" | "done" | "error"; error?: string };
+type QItem = { key: string; file: File; status: "waiting" | "uploading" | "done" | "error"; error?: string | undefined };
 
 /** Private files of one record: list, multi-upload queue with retry, in-app viewer and download through 60-second signed links issued only after the backend permission check. */
 export function Attachments({ ownerType, ownerId, canUpload, autoFiles, title = "Tệp đính kèm" }: {
-  ownerType: OwnerType; ownerId: string; canUpload: boolean; autoFiles?: File[]; title?: string;
+  ownerType: OwnerType; ownerId: string; canUpload: boolean; autoFiles?: File[] | undefined; title?: string;
 }) {
   const qc = useQueryClient();
   const key = ["attachments", ownerType, ownerId];
