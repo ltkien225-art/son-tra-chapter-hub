@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { flushPush } from "@/lib/push.functions";
 import { viError, type Access, type Chapter } from "@/lib/hoi";
 
 export type Ctx = { access: Access; chapters: Chapter[]; chapterId: string | null };
@@ -37,12 +38,14 @@ export function Pager({ page, total, size, onPage }: { page: number; total: numb
 /** Runs an async action with toast feedback; returns true on success. */
 export function useAction() {
   const [busy, setBusy] = useState(false);
-  async function run(fn: () => Promise<{ error: unknown } | void>, ok?: string) {
+  async function run(fn: () => PromiseLike<{ error: unknown } | void | undefined>, ok?: string) {
+    if (busy) return false;
     setBusy(true);
     try {
       const r = await fn();
       if (r && r.error) throw r.error;
       if (ok) toast.success(ok);
+      flushPush().catch(() => {}); // deliver any notifications this change produced
       return true;
     } catch (e) {
       toast.error(viError(e));

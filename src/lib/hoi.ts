@@ -35,8 +35,8 @@ export const ERROR_VI: Record<string, string> = {
 
 export function viError(e: unknown): string {
   const msg = (e as { message?: string })?.message ?? String(e);
-  for (const k of Object.keys(ERROR_VI)) if (msg.includes(k)) return ERROR_VI[k];
-  if (/row-level security|permission denied/i.test(msg)) return ERROR_VI.forbidden;
+  for (const [k, v] of Object.entries(ERROR_VI)) if (msg.includes(k)) return v;
+  if (/row-level security|permission denied/i.test(msg)) return ERROR_VI["forbidden"] ?? "";
   return "Có lỗi xảy ra: " + msg;
 }
 
@@ -71,8 +71,8 @@ export function downloadJson(name: string, data: unknown) {
   URL.revokeObjectURL(a.href);
 }
 
-export function downloadCsv(name: string, rows: (string | number | null)[][]) {
-  const esc = (v: string | number | null) => {
+export function downloadCsv(name: string, rows: (string | number | null | undefined)[][]) {
+  const esc = (v: string | number | null | undefined) => {
     const s = v == null ? "" : String(v);
     // neutralise spreadsheet formulas
     const safe = /^[=+\-@]/.test(s) ? "'" + s : s;

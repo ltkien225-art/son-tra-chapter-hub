@@ -24,8 +24,8 @@ export function Attachments({ ownerType, ownerId, canUpload }: { ownerType: Owne
   const [preview, setPreview] = useState<{ url: string; mime: string; name: string } | null>(null);
 
   async function upload(file: File) {
-    if (!ALLOWED_MIME.includes(file.type)) return toast.error("Chỉ nhận PDF hoặc ảnh (JPG, PNG, WEBP, HEIC).");
-    if (file.size > MAX_FILE) return toast.error("Tệp vượt quá 10 MB.");
+    if (!ALLOWED_MIME.includes(file.type)) { toast.error("Chỉ nhận PDF hoặc ảnh (JPG, PNG, WEBP, HEIC)."); return; }
+    if (file.size > MAX_FILE) { toast.error("Tệp vượt quá 10 MB."); return; }
     setBusy(true);
     const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
     const path = `${ownerType}/${ownerId}/${crypto.randomUUID()}.${ext}`;
@@ -47,7 +47,7 @@ export function Attachments({ ownerType, ownerId, canUpload }: { ownerType: Owne
 
   async function view(a: { path: string; mime: string; filename: string }) {
     const { data, error } = await supabase.storage.from("evidence").createSignedUrl(a.path, 60);
-    if (error || !data) return toast.error("Bạn không có quyền xem tệp này.");
+    if (error || !data) { toast.error("Bạn không có quyền xem tệp này."); return; }
     setPreview({ url: data.signedUrl, mime: a.mime, name: a.filename });
   }
 

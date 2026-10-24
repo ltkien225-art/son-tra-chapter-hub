@@ -7,6 +7,8 @@ export function Guide({ office }: { office: boolean }) {
         ["Văn bản", "Tạo văn bản (lưu nháp) → kiểm tra → “Phát hành” cho tất cả hoặc Chi hội được chọn. “Thu hồi” làm Chi hội không còn đọc được nội dung. “Lưu trữ” để gọn danh sách, có thể khôi phục."],
         ["Nhiệm vụ", "Giao nhiệm vụ, đặt hạn, chọn Chi hội. Theo dõi tiến độ từng Chi hội; mục quá hạn tô đỏ. Lưu trữ khi xong."],
         ["Tổng hợp", "Xem báo cáo/hoạt động/phản ánh của 42 Chi hội, lọc theo Chi hội, loại, trạng thái; xuất CSV chỉ gồm thông tin chung, không kèm nội dung."],
+        ["Minh chứng PDF/ảnh", "Khi sửa văn bản có thể đính kèm PDF/ảnh. Bấm “Xem” để mở ngay trong ứng dụng; liên kết xem chỉ sống 60 giây và chỉ người có quyền mới mở được."],
+        ["Hồ sơ bảo mật", "Chỉ người được tích “Quyền đặc biệt” mới thấy mục Hồ sơ bảo mật. Không đưa nội dung hồ sơ vào báo cáo thường, nhật ký hay bản xuất."],
         ["Sao lưu", "Quản trị tải tệp sao lưu định kỳ (ví dụ mỗi tuần), cất ở nơi an toàn. Khôi phục luôn chạy “Kiểm tra thử” trước."],
       ]
     : [
@@ -15,12 +17,26 @@ export function Guide({ office }: { office: boolean }) {
         ["Nhiệm vụ", "Mở nhiệm vụ, chọn trạng thái, kéo tiến độ, ghi chú rồi bấm “Cập nhật”."],
         ["Gửi báo cáo", "Chọn loại (báo cáo, hoạt động, tình hình, phản ánh), nhập tiêu đề, nội dung, bấm Gửi. Sau đó mở mục vừa gửi để đính kèm PDF/ảnh. Gửi nhầm thì bấm “Thu hồi”."],
         ["Hội viên", "Mỗi kỳ nhập tổng hội viên, số kết nạp mới, số giảm. Không nhập số hộ vào ô hội viên."],
+        ["Lịch sử & thu hồi", "Mục Gửi báo cáo liệt kê tất cả những gì Chi hội đã gửi. Thu hồi xong, Văn phòng chỉ thấy tiêu đề và trạng thái “Đã thu hồi”, không đọc được nội dung và tệp."],
       ];
+  const common: [string, string][] = [
+    ["Cài lên điện thoại — Android", "Mở trang bằng Chrome → bấm ⋮ → “Thêm vào màn hình chính” (hoặc “Cài đặt ứng dụng”). Biểu tượng hoa sen sẽ xuất hiện."],
+    ["Cài lên điện thoại — iPhone", "Mở bằng Safari → nút Chia sẻ → “Thêm vào MH chính”. Cần iOS 16.4 trở lên để nhận thông báo; luôn mở ứng dụng từ biểu tượng hoa sen."],
+    ["Bật thông báo", "Vào mục “Thông báo” → “Bật thông báo trên thiết bị này” → cho phép. Bấm “Gửi thử” để kiểm tra. Mỗi người có thể bật trên nhiều máy; muốn dừng bấm “Tắt”."],
+    ["Đồng bộ", "Văn phòng và Chi hội dùng chung một nguồn dữ liệu. Ứng dụng tự làm mới mỗi phút, khi quay lại ứng dụng hoặc khi có mạng lại. Thông báo chỉ để nhắc, không thay thế dữ liệu."],
+    ["Xử lý lỗi thường gặp", "Không nhận được mã: xem thư Rác/Spam, chờ 1 phút rồi gửi lại. “Chưa được cấp quyền”: gửi yêu cầu và báo Văn phòng. Không có thông báo: kiểm tra đã cho phép thông báo, iPhone phải mở từ màn hình chính. Lỗi khi gửi: kiểm tra mạng rồi bấm lại (hệ thống chống gửi trùng)."],
+  ];
   return (
     <Section title="Hướng dẫn sử dụng">
       <div className="grid gap-3 md:grid-cols-2">
         {items.map(([t, d], i) => (
           <div key={t} className="panel p-5"><p className="text-sm font-bold text-primary">Bước {i + 1} · {t}</p><p className="mt-1 text-sm">{d}</p></div>
+        ))}
+      </div>
+      <h3 className="font-bold text-primary">Cài đặt, thông báo và xử lý lỗi</h3>
+      <div className="grid gap-3 md:grid-cols-2">
+        {common.map(([t, d]) => (
+          <div key={t} className="panel p-5"><p className="text-sm font-bold text-primary">{t}</p><p className="mt-1 text-sm">{d}</p></div>
         ))}
       </div>
       <div className="panel p-5 text-sm">
