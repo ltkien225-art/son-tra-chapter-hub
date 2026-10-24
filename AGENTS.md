@@ -8,3 +8,12 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+## Project rules (Hội LHPN Sơn Trà)
+- All permissions live in backend RLS + SECURITY DEFINER helpers (`can_chapter`, `is_office`, `has_sensitive`) re-read on every request; never gate data only in the UI — revocation must apply even with a valid JWT.
+- Actor columns (`created_by`, `updated_by`) are stamped by trigger; audit rows are written by trigger in the same transaction and store ids only (no body/PII).
+- Withdrawn submissions/documents are hidden from recipients at the row level; office lists use `list_submissions` which nulls withdrawn bodies.
+- Private files: bucket `evidence`, path `<owner_type>/<owner_id>/<uuid>.<ext>`; always open via 60-second signed URLs (direct downloads may be cached by the storage proxy after revocation).
+- Push: DB triggers enqueue generic, PII-free rows into `notification_outbox`; `src/lib/push-processor.ts` (pure, unit-tested) delivers via `push.server.ts`; recipients are re-checked at send time. The service worker `public/push-sw.js` must never cache app data.
+- Backend acceptance tests: `bun tests/backend/rls.live.test.ts` (real auth, cleans only its own run's rows); unit tests: `bunx vitest run`.
+- `reference/hoi-source-2d45022/` is the read-only original Cloudflare source; do not edit or deploy it.
