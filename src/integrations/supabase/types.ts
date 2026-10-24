@@ -447,6 +447,38 @@ export type Database = {
           },
         ]
       }
+      submission_feedback: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string
+          id: string
+          submission_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          submission_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          submission_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submission_feedback_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       submissions: {
         Row: {
           body: string
@@ -674,6 +706,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      submission_visible: { Args: { _id: string }; Returns: boolean }
       task_assigned_to_me: { Args: { _task: string }; Returns: boolean }
       task_is_active: { Args: { _task: string }; Returns: boolean }
       update_assignment: {
