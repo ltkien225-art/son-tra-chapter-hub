@@ -1,0 +1,22 @@
+name = "hoi-phu-nu-son-tra-office"
+main = "src/worker.js"
+compatibility_date = "2026-10-23"
+workers_dev = true
+preview_urls = false
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+run_worker_first = true
+
+# Configure only after creating a dedicated D1 database:
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "hoi-phu-nu-son-tra-office"
+# database_id = "<NEW_D1_DATABASE_ID>"
+
+# Configure only after creating a dedicated R2 bucket:
+# [[r2_buckets]]
+# binding = "ATTACHMENTS"
+# bucket_name = "hoi-phu-nu-son-tra-attachments"
+
