@@ -67,6 +67,6 @@ describe("push outbox (simulated 84 devices)", () => {
   it("payload carries no record content", async () => {
     const w = world();
     await processOutbox(w.deps);
-    expect(Object.keys(w.sent[0].payload as object).sort()).toEqual(["body", "tag", "title", "url"]);
+    expect(Object.keys(w.sent[0]!.payload as object).sort()).toEqual(["body", "tag", "title", "url"]);
   });
 });

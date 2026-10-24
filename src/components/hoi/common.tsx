@@ -38,7 +38,7 @@ export function Pager({ page, total, size, onPage }: { page: number; total: numb
 /** Runs an async action with toast feedback; returns true on success. */
 export function useAction() {
   const [busy, setBusy] = useState(false);
-  async function run(fn: () => Promise<{ error: unknown } | void>, ok?: string) {
+  async function run(fn: () => PromiseLike<{ error: unknown } | void | undefined>, ok?: string) {
     if (busy) return false;
     setBusy(true);
     try {

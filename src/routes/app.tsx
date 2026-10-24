@@ -74,7 +74,7 @@ function Workspace({ email, userId }: { email: string; userId: string }) {
         { id: "members", label: "Hội viên" }, ...(a.sensitive ? [{ id: "sens", label: "Hồ sơ bảo mật" }] : []),
         { id: "push", label: "Thông báo" }, { id: "guide", label: "Hướng dẫn" },
       ];
-  const current = tabs.some((t) => t.id === tab) ? tab : tabs[0].id;
+  const current = tabs.some((t) => t.id === tab) ? tab : (tabs[0]?.id ?? "guide");
   const chName = ctx.chapters.find((c) => c.id === chapterId)?.name;
 
   return (
