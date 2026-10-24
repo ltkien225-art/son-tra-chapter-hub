@@ -17,3 +17,5 @@
 - Push: DB triggers enqueue generic, PII-free rows into `notification_outbox`; `src/lib/push-processor.ts` (pure, unit-tested) delivers via `push.server.ts`; recipients are re-checked at send time. The service worker `public/push-sw.js` must never cache app data.
 - Backend acceptance tests: `bun tests/backend/rls.live.test.ts` (real auth, cleans only its own run's rows); unit tests: `bunx vitest run`.
 - `reference/hoi-source-2d45022/` is the read-only original Cloudflare source; do not edit or deploy it.
+- Attachments: every record type that carries files (submission, document, sensitive_case, task) goes through `Attachments`/`FilePicker`; the DB trigger `verify_attachment_object` requires the storage object to exist with matching size/MIME, and access is decided by `can_read_owner`/`can_write_owner` — why: no fake records, one permission path for upload/view/download.
+- Office "Mở Sổ" is a read-only UI mode (`ctx.officeView`) using the Office's own permissions — why: never impersonate a chapter account or write on its behalf (e.g. no false "đã đọc").

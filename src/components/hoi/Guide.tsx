@@ -7,15 +7,17 @@ export function Guide({ office }: { office: boolean }) {
         ["Văn bản", "Tạo văn bản (lưu nháp) → kiểm tra → “Phát hành” cho tất cả hoặc Chi hội được chọn. “Thu hồi” làm Chi hội không còn đọc được nội dung. “Lưu trữ” để gọn danh sách, có thể khôi phục."],
         ["Nhiệm vụ", "Giao nhiệm vụ, đặt hạn, chọn Chi hội. Theo dõi tiến độ từng Chi hội; mục quá hạn tô đỏ. Lưu trữ khi xong."],
         ["Tổng hợp", "Xem báo cáo/hoạt động/phản ánh của 42 Chi hội, lọc theo Chi hội, loại, trạng thái; xuất CSV chỉ gồm thông tin chung, không kèm nội dung. Mở một mục → nhập “Phản hồi” → Gửi phản hồi; Chi hội nhận thông báo."],
-        ["Minh chứng PDF/ảnh", "Khi sửa văn bản có thể đính kèm PDF/ảnh. Bấm “Xem” để mở ngay trong ứng dụng; liên kết xem chỉ sống 60 giây và chỉ người có quyền mới mở được."],
+        ["Đính kèm PDF/ảnh", "Trong form “Văn bản mới” hoặc “Giao nhiệm vụ”, bấm ô hồng “📎 Đính kèm PDF / ảnh / minh chứng” (chọn được nhiều tệp, mỗi tệp ≤ 10 MB) rồi bấm “Lưu & tải … tệp”. Mỗi tệp hiện trạng thái “đang tải / ✓ đã tải lên / lỗi”; lỗi thì bấm “Thử lại”, chữ đã nhập không mất. Muốn bổ sung sau: mở văn bản → “Sửa”, hoặc mở nhiệm vụ → “Sửa / đính kèm / đổi phân công”. Bấm “Xem” để xem PDF/ảnh (ảnh có “Phóng to”), “Tải về” để lưu."],
+        ["Mở Sổ Chi hội", "Ở “Tổng quan”, danh mục 42 Chi hội có nút “Mở Sổ …” cho từng Chi hội. Sổ mở ra đúng tên Chi hội, chỉ để xem (văn bản nhận, nhiệm vụ, báo cáo, hội viên). Bấm “← Về Văn phòng” ở góc trên để quay lại."],
+        ["Kết quả & minh chứng từ Chi hội", "Mở nhiệm vụ để xem “Kết quả đã gửi” kèm ảnh/PDF của từng Chi hội; mục “Báo cáo” có tệp đính kèm và ô “Phản hồi”. Mục Chi hội đã thu hồi thì không còn xem được nội dung và tệp."],
         ["Hồ sơ bảo mật", "Chỉ người được tích “Quyền đặc biệt” mới thấy mục Hồ sơ bảo mật. Không đưa nội dung hồ sơ vào báo cáo thường, nhật ký hay bản xuất."],
         ["Sao lưu", "Quản trị tải tệp sao lưu định kỳ (ví dụ mỗi tuần), cất ở nơi an toàn. Khôi phục luôn chạy “Kiểm tra thử” trước."],
       ]
     : [
         ["Đăng nhập", "Nhập email đã được Văn phòng duyệt, mở thư lấy mã và nhập vào. Không chia sẻ mã cho người khác."],
-        ["Văn bản nhận", "Bấm vào văn bản để đọc nội dung và tệp đính kèm."],
-        ["Nhiệm vụ", "Mở nhiệm vụ, chọn trạng thái, kéo tiến độ, ghi chú rồi bấm “Cập nhật”."],
-        ["Gửi báo cáo", "Chọn loại (báo cáo, hoạt động, tình hình, phản ánh), nhập tiêu đề, nội dung, bấm Gửi. Sau đó mở mục vừa gửi để đính kèm PDF/ảnh. Gửi nhầm thì bấm “Thu hồi”. Phản hồi của Văn phòng hiện ngay dưới mục đã gửi."],
+        ["Văn bản nhận", "Bấm vào văn bản để đọc nội dung. Tệp đính kèm có nút “Xem” (xem ngay trong ứng dụng, ảnh có “Phóng to”) và “Tải về”."],
+        ["Nhiệm vụ", "Mở nhiệm vụ: xem tệp hướng dẫn kèm theo; chọn trạng thái, kéo tiến độ, bấm “Cập nhật tiến độ”. Để nộp kết quả: ở ô “Gửi kết quả / minh chứng về Văn phòng” ghi tóm tắt, bấm “📎 Đính kèm…” (điện thoại có thêm “📷 Chụp ảnh”), rồi bấm “Gửi kết quả”."],
+        ["Gửi báo cáo", "Chọn loại (báo cáo, hoạt động, tình hình, phản ánh), nhập tiêu đề, nội dung, bấm ô “📎 Đính kèm PDF / ảnh / minh chứng” để chọn tệp, rồi bấm “Gửi lên Văn phòng & … tệp”. Tệp lỗi có nút “Thử lại”; muốn bổ sung thì mở mục đã gửi và đính kèm thêm. Gửi nhầm thì bấm “Thu hồi”. Phản hồi của Văn phòng hiện ngay dưới mục đã gửi."],
         ["Hội viên", "Mỗi kỳ nhập tổng hội viên, số kết nạp mới, số giảm. Không nhập số hộ vào ô hội viên."],
         ["Lịch sử & thu hồi", "Mục Gửi báo cáo liệt kê tất cả những gì Chi hội đã gửi. Thu hồi xong, Văn phòng chỉ thấy tiêu đề và trạng thái “Đã thu hồi”, không đọc được nội dung và tệp."],
       ];
