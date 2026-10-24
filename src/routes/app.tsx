@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useIsFetching, onlineManager } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,6 +45,10 @@ function Workspace({ email, userId }: { email: string; userId: string }) {
   const access = useQuery({ queryKey: ["access"], queryFn: fetchAccess, refetchInterval: 60_000 });
   const chapters = useQuery({ queryKey: ["chapters", access.data], queryFn: fetchChapters, enabled: !!access.data });
   const [tab, setTab] = useState("home");
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get("tab");
+    if (t && /^[a-z]+$/.test(t)) setTab(t);
+  }, []);
   const [chapterId, setChapterId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -104,6 +108,7 @@ function Workspace({ email, userId }: { email: string; userId: string }) {
           ))}
         </nav>
       </header>
+      <SyncBar />
       <main className="mx-auto max-w-6xl px-4 py-6">
         {current === "home" && <Dashboard ctx={ctx} go={setTab} />}
         {current === "docs" && <Documents ctx={ctx} />}
@@ -181,6 +186,38 @@ function NoAccess({ email, userId, onSignOut }: { email: string; userId: string;
       )}
       <Button variant="soft" size="xl" className="w-full" onClick={() => window.location.reload()}>Tải lại</Button>
       <Button variant="ghost" className="w-full" onClick={onSignOut}>Đăng xuất</Button>
+    </div>
+  );
+}
+
+function SyncBar() {
+  const qc = useQueryClient();
+  const fetching = useIsFetching();
+  const [online, setOnline] = useState(true);
+  const [last, setLast] = useState<Date | null>(null);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    setOnline(onlineManager.isOnline());
+    const un1 = onlineManager.subscribe((o) => setOnline(o));
+    const un2 = qc.getQueryCache().subscribe((e) => {
+      if (e.type !== "updated") return;
+      const st = e.query.state;
+      if (st.status === "error" && st.fetchStatus === "idle") setFailed(true);
+      if (st.status === "success" && st.fetchStatus === "idle") { setFailed(false); setLast(new Date(st.dataUpdatedAt)); }
+    });
+    return () => { un1(); un2(); };
+  }, [qc]);
+  const label = !online ? "Mất mạng — sẽ tự đồng bộ khi có mạng lại"
+    : fetching > 0 ? "Đang đồng bộ…"
+    : failed ? "Đồng bộ lỗi — bấm Làm mới để thử lại"
+    : last ? `Đã đồng bộ lúc ${last.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}` : "Đã kết nối";
+  const tone = !online || failed ? "bg-destructive/10 text-destructive" : "bg-secondary text-secondary-foreground";
+  return (
+    <div role="status" aria-live="polite" className={`${tone} px-4 py-2 text-sm`}>
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
+        <span>{label}</span>
+        <Button size="sm" variant="outline" disabled={!online || fetching > 0} onClick={() => qc.invalidateQueries()}>Làm mới</Button>
+      </div>
     </div>
   );
 }

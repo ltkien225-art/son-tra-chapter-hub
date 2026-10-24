@@ -21,10 +21,15 @@ export function Guide({ office }: { office: boolean }) {
       ];
   const common: [string, string][] = [
     ["Cài lên điện thoại — Android", "Mở trang bằng Chrome → bấm ⋮ → “Thêm vào màn hình chính” (hoặc “Cài đặt ứng dụng”). Biểu tượng hoa sen sẽ xuất hiện."],
-    ["Cài lên điện thoại — iPhone", "Mở bằng Safari → nút Chia sẻ → “Thêm vào MH chính”. Cần iOS 16.4 trở lên để nhận thông báo; luôn mở ứng dụng từ biểu tượng hoa sen."],
-    ["Bật thông báo", "Vào mục “Thông báo” → “Bật thông báo trên thiết bị này” → cho phép. Bấm “Gửi thử” để kiểm tra. Mỗi người có thể bật trên nhiều máy; muốn dừng bấm “Tắt”."],
-    ["Đồng bộ", "Văn phòng và Chi hội dùng chung một nguồn dữ liệu. Ứng dụng tự làm mới mỗi phút, khi quay lại ứng dụng hoặc khi có mạng lại. Thông báo chỉ để nhắc, không thay thế dữ liệu."],
-    ["Xử lý lỗi thường gặp", "Không nhận được mã: xem thư Rác/Spam, chờ 1 phút rồi gửi lại. “Chưa được cấp quyền”: gửi yêu cầu và báo Văn phòng. Không có thông báo: kiểm tra đã cho phép thông báo, iPhone phải mở từ màn hình chính. Lỗi khi gửi: kiểm tra mạng rồi bấm lại (hệ thống chống gửi trùng)."],
+    ["Cài lên điện thoại — iPhone", "Mở bằng Safari → nút Chia sẻ → “Thêm vào MH chính”. Cần iOS 16.4 trở lên để nhận thông báo; luôn mở ứng dụng từ biểu tượng hoa sen, rồi mới bật thông báo."],
+    ["Máy tính (Chrome/Edge)", "Mở trang, đăng nhập, vào “Thông báo” → bật. Trình duyệt phải đang chạy (có thể thu nhỏ) mới nhận được."],
+    ["Bật thông báo", "Ứng dụng chỉ xin quyền khi bạn bấm “Bật thông báo trên thiết bị này”. Bấm “Gửi thử” để kiểm tra. Mỗi người bật được trên nhiều máy; muốn dừng bấm “Tắt”. Khi bị thu hồi quyền, máy sẽ không nhận thông báo nữa."],
+    ["Thông báo nhận được", office
+      ? "Văn phòng nhận khi: Chi hội gửi báo cáo/phản ánh mới, thu hồi một mục, cập nhật tiến độ hoặc hoàn thành nhiệm vụ."
+      : "Chi hội nhận khi: có văn bản mới hoặc bị thu hồi, được giao nhiệm vụ, nhiệm vụ đổi hạn/thu hồi, nhiệm vụ sắp đến hạn hoặc quá hạn."],
+    ["Bấm vào thông báo", "Thông báo chỉ ghi chung (không có tên người, nội dung hồ sơ). Bấm vào sẽ mở đúng mục; ứng dụng kiểm tra lại quyền rồi mới hiện dữ liệu."],
+    ["Đồng bộ", "Văn phòng và Chi hội dùng chung một nguồn dữ liệu, không cần nhập lại. Thanh trạng thái dưới tiêu đề cho biết “Đã đồng bộ lúc…”, “Đang đồng bộ”, “Mất mạng” hoặc “Đồng bộ lỗi”. Ứng dụng tự làm mới mỗi phút, khi quay lại ứng dụng và khi có mạng lại; bấm “Làm mới” để cập nhật ngay. Thông báo chỉ để nhắc, không thay thế dữ liệu."],
+    ["Xử lý lỗi thường gặp", "Không nhận được mã: xem thư Rác/Spam, chờ 1 phút rồi gửi lại. “Chưa được cấp quyền”: gửi yêu cầu và báo Văn phòng. Không có thông báo: kiểm tra đã cho phép thông báo trong cài đặt máy, iPhone phải mở từ màn hình chính; bấm “Gửi thử”. Lỗi khi gửi: kiểm tra mạng rồi bấm lại — hệ thống chống gửi trùng."],
   ];
   return (
     <Section title="Hướng dẫn sử dụng">

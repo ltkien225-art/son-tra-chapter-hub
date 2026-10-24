@@ -13,17 +13,18 @@ self.addEventListener("push", (event) => {
       icon: "/icon-192.png",
       badge: "/icon-192.png",
       tag: typeof data.tag === "string" ? data.tag : "hoi",
-      data: { url: "/app" },
+      data: { url: typeof data.url === "string" && /^\/app(\?tab=[a-z]+)?$/.test(data.url) ? data.url : "/app" },
     }),
   );
 });
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
+  const target = (event.notification.data && event.notification.data.url) || "/app";
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
-      for (const c of list) if (new URL(c.url).origin === self.location.origin) { c.navigate("/app"); return c.focus(); }
-      return self.clients.openWindow("/app");
+      for (const c of list) if (new URL(c.url).origin === self.location.origin) { c.navigate(target); return c.focus(); }
+      return self.clients.openWindow(target);
     }),
   );
 });

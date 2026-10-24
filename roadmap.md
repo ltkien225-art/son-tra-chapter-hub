@@ -5,6 +5,9 @@
 - [x] Giao diện Văn phòng + Sổ Chi hội, đăng nhập mã email, yêu cầu cấp quyền
 - [x] Đồng bộ: tự làm mới mỗi phút / khi quay lại / có mạng lại; chống bấm gửi trùng
 - [x] Web Push: đăng ký nhiều thiết bị, outbox chống trùng, kiểm quyền lúc gửi, retry, nhắc hạn hằng ngày, không PII (mô phỏng 84 thiết bị đạt)
+- [x] Đồng bộ 2 chiều: thanh trạng thái đồng bộ/mất mạng/lỗi + nút Làm mới
+- [x] Push Chi hội→Văn phòng: cập nhật tiến độ, hoàn thành, thu hồi báo cáo; bấm thông báo mở đúng mục
+- [ ] Push trên iPhone/Android/máy tính THẬT — chờ: cán bộ bật thông báo trên thiết bị và bấm Gửi thử (bắt buộc để nghiệm thu)
 - [x] Manifest + biểu tượng + hướng dẫn iPhone/Android
 - [ ] Đối chiếu HUONG-DAN-SU-DUNG.md (commit f4734f8) — chờ: kho GitHub riêng tư, cần người dùng tải tệp lên
 - [ ] Kiểm thử giao diện khi đã đăng nhập + Push trên máy thật — chờ: tài khoản quản trị đăng nhập lần đầu trên preview/điện thoại
