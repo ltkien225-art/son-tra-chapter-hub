@@ -14,13 +14,569 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      access_requests: {
+        Row: {
+          created_at: string
+          email: string
+          message: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          message?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          message?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      app_users: {
+        Row: {
+          active: boolean
+          email: string
+          note: string
+          office_role: string | null
+          sensitive_access: boolean
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          email: string
+          note?: string
+          office_role?: string | null
+          sensitive_access?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          email?: string
+          note?: string
+          office_role?: string | null
+          sensitive_access?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      attachments: {
+        Row: {
+          created_at: string
+          created_by: string
+          filename: string
+          id: string
+          mime: string
+          owner_id: string
+          owner_type: string
+          path: string
+          size_bytes: number
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          filename: string
+          id?: string
+          mime: string
+          owner_id: string
+          owner_type: string
+          path: string
+          size_bytes: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          filename?: string
+          id?: string
+          mime?: string
+          owner_id?: string
+          owner_type?: string
+          path?: string
+          size_bytes?: number
+        }
+        Relationships: []
+      }
+      audit_log: {
+        Row: {
+          action: string
+          actor: string
+          at: string
+          chapter_id: string | null
+          id: number
+          resource_id: string
+          resource_type: string
+        }
+        Insert: {
+          action: string
+          actor: string
+          at?: string
+          chapter_id?: string | null
+          id?: number
+          resource_id: string
+          resource_type: string
+        }
+        Update: {
+          action?: string
+          actor?: string
+          at?: string
+          chapter_id?: string | null
+          id?: number
+          resource_id?: string
+          resource_type?: string
+        }
+        Relationships: []
+      }
+      chapter_access: {
+        Row: {
+          chapter_id: string
+          email: string
+        }
+        Insert: {
+          chapter_id: string
+          email: string
+        }
+        Update: {
+          chapter_id?: string
+          email?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chapter_access_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chapter_access_email_fkey"
+            columns: ["email"]
+            isOneToOne: false
+            referencedRelation: "app_users"
+            referencedColumns: ["email"]
+          },
+        ]
+      }
+      chapters: {
+        Row: {
+          created_at: string
+          households: number | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          households?: number | null
+          id: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          households?: number | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      document_recipients: {
+        Row: {
+          chapter_id: string
+          document_id: string
+          read_at: string | null
+        }
+        Insert: {
+          chapter_id: string
+          document_id: string
+          read_at?: string | null
+        }
+        Update: {
+          chapter_id?: string
+          document_id?: string
+          read_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_recipients_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_recipients_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          archived: boolean
+          body: string
+          code: string
+          created_at: string
+          created_by: string
+          direction: string
+          doc_date: string | null
+          id: string
+          is_test: boolean
+          issuer: string
+          scope: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          archived?: boolean
+          body?: string
+          code?: string
+          created_at?: string
+          created_by: string
+          direction: string
+          doc_date?: string | null
+          id?: string
+          is_test?: boolean
+          issuer?: string
+          scope?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          archived?: boolean
+          body?: string
+          code?: string
+          created_at?: string
+          created_by?: string
+          direction?: string
+          doc_date?: string | null
+          id?: string
+          is_test?: boolean
+          issuer?: string
+          scope?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      member_counts: {
+        Row: {
+          chapter_id: string
+          members_left: number
+          members_new: number
+          members_total: number
+          period: string
+          updated_at: string
+          updated_by: string
+        }
+        Insert: {
+          chapter_id: string
+          members_left?: number
+          members_new?: number
+          members_total: number
+          period: string
+          updated_at?: string
+          updated_by?: string
+        }
+        Update: {
+          chapter_id?: string
+          members_left?: number
+          members_new?: number
+          members_total?: number
+          period?: string
+          updated_at?: string
+          updated_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_counts_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sensitive_cases: {
+        Row: {
+          category: string
+          chapter_id: string
+          created_at: string
+          created_by: string
+          details: string
+          id: string
+          status: string
+          summary: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          chapter_id: string
+          created_at?: string
+          created_by: string
+          details?: string
+          id?: string
+          status?: string
+          summary: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          chapter_id?: string
+          created_at?: string
+          created_by?: string
+          details?: string
+          id?: string
+          status?: string
+          summary?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sensitive_cases_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      submissions: {
+        Row: {
+          body: string
+          chapter_id: string
+          created_at: string
+          created_by: string
+          id: string
+          is_test: boolean
+          kind: string
+          period: string | null
+          status: string
+          task_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string
+          chapter_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          is_test?: boolean
+          kind: string
+          period?: string | null
+          status?: string
+          task_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          chapter_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_test?: boolean
+          kind?: string
+          period?: string | null
+          status?: string
+          task_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submissions_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "submissions_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_assignments: {
+        Row: {
+          chapter_id: string
+          note: string
+          progress: number
+          status: string
+          task_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          chapter_id: string
+          note?: string
+          progress?: number
+          status?: string
+          task_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          chapter_id?: string
+          note?: string
+          progress?: number
+          status?: string
+          task_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_assignments_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_assignments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string
+          due_at: string | null
+          id: string
+          is_test: boolean
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string
+          due_at?: string | null
+          id?: string
+          is_test?: boolean
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string
+          due_at?: string | null
+          id?: string
+          is_test?: boolean
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_chapter: { Args: { _ch: string }; Returns: boolean }
+      can_read_owner: { Args: { _id: string; _type: string }; Returns: boolean }
+      can_write_owner: {
+        Args: { _id: string; _type: string }
+        Returns: boolean
+      }
+      current_email: { Args: never; Returns: string }
+      export_backup: { Args: never; Returns: Json }
+      has_any_chapter: { Args: never; Returns: boolean }
+      has_sensitive: { Args: never; Returns: boolean }
+      is_admin: { Args: never; Returns: boolean }
+      is_office: { Args: never; Returns: boolean }
+      list_submissions: {
+        Args: {
+          _chapter?: string
+          _kind?: string
+          _limit?: number
+          _offset?: number
+          _status?: string
+        }
+        Returns: {
+          body: string
+          chapter_id: string
+          created_at: string
+          created_by: string
+          id: string
+          kind: string
+          period: string
+          status: string
+          title: string
+          total: number
+          updated_at: string
+        }[]
+      }
+      mark_document_read: {
+        Args: { _chapter: string; _doc: string }
+        Returns: undefined
+      }
+      my_access: { Args: never; Returns: Json }
+      office_summary: {
+        Args: { _period?: string }
+        Returns: {
+          chapter_id: string
+          households: number
+          members_left: number
+          members_new: number
+          members_total: number
+          name: string
+          open_tasks: number
+          overdue_tasks: number
+          period: string
+          submissions_count: number
+        }[]
+      }
+      restore_backup: { Args: { _b: Json; _dry_run?: boolean }; Returns: Json }
+      revoke_user_access: { Args: { _email: string }; Returns: undefined }
+      set_user_access: {
+        Args: {
+          _chapters: string[]
+          _email: string
+          _note?: string
+          _office_role: string
+          _sensitive: boolean
+        }
+        Returns: undefined
+      }
+      update_assignment: {
+        Args: {
+          _chapter: string
+          _note: string
+          _progress: number
+          _status: string
+          _task: string
+        }
+        Returns: undefined
+      }
+      withdraw_submission: { Args: { _id: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
