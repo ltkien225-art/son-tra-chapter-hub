@@ -1,0 +1,15 @@
+{
+  "name": "Hội LHPN phường Sơn Trà",
+  "short_name": "Hội PN Sơn Trà",
+  "description": "Văn phòng Hội và Sổ 42 Chi hội",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fff8fb",
+  "theme_color": "#8e286c",
+  "lang": "vi",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
