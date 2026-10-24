@@ -507,6 +507,7 @@ export type Database = {
         Returns: boolean
       }
       current_email: { Args: never; Returns: string }
+      doc_addressed_to_me: { Args: { _doc: string }; Returns: boolean }
       export_backup: { Args: never; Returns: Json }
       has_any_chapter: { Args: never; Returns: boolean }
       has_sensitive: { Args: never; Returns: boolean }
@@ -566,6 +567,8 @@ export type Database = {
         }
         Returns: undefined
       }
+      task_assigned_to_me: { Args: { _task: string }; Returns: boolean }
+      task_is_active: { Args: { _task: string }; Returns: boolean }
       update_assignment: {
         Args: {
           _chapter: string
