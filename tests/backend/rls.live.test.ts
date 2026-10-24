@@ -221,10 +221,12 @@ async function main() {
   check("T11r office sees result for task", ((await A.from("submissions").select("id").eq("task_id", t2.data!.id)).data?.length ?? 0) === 1);
   check("T11r office downloads result evidence", !(await A.storage.from("evidence").download(rp)).error);
   await ca.rpc("withdraw_submission", { _id: r1.data!.id });
-  check("T11r after withdraw office cannot download", !!(await A.storage.from("evidence").download(rp)).error);
+  { const x = await A.storage.from("evidence").createSignedUrl(rp, 60); check("T11r after withdraw office cannot open (signed link refused)", !!x.error || !x.data?.signedUrl); }
+  check("T11r after withdraw office cannot list record", ((await A.from("attachments").select("id").eq("owner_id", r1.data!.id)).data?.length ?? 0) === 0);
   check("T11r after withdraw author cannot add files", !!(await ca.storage.from("evidence").upload(`submission/${r1.data!.id}/y.pdf`, pdf, { contentType: "application/pdf" })).error);
   await A.from("tasks").update({ status: "withdrawn" }).eq("id", t2.data!.id);
-  check("T11t withdrawn task: chapter cannot download", !!(await ca.storage.from("evidence").download(tp)).error);
+  { const x = await ca.storage.from("evidence").createSignedUrl(tp, 60); check("T11t withdrawn task: chapter cannot open (signed link refused)", !!x.error || !x.data?.signedUrl); }
+  check("T11t withdrawn task: chapter cannot list file", ((await ca.from("attachments").select("id").eq("owner_id", t2.data!.id)).data?.length ?? 0) === 0);
 
   // Revoke (JWT still valid)
   check("T12 revoke A", !(await A.rpc("revoke_user_access", { _email: mail("a") })).error);
