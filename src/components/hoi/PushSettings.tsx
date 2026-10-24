@@ -82,7 +82,7 @@ export function PushSettings({ ctx }: { ctx: Ctx }) {
     refresh();
   }
 
-  async function test() {
+  async function test(): Promise<unknown> {
     setBusy(true);
     const { error } = await supabase.rpc("enqueue_test_push");
     if (error) { setBusy(false); return toast.error(viError(error)); }
