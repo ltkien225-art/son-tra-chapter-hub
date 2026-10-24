@@ -104,6 +104,7 @@ export function Submissions({ ctx }: { ctx: Ctx }) {
                       : <p className="whitespace-pre-wrap text-sm">{r.body || "—"}</p>}
                     <p className="text-xs text-muted-foreground">Người gửi: {r.created_by}</p>
                     {(r.status === "submitted" || mine) && <Attachments ownerType="submission" ownerId={r.id} canUpload={mine && r.status === "submitted"} />}
+                    {(r.status === "submitted" || mine) && <Feedback submissionId={r.id} canReply={office && r.status === "submitted"} />}
                     {(mine || ctx.access.admin) && r.status === "submitted" && (
                       <Button variant="destructive" size="xl" disabled={busy}
                         onClick={() => confirm("Thu hồi mục này? Văn phòng sẽ không còn đọc được nội dung.") && run(() => supabase.rpc("withdraw_submission", { _id: r.id }), "Đã thu hồi.").then(refresh)}>
