@@ -1,0 +1,212 @@
+[
+  {
+    "id": "ch01",
+    "name": "Thành Vinh 1",
+    "households": 547
+  },
+  {
+    "id": "ch02",
+    "name": "Thành Vinh 2",
+    "households": 537
+  },
+  {
+    "id": "ch03",
+    "name": "Thành Vinh 3",
+    "households": 492
+  },
+  {
+    "id": "ch04",
+    "name": "Thành Vinh 4",
+    "households": 465
+  },
+  {
+    "id": "ch05",
+    "name": "Thành Vinh 5",
+    "households": 517
+  },
+  {
+    "id": "ch06",
+    "name": "Thành Vinh 6",
+    "households": 549
+  },
+  {
+    "id": "ch07",
+    "name": "Lộc Phước 1",
+    "households": 500
+  },
+  {
+    "id": "ch08",
+    "name": "Lộc Phước 2",
+    "households": 496
+  },
+  {
+    "id": "ch09",
+    "name": "Thọ Quang",
+    "households": 473
+  },
+  {
+    "id": "ch10",
+    "name": "Mân Quang 1",
+    "households": 576
+  },
+  {
+    "id": "ch11",
+    "name": "Mân Quang 2",
+    "households": 456
+  },
+  {
+    "id": "ch12",
+    "name": "Thọ An 1",
+    "households": 506
+  },
+  {
+    "id": "ch13",
+    "name": "Thọ An 2",
+    "households": 598
+  },
+  {
+    "id": "ch14",
+    "name": "Nam Thọ",
+    "households": 530
+  },
+  {
+    "id": "ch15",
+    "name": "Quang Cư 1",
+    "households": 554
+  },
+  {
+    "id": "ch16",
+    "name": "Quang Cư 2",
+    "households": 513
+  },
+  {
+    "id": "ch17",
+    "name": "Tân Thái",
+    "households": 543
+  },
+  {
+    "id": "ch18",
+    "name": "Tân An",
+    "households": 485
+  },
+  {
+    "id": "ch19",
+    "name": "Tân Thuận",
+    "households": 518
+  },
+  {
+    "id": "ch20",
+    "name": "Tân Phú",
+    "households": 500
+  },
+  {
+    "id": "ch21",
+    "name": "Tân Lập",
+    "households": 474
+  },
+  {
+    "id": "ch22",
+    "name": "Mân Lập Đông",
+    "households": 501
+  },
+  {
+    "id": "ch23",
+    "name": "Mân Thái",
+    "households": 549
+  },
+  {
+    "id": "ch24",
+    "name": "Mân Lập Tây",
+    "households": 473
+  },
+  {
+    "id": "ch25",
+    "name": "Mân Quang 3",
+    "households": 450
+  },
+  {
+    "id": "ch26",
+    "name": "Cổ Mân",
+    "households": 507
+  },
+  {
+    "id": "ch27",
+    "name": "Vũng Thùng 1",
+    "households": 459
+  },
+  {
+    "id": "ch28",
+    "name": "Vũng Thùng 2",
+    "households": 593
+  },
+  {
+    "id": "ch29",
+    "name": "Vũng Thùng 3",
+    "households": 572
+  },
+  {
+    "id": "ch30",
+    "name": "Vũng Thùng 4",
+    "households": 476
+  },
+  {
+    "id": "ch31",
+    "name": "Nại Hiên Đông",
+    "households": 495
+  },
+  {
+    "id": "ch32",
+    "name": "Nại Thịnh 1",
+    "households": 521
+  },
+  {
+    "id": "ch33",
+    "name": "Nại Thịnh 2",
+    "households": 570
+  },
+  {
+    "id": "ch34",
+    "name": "Nại Hưng 1",
+    "households": 503
+  },
+  {
+    "id": "ch35",
+    "name": "Nại Hưng 2",
+    "households": 457
+  },
+  {
+    "id": "ch36",
+    "name": "Nại Hưng 3",
+    "households": 489
+  },
+  {
+    "id": "ch37",
+    "name": "Nại Hưng 4",
+    "households": 478
+  },
+  {
+    "id": "ch38",
+    "name": "Nại Hưng 5",
+    "households": 454
+  },
+  {
+    "id": "ch39",
+    "name": "Nại Hưng 6",
+    "households": 579
+  },
+  {
+    "id": "ch40",
+    "name": "Nại Hưng 7",
+    "households": 531
+  },
+  {
+    "id": "ch41",
+    "name": "Nại Hưng 8",
+    "households": 457
+  },
+  {
+    "id": "ch42",
+    "name": "Công An",
+    "households": null
+  }
+]
