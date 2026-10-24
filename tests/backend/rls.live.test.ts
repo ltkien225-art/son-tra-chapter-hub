@@ -42,7 +42,8 @@ async function main() {
   check("T1 Công An households NULL", ch?.find((c) => c.id === "ch42")?.households === null && ch?.find((c) => c.id === "ch42")?.name === "Công An");
 
   // Test office admin (granted by service role, never the real admin account)
-  await admin.from("app_users").insert({ email: mail("admin"), office_role: "admin", note: tag });
+  const seedAdmin = await admin.from("app_users").insert({ email: mail("admin"), office_role: "admin", note: tag });
+  check("T0 seed test office admin", !seedAdmin.error, seedAdmin.error?.message);
   const A = await login(mail("admin"));
   const anon = createClient(URL, ANON, { auth: { persistSession: false } });
 
