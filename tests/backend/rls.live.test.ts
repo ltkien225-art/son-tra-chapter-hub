@@ -29,7 +29,7 @@ async function login(email: string): Promise<SupabaseClient> {
   if (error) throw error;
   createdUsers.push(link.user.id);
   const c = createClient(URL, ANON, { auth: { persistSession: false, autoRefreshToken: false } });
-  const { error: e2 } = await c.auth.verifyOtp({ type: "magiclink", token_hash: link.properties.hashed_token });
+  const { error: e2 } = await c.auth.verifyOtp({ type: "email", token_hash: link.properties.hashed_token });
   if (e2) throw e2;
   return c;
 }
