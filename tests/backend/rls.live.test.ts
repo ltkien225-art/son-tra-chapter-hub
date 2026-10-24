@@ -152,7 +152,9 @@ async function main() {
   const up = await ca.storage.from("evidence").upload(path, pdf, { contentType: "application/pdf" });
   check("T11 A uploads evidence", !up.error, up.error?.message);
   await ca.from("attachments").insert({ owner_type: "submission", owner_id: s2.data!.id, path, filename: "minh-chung.pdf", mime: "application/pdf", size_bytes: 13, created_by: "" });
-  check("T11 A downloads own file", !(await ca.storage.from("evidence").download(path)).error);
+  const sa = await ca.storage.from("evidence").createSignedUrl(path, 60);
+  check("T11 A gets short-lived link to own file", !!sa.data?.signedUrl, sa.error?.message);
+  check("T11 link serves file", sa.data ? (await fetch(sa.data.signedUrl)).ok : false);
   check("T11 office downloads file", !(await A.storage.from("evidence").download(path)).error);
   check("T11 B cannot download A file", !!(await cb.storage.from("evidence").download(path)).error);
   check("T11 outsider cannot download", !!(await out.storage.from("evidence").download(path)).error);
