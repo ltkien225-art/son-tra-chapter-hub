@@ -135,21 +135,31 @@ export function Attachments({ ownerType, ownerId, canUpload, autoFiles, title = 
   }, [autoFiles]);
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview.url); }, [preview]);
 
-  async function view(a: { path: string; mime: string; filename: string }) {
-    const { data, error } = await supabase.storage.from("evidence").createSignedUrl(a.path, 60);
-    if (error || !data) { toast.error("Bạn không có quyền xem tệp này hoặc tệp đã bị thu hồi."); return; }
+  /** Every open/download goes through /api/files/:id, which re-checks current permission on each request (no signed link that outlives a revocation). */
+  async function fetchFile(id: string, mime: string): Promise<Blob | null> {
+    const { data: s } = await supabase.auth.getSession();
+    const res = await fetch(`/api/files/${id}`, { headers: { Authorization: `Bearer ${s.session?.access_token ?? ""}` }, cache: "no-store" });
+    if (res.status === 401 || res.status === 403) { toast.error("Bạn không có quyền mở tệp này hoặc tệp đã bị thu hồi."); return null; }
+    if (!res.ok) { toast.error("Không tải được tệp. Kiểm tra mạng rồi thử lại."); return null; }
+    return new Blob([await res.blob()], { type: mime });
+  }
+  async function view(a: { id: string; path: string; mime: string; filename: string }) {
     try {
-      const res = await fetch(data.signedUrl);
-      if (!res.ok) throw new Error();
-      const blob = new Blob([await res.blob()], { type: a.mime });
+      const blob = await fetchFile(a.id, a.mime);
+      if (!blob) return;
       setZoom(false);
       setPreview({ url: URL.createObjectURL(blob), mime: a.mime, name: a.filename, path: a.path });
     } catch { toast.error("Không tải được tệp. Kiểm tra mạng rồi thử lại."); }
   }
-  async function download(a: { path: string; filename: string }) {
-    const { data, error } = await supabase.storage.from("evidence").createSignedUrl(a.path, 60, { download: a.filename });
-    if (error || !data) { toast.error("Bạn không có quyền tải tệp này."); return; }
-    window.location.href = data.signedUrl;
+  async function download(a: { id: string; mime: string; filename: string }) {
+    try {
+      const blob = await fetchFile(a.id, a.mime);
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const el = document.createElement("a");
+      el.href = url; el.download = a.filename; document.body.appendChild(el); el.click(); el.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 30_000);
+    } catch { toast.error("Không tải được tệp. Kiểm tra mạng rồi thử lại."); }
   }
 
   const rows = data ?? [];
