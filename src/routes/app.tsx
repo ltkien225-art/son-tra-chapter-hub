@@ -13,6 +13,7 @@ import { Members, useSummary } from "@/components/hoi/Members";
 import { Sensitive } from "@/components/hoi/Sensitive";
 import { AccessAdmin, Audit, Backup } from "@/components/hoi/AdminPanels";
 import { Guide } from "@/components/hoi/Guide";
+import { Legal } from "@/components/hoi/Legal";
 import { PushSettings } from "@/components/hoi/PushSettings";
 
 export const Route = createFileRoute("/app")({
@@ -82,12 +83,12 @@ function Workspace({ email, userId }: { email: string; userId: string }) {
         ...(a.sensitive ? [{ id: "sens", label: "Hồ sơ bảo mật" }] : []),
         { id: "access", label: "Phân quyền" }, { id: "audit", label: "Nhật ký" },
         ...(a.admin ? [{ id: "backup", label: "Sao lưu" }] : []),
-        { id: "push", label: "Thông báo" }, { id: "guide", label: "Hướng dẫn" },
+        { id: "legal", label: "Hỏi đáp pháp luật" }, { id: "push", label: "Thông báo" }, { id: "guide", label: "Hướng dẫn" },
       ]
     : [
         { id: "docs", label: "Văn bản" }, { id: "tasks", label: "Nhiệm vụ" }, { id: "subs", label: "Gửi báo cáo" },
         { id: "members", label: "Hội viên" }, ...(a.sensitive ? [{ id: "sens", label: "Hồ sơ bảo mật" }] : []),
-        { id: "push", label: "Thông báo" }, { id: "guide", label: "Hướng dẫn" },
+        { id: "legal", label: "Hỏi đáp pháp luật" }, { id: "push", label: "Thông báo" }, { id: "guide", label: "Hướng dẫn" },
       ];
   const current = tabs.some((t) => t.id === tab) ? tab : (tabs[0]?.id ?? "guide");
   const chName = ctx.chapters.find((c) => c.id === ctx.chapterId)?.name;
@@ -133,6 +134,7 @@ function Workspace({ email, userId }: { email: string; userId: string }) {
         {current === "audit" && <Audit />}
         {current === "backup" && a.admin && <Backup />}
         {current === "push" && <PushSettings ctx={ctx} />}
+        {current === "legal" && <Legal ctx={ctx} />}
         {current === "guide" && <Guide office={a.office} />}
       </main>
     </div>

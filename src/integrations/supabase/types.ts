@@ -272,6 +272,119 @@ export type Database = {
         }
         Relationships: []
       }
+      legal_ai_usage: {
+        Row: {
+          day: string
+          email: string
+          n: number
+        }
+        Insert: {
+          day?: string
+          email: string
+          n?: number
+        }
+        Update: {
+          day?: string
+          email?: string
+          n?: number
+        }
+        Relationships: []
+      }
+      legal_faqs: {
+        Row: {
+          answer: string
+          created_at: string
+          created_by: string
+          effective_date: string | null
+          id: string
+          question: string
+          source_article: string
+          source_title: string
+          source_url: string
+          status: string
+          topic: string
+          updated_at: string
+          verified_on: string | null
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          created_by?: string
+          effective_date?: string | null
+          id?: string
+          question: string
+          source_article?: string
+          source_title?: string
+          source_url?: string
+          status?: string
+          topic?: string
+          updated_at?: string
+          verified_on?: string | null
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          created_by?: string
+          effective_date?: string | null
+          id?: string
+          question?: string
+          source_article?: string
+          source_title?: string
+          source_url?: string
+          status?: string
+          topic?: string
+          updated_at?: string
+          verified_on?: string | null
+        }
+        Relationships: []
+      }
+      legal_questions: {
+        Row: {
+          body: string
+          chapter_id: string | null
+          created_at: string
+          created_by: string
+          id: string
+          replied_at: string | null
+          replied_by: string | null
+          reply: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          chapter_id?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          replied_at?: string | null
+          replied_by?: string | null
+          reply?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          chapter_id?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          replied_at?: string | null
+          replied_by?: string | null
+          reply?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "legal_questions_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       member_counts: {
         Row: {
           chapter_id: string
@@ -625,6 +738,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      answer_legal_question: {
+        Args: { _id: string; _reply: string }
+        Returns: undefined
+      }
       can_chapter: { Args: { _ch: string }; Returns: boolean }
       can_read_owner: { Args: { _id: string; _type: string }; Returns: boolean }
       can_write_owner: {
@@ -632,6 +749,7 @@ export type Database = {
         Returns: boolean
       }
       chapter_recipients: { Args: { _chs: string[] }; Returns: string[] }
+      consume_legal_ai: { Args: { _limit: number }; Returns: number }
       current_email: { Args: never; Returns: string }
       doc_addressed_to_me: { Args: { _doc: string }; Returns: boolean }
       enqueue: {
