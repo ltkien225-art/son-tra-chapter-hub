@@ -191,7 +191,7 @@ function NoAccess({ email, userId, onSignOut }: { email: string; userId: string;
     <div className="mx-auto max-w-md p-8 text-center">
       <div className="panel space-y-4 p-6">
         <h2 className="text-xl font-bold text-primary">Mã truy cập đã được đổi hoặc thu hồi</h2>
-        <p className="text-sm">Thiết bị này không còn quyền vào {unitLabel(codeLoginUnit(email)!)}. Liên hệ Văn phòng Hội để nhận mã mới.</p>
+        <p className="text-sm">Thiết bị này không còn quyền vào {codeLoginUnit(email) ? unitLabel(codeLoginUnit(email)!) : "Văn phòng Hội"}. Liên hệ quản trị để nhận mã mới.</p>
         <Button size="xl" className="w-full" onClick={onSignOut}>Đăng xuất và nhập mã mới</Button>
       </div>
     </div>
