@@ -67,6 +67,11 @@ export function Tasks({ ctx }: { ctx: Ctx }) {
   return (
     <Section title={office ? "Nhiệm vụ & tiến độ" : "Nhiệm vụ được giao"}
       action={canEdit && !form && <Button size="xl" onClick={() => { close(); setForm({ title: "", description: "", due_at: "", chapters: [] }); }}>＋ Giao nhiệm vụ</Button>}>
+      {ctx.officeView && (
+        <p className="panel p-4 text-sm text-muted-foreground">
+          Chế độ Văn phòng chỉ xem. Khi Chi hội đăng nhập bằng mã riêng của mình, tại đây sẽ hiện ô “Gửi kết quả / minh chứng về Văn phòng” kèm nút lớn “📎 Đính kèm PDF / ảnh / minh chứng” trong từng nhiệm vụ.
+        </p>
+      )}
       {form && (
         <div className="panel space-y-4 p-5">
           <p className="font-bold text-primary">{editId ? "Sửa nhiệm vụ / đổi phân công" : "Giao nhiệm vụ mới"}</p>
