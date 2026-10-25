@@ -280,6 +280,46 @@ async function main() {
   check("T13 dry-run rolls back", !!dry.error && dry.error.message.startsWith("DRY_RUN:"));
   const real = await A.rpc("restore_backup", { _b: b, _dry_run: false });
   check("T13 restore inserts nothing duplicate", !real.error && (real.data as { documents: number }).documents === 0, real.error?.message);
+
+  // T15 office protection code + one-time handover link (Đoàn-style access model)
+  const { createHash } = await import("node:crypto");
+  const sha = (s: string) => createHash("sha256").update(s).digest("hex");
+  check("T15 chapter cannot read office code status", !!(await ca.rpc("office_code_status")).error);
+  check("T15 outsider cannot set office code", !!(await out.rpc("set_office_code", { p_code_hash: sha("test-code-1") })).error);
+  check("T15 chapter cannot create handover invite", !!(await ca.rpc("create_handover_invite", { p_token_hash: sha("tok-x"), p_label: tag, p_hours: 72 })).error);
+  check("T15 chapter cannot list handover invites", ((await ca.from("handover_invites").select("id")).data?.length ?? -1) === 0);
+  check("T15 authenticated cannot call office_code_lookup_service", !!(await ca.rpc("office_code_lookup_service", { p_code_hash: sha("x") })).error);
+  check("T15 authenticated cannot call handover_lookup_service", !!(await ca.rpc("handover_lookup_service", { p_token_hash: sha("x") })).error);
+
+  check("T15 admin sets office code", !(await A.rpc("set_office_code", { p_code_hash: sha("test-code-1") })).error);
+  const st1 = (await A.rpc("office_code_status")).data as { active: boolean }[] | null;
+  check("T15 office code active after set", st1?.[0]?.active === true);
+  const ocId = (await admin.from("app_users").select("office_role,active").eq("email", "ma-van-phong@ma-truy-cap.hoisontra.app").maybeSingle()).data;
+  check("T15 office code identity is active admin", ocId?.office_role === "admin" && ocId?.active === true);
+  const lookOk = await admin.rpc("office_code_lookup_service", { p_code_hash: sha("test-code-1") });
+  check("T15 service lookup with correct code returns identity", (lookOk.data as { identity_email: string }[] | null)?.[0]?.identity_email === "ma-van-phong@ma-truy-cap.hoisontra.app");
+  const lookBad = await admin.rpc("office_code_lookup_service", { p_code_hash: sha("wrong-code") });
+  check("T15 service lookup with wrong code returns nothing", ((lookBad.data as unknown[] | null)?.length ?? 0) === 0);
+
+  const token = `tok-${run}-handover`;
+  const inv = await A.rpc("create_handover_invite", { p_token_hash: sha(token), p_label: tag, p_hours: 72 });
+  check("T15 admin creates handover invite", !inv.error, inv.error?.message);
+  const h1 = await admin.rpc("handover_lookup_service", { p_token_hash: sha(token) });
+  check("T15 handover token exchanges once", (h1.data as { identity_email: string }[] | null)?.[0]?.identity_email === "tiep-nhan-quan-tri@ma-truy-cap.hoisontra.app");
+  const h2 = await admin.rpc("handover_lookup_service", { p_token_hash: sha(token) });
+  check("T15 handover token cannot be reused", ((h2.data as unknown[] | null)?.length ?? 0) === 0);
+  const hoId = (await admin.from("app_users").select("office_role,active").eq("email", "tiep-nhan-quan-tri@ma-truy-cap.hoisontra.app").maybeSingle()).data;
+  check("T15 handover identity is active admin", hoId?.office_role === "admin" && hoId?.active === true);
+  const inv2 = await A.rpc("create_handover_invite", { p_token_hash: sha(token + "-2"), p_label: tag, p_hours: 72 });
+  check("T15 admin revokes unused invite", !(await A.rpc("revoke_handover_invite", { p_id: inv2.data, p_reason: tag })).error);
+  const h3 = await admin.rpc("handover_lookup_service", { p_token_hash: sha(token + "-2") });
+  check("T15 revoked invite does not exchange", ((h3.data as unknown[] | null)?.length ?? 0) === 0);
+
+  check("T15 admin revokes office code", !(await A.rpc("revoke_office_code", { p_reason: tag })).error);
+  const st2 = (await A.rpc("office_code_status")).data as { active: boolean }[] | null;
+  check("T15 office code inactive after revoke", st2?.[0]?.active === false);
+  const lookRev = await admin.rpc("office_code_lookup_service", { p_code_hash: sha("test-code-1") });
+  check("T15 revoked code does not exchange", ((lookRev.data as unknown[] | null)?.length ?? 0) === 0);
 }
 
 async function cleanup() {
@@ -303,6 +343,7 @@ async function cleanup() {
   await admin.from("member_counts").delete().eq("chapter_id", "ch01").eq("period", "2026-10").like("updated_by", `test+${run}-%`);
   await admin.from("notification_outbox").delete().like("recipient_email", `test+${run}-%`);
   await admin.from("push_subscriptions").delete().like("email", `test+${run}-%`);
+  await admin.from("handover_invites").delete().like("label", like);
   await admin.from("access_requests").delete().like("email", `test+${run}-%`);
   await admin.from("app_users").delete().like("email", `test+${run}-%`);
   for (const id of createdUsers) await admin.auth.admin.deleteUser(id);

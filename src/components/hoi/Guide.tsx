@@ -3,6 +3,8 @@ import { Section } from "./common";
 export function Guide({ office }: { office: boolean }) {
   const items = office
     ? [
+        ["Vào Văn phòng", "Cán bộ mở đường dẫn /van-phong, nhập mã bảo vệ Văn phòng — không cần email. Mã do quản trị đặt tại “Phân quyền” → “Mã bảo vệ Văn phòng”. Sai nhiều lần bị khóa tạm 15 phút. Quên mã: quản trị vào đặt lại mã mới."],
+        ["Tiếp nhận quản trị", "Khi chuyển quyền quản trị cho người mới (ví dụ Chủ tịch Hội): quản trị hiện tại vào “Phân quyền” → “Liên kết tiếp nhận quản trị” → “Cấp liên kết tiếp nhận mới”, sao chép và gửi KÍN (Zalo cá nhân). Liên kết chỉ dùng một lần, hết hạn 72 giờ. Người nhận mở liên kết, tự đặt mã bảo vệ Văn phòng rồi vào làm việc."],
         ["Duyệt người dùng", "Vào “Phân quyền”. Người mới đăng nhập sẽ hiện trong “Yêu cầu chờ duyệt”. Bấm “Duyệt & gắn Chi hội”, chọn đúng Chi hội rồi Lưu. Thu hồi có hiệu lực ngay."],
         ["Văn bản", "Tạo văn bản (lưu nháp) → kiểm tra → “Phát hành” cho tất cả hoặc Chi hội được chọn. “Thu hồi” làm Chi hội không còn đọc được nội dung. “Lưu trữ” để gọn danh sách, có thể khôi phục."],
         ["Nhiệm vụ", "Giao nhiệm vụ, đặt hạn, chọn Chi hội. Theo dõi tiến độ từng Chi hội; mục quá hạn tô đỏ. Lưu trữ khi xong."],

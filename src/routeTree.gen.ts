@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as TiepNhanRouteImport } from './routes/tiep-nhan'
+import { Route as VanPhongRouteImport } from './routes/van-phong'
 import { Route as SoUnitRouteImport } from './routes/so.$unit'
 import { Route as ApiFilesIdRouteImport } from './routes/api/files.$id'
 import { Route as ApiPublicPushCronRouteImport } from './routes/api/public/push/cron'
@@ -23,6 +25,16 @@ const IndexRoute = IndexRouteImport.update({
 const AppRoute = AppRouteImport.update({
   id: '/app',
   path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TiepNhanRoute = TiepNhanRouteImport.update({
+  id: '/tiep-nhan',
+  path: '/tiep-nhan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VanPhongRoute = VanPhongRouteImport.update({
+  id: '/van-phong',
+  path: '/van-phong',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SoUnitRoute = SoUnitRouteImport.update({
@@ -44,6 +56,8 @@ const ApiPublicPushCronRoute = ApiPublicPushCronRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/tiep-nhan': typeof TiepNhanRoute
+  '/van-phong': typeof VanPhongRoute
   '/so/$unit': typeof SoUnitRoute
   '/api/files/$id': typeof ApiFilesIdRoute
   '/api/public/push/cron': typeof ApiPublicPushCronRoute
@@ -51,6 +65,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/tiep-nhan': typeof TiepNhanRoute
+  '/van-phong': typeof VanPhongRoute
   '/so/$unit': typeof SoUnitRoute
   '/api/files/$id': typeof ApiFilesIdRoute
   '/api/public/push/cron': typeof ApiPublicPushCronRoute
@@ -59,6 +75,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/tiep-nhan': typeof TiepNhanRoute
+  '/van-phong': typeof VanPhongRoute
   '/so/$unit': typeof SoUnitRoute
   '/api/files/$id': typeof ApiFilesIdRoute
   '/api/public/push/cron': typeof ApiPublicPushCronRoute
@@ -66,13 +84,28 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/app' | '/so/$unit' | '/api/files/$id' | '/api/public/push/cron'
+    | '/'
+    | '/app'
+    | '/tiep-nhan'
+    | '/van-phong'
+    | '/so/$unit'
+    | '/api/files/$id'
+    | '/api/public/push/cron'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/app' | '/so/$unit' | '/api/files/$id' | '/api/public/push/cron'
+  to:
+    | '/'
+    | '/app'
+    | '/tiep-nhan'
+    | '/van-phong'
+    | '/so/$unit'
+    | '/api/files/$id'
+    | '/api/public/push/cron'
   id:
     | '__root__'
     | '/'
     | '/app'
+    | '/tiep-nhan'
+    | '/van-phong'
     | '/so/$unit'
     | '/api/files/$id'
     | '/api/public/push/cron'
@@ -81,6 +114,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRoute
+  TiepNhanRoute: typeof TiepNhanRoute
+  VanPhongRoute: typeof VanPhongRoute
   SoUnitRoute: typeof SoUnitRoute
   ApiFilesIdRoute: typeof ApiFilesIdRoute
   ApiPublicPushCronRoute: typeof ApiPublicPushCronRoute
@@ -100,6 +135,20 @@ declare module '@tanstack/react-router' {
       path: '/app'
       fullPath: '/app'
       preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tiep-nhan': {
+      id: '/tiep-nhan'
+      path: '/tiep-nhan'
+      fullPath: '/tiep-nhan'
+      preLoaderRoute: typeof TiepNhanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/van-phong': {
+      id: '/van-phong'
+      path: '/van-phong'
+      fullPath: '/van-phong'
+      preLoaderRoute: typeof VanPhongRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/so/$unit': {
@@ -129,6 +178,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRoute,
+  TiepNhanRoute: TiepNhanRoute,
+  VanPhongRoute: VanPhongRoute,
   SoUnitRoute: SoUnitRoute,
   ApiFilesIdRoute: ApiFilesIdRoute,
   ApiPublicPushCronRoute: ApiPublicPushCronRoute,

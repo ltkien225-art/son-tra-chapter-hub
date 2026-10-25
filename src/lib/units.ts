@@ -17,6 +17,16 @@ export function codeLoginUnit(email: string | null | undefined): string | null {
   const m = /^(office|ch\d\d)-v[a-z0-9]+-[a-z0-9]+@/.exec(email ?? "");
   return m && (email ?? "").endsWith("@" + CODE_LOGIN_DOMAIN) ? m[1]! : null;
 }
+export const OFFICE_CODE_EMAIL = "ma-van-phong@" + CODE_LOGIN_DOMAIN;
+export const HANDOVER_EMAIL = "tiep-nhan-quan-tri@" + CODE_LOGIN_DOMAIN;
+/** Friendly label for synthetic sign-in identities (null → show the email as-is). */
+export function identityLabel(email: string | null | undefined): string | null {
+  if (!email) return null;
+  if (email === OFFICE_CODE_EMAIL) return "Đăng nhập bằng mã bảo vệ Văn phòng";
+  if (email === HANDOVER_EMAIL) return "Quản trị · tiếp nhận bằng liên kết một lần";
+  const u = codeLoginUnit(email);
+  return u ? `Đăng nhập bằng mã truy cập · ${unitLabel(u)}` : null;
+}
 export const PIN_RE = /^\d{8}$/;
 export function newPin(): string {
   const a = new Uint32Array(1);

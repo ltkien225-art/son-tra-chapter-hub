@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -72,15 +72,17 @@ function Index() {
 
       <main className="mx-auto grid max-w-5xl gap-6 px-5 py-8 md:grid-cols-[1.1fr_1fr]">
         <section className="panel p-6 md:col-span-2">
-          <h2 className="text-xl font-bold text-primary">Vào Sổ Chi hội / Văn phòng bằng mã truy cập</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Không cần email. Chọn đơn vị, rồi nhập mã 8 số do Văn phòng Hội cấp.</p>
+          <h2 className="text-xl font-bold text-primary">Vào Sổ Chi hội bằng mã truy cập</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Không cần email. Chọn Chi hội, rồi nhập mã 8 số do Văn phòng Hội cấp.</p>
           <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-            <select aria-label="Chọn đơn vị" className="field flex-1" value={unit} onChange={(e) => setUnit(e.target.value)}>
+            <select aria-label="Chọn Chi hội" className="field flex-1" value={unit} onChange={(e) => setUnit(e.target.value)}>
               <option value="">— Chọn Chi hội —</option>
-              <option value="office">Văn phòng Hội (cán bộ)</option>
               {Object.entries(CHAPTER_NAMES).map(([id, n]) => <option key={id} value={id}>Chi hội {n}</option>)}
             </select>
             <Button size="xl" disabled={!unit} onClick={() => navigate({ to: "/so/$unit", params: { unit } })}>Tiếp tục →</Button>
+          </div>
+          <div className="mt-4 rounded-xl bg-secondary p-4 text-sm text-secondary-foreground">
+            <b>Cán bộ Văn phòng Hội:</b> mở <Link to="/van-phong" className="font-semibold text-primary underline">/van-phong</Link> và nhập mã bảo vệ Văn phòng — không cần email.
           </div>
         </section>
         <section className="panel p-6">
