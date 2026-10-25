@@ -187,7 +187,7 @@ function Dashboard({ ctx, go, openBook }: { ctx: Ctx; go: (t: string) => void; o
 }
 
 function NoAccess({ email, userId, onSignOut }: { email: string; userId: string; onSignOut: () => void }) {
-  if (codeLoginUnit(email)) return (
+  if (identityLabel(email)) return (
     <div className="mx-auto max-w-md p-8 text-center">
       <div className="panel space-y-4 p-6">
         <h2 className="text-xl font-bold text-primary">Mã truy cập đã được đổi hoặc thu hồi</h2>

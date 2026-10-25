@@ -48,7 +48,7 @@ export function UnitCodes() {
       <div className="panel space-y-1 p-4 text-sm">
         <p>Mỗi đơn vị có <b>link riêng</b> và <b>mã 8 số riêng</b>. Link không phải là quyền: không có mã thì không vào được.</p>
         <p>Bàn giao an toàn: gửi link qua Zalo được, nhưng <b>đọc mã trực tiếp hoặc gọi điện</b> cho người phụ trách, không đăng mã lên nhóm. Mã chỉ hiện <b>một lần</b>; quên thì bấm “Đổi mã”.</p>
-        <p>Mã Chi hội chỉ thấy dữ liệu Chi hội đó; mã Văn phòng là cán bộ Văn phòng (không có quyền quản trị, không xem hồ sơ nhạy cảm).</p>
+        <p>Mã Chi hội chỉ thấy dữ liệu Chi hội đó. Văn phòng không dùng mã 8 số — cán bộ Văn phòng vào bằng mã bảo vệ tại /van-phong (mục bên dưới).</p>
       </div>
       {shown && (
         <div className="panel border-2 border-primary p-5" role="alert">
