@@ -239,6 +239,23 @@ async function main() {
   { const st = await gw(ca, tp); check("T11t withdrawn task: chapter gateway refused", st === 403, `status ${st}`); }
   check("T11t withdrawn task: chapter cannot list file", ((await ca.from("attachments").select("id").eq("owner_id", t2.data!.id)).data?.length ?? 0) === 0);
 
+  // Legal Q&A level 1: pending FAQ hidden from chapters; only Office writes; private questions isolated
+  const lf = await A.from("legal_faqs").insert({ question: `${tag} cau hoi phap luat`, answer: "tra loi chung", created_by: "" }).select().single();
+  check("T14 office adds pending FAQ", !lf.error, lf.error?.message);
+  check("T14 approve without source rejected", !!(await A.from("legal_faqs").update({ status: "approved" }).eq("id", lf.data!.id)).error);
+  check("T14 chapter cannot see pending FAQ", ((await ca.from("legal_faqs").select("id").eq("id", lf.data!.id)).data?.length ?? 0) === 0);
+  check("T14 chapter cannot add FAQ", !!(await ca.from("legal_faqs").insert({ question: `${tag} x cau hoi`, answer: "xxxxx", created_by: "" })).error);
+  await A.from("legal_faqs").update({ status: "approved", source_title: "Van ban", source_url: "https://vbpl.vn/", verified_on: "2026-10-25" }).eq("id", lf.data!.id);
+  check("T14 chapter sees approved FAQ", ((await ca.from("legal_faqs").select("id").eq("id", lf.data!.id)).data?.length ?? 0) === 1);
+  check("T14 outsider cannot see FAQ", ((await out.from("legal_faqs").select("id").eq("id", lf.data!.id)).data?.length ?? 0) === 0);
+  const lq = await ca.from("legal_questions").insert({ body: `${tag} cau hoi rieng`, chapter_id: "ch01", created_by: "" }).select().single();
+  check("T14 chapter sends private question", !lq.error, lq.error?.message);
+  check("T14 other chapter cannot read it", ((await cb.from("legal_questions").select("id").eq("id", lq.data!.id)).data?.length ?? 0) === 0);
+  check("T14 chapter cannot self-answer", !!(await ca.rpc("answer_legal_question", { _id: lq.data!.id, _reply: "tu tra loi" })).error);
+  check("T14 office answers", !(await A.rpc("answer_legal_question", { _id: lq.data!.id, _reply: "Van phong tra loi" })).error);
+  check("T14 asker reads answer", (await ca.from("legal_questions").select("reply").eq("id", lq.data!.id).single()).data?.reply === "Van phong tra loi");
+  check("T14 outsider cannot use AI quota", !!(await out.rpc("consume_legal_ai", { _limit: 10 })).error);
+
   // Revoke (JWT still valid)
   check("T12 revoke A", !(await A.rpc("revoke_user_access", { _email: mail("a") })).error);
   check("T12 revoked: 0 chapters", ((await ca.from("chapters").select("id")).data?.length ?? -1) === 0);
@@ -280,6 +297,9 @@ async function cleanup() {
   if (tks.length) await admin.from("task_assignments").delete().in("task_id", tks);
   await admin.from("tasks").delete().like("title", like);
   await admin.from("documents").delete().like("title", like);
+  await admin.from("legal_faqs").delete().like("question", like);
+  await admin.from("legal_questions").delete().like("body", like);
+  await admin.from("legal_ai_usage").delete().like("email", `test+${run}-%`);
   await admin.from("member_counts").delete().eq("chapter_id", "ch01").eq("period", "2026-10").like("updated_by", `test+${run}-%`);
   await admin.from("notification_outbox").delete().like("recipient_email", `test+${run}-%`);
   await admin.from("push_subscriptions").delete().like("email", `test+${run}-%`);
