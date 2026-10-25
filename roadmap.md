@@ -15,3 +15,5 @@
 - [ ] Kiểm thử giao diện khi đã đăng nhập + Push trên máy thật — chờ: tài khoản quản trị đăng nhập lần đầu trên preview/điện thoại
 - [ ] Đẩy mã nguồn sang Git riêng — chờ: người dùng kết nối GitHub cho dự án
 - [ ] Xuất bản chính thức — sau khi 2 mục kiểm thử trên đạt
+- [ ] Giao diện theo ảnh mẫu (xanh dương/hồng) — chờ: chủ dự án tải 2 ảnh mẫu
+- [ ] Tư vấn pháp luật mức 1 (FAQ có nguồn + Gemini miễn phí nếu có khóa) — chờ: duyệt phương án, nội dung FAQ có nguồn chính thức, khóa Gemini
