@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { CodeLogin } from "@/components/hoi/CodeLogin";
 import { useHoiSession } from "@/hooks/use-hoi-session";
 import { UNIT_RE, unitLabel } from "@/lib/units";
+import { BrandLogo } from "@/components/hoi/BrandLogo";
 
 export const Route = createFileRoute("/so/$unit")({
   loader: ({ params }) => {
@@ -37,8 +38,9 @@ function UnitEntry() {
     <div className="min-h-screen bg-background">
       <header className="hero-lotus px-5 py-8">
         <div className="mx-auto max-w-md">
+          <BrandLogo />
           <p className="text-xs font-semibold tracking-[0.18em] opacity-90">HỘI LHPN PHƯỜNG SƠN TRÀ</p>
-          <h1 className="mt-2 text-2xl font-bold">✿ {unit === "office" ? "Văn phòng Hội" : `Sổ ${unitLabel(unit)}`}</h1>
+          <h1 className="mt-2 text-2xl font-bold">{unit === "office" ? "Văn phòng Hội" : `Sổ ${unitLabel(unit)}`}</h1>
         </div>
       </header>
       <main className="mx-auto max-w-md space-y-4 px-5 py-6">

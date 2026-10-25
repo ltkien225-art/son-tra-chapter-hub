@@ -18,6 +18,7 @@ import { PushSettings } from "@/components/hoi/PushSettings";
 import { UnitCodes } from "@/components/hoi/UnitCodes";
 import { HandoverPanel, OfficeCodePanel } from "@/components/hoi/OfficeSecurity";
 import { codeLoginUnit, identityLabel, unitLabel } from "@/lib/units";
+import { BrandLogo } from "@/components/hoi/BrandLogo";
 
 export const Route = createFileRoute("/app")({
   ssr: false,
@@ -101,8 +102,9 @@ function Workspace({ email, userId }: { email: string; userId: string }) {
       <header className="hero-lotus px-4 pb-3 pt-5">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
           <div>
+            <BrandLogo />
             <p className="text-[11px] font-semibold tracking-[0.16em] opacity-90">HỘI LHPN PHƯỜNG SƠN TRÀ</p>
-            <h1 className="text-xl font-bold md:text-2xl">✿ {viewing ? `Sổ Chi hội ${chName ?? ""}` : a.office ? "Văn phòng Hội" : `Sổ Chi hội ${chName ?? ""}`}</h1>
+            <h1 className="text-xl font-bold md:text-2xl">{viewing ? `Sổ Chi hội ${chName ?? ""}` : a.office ? "Văn phòng Hội" : `Sổ Chi hội ${chName ?? ""}`}</h1>
             {viewing && <p className="text-xs font-semibold">Văn phòng đang xem (chỉ xem, theo quyền Văn phòng)</p>}
             <p className="text-xs opacity-90">{identityLabel(email) ?? email}</p>
           </div>

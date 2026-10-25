@@ -9,7 +9,8 @@
   "theme_color": "#8e286c",
   "lang": "vi",
   "icons": [
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "/hoi-icon-192-v20261025.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/hoi-icon-512-v20261025.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/hoi-maskable-512-v20261025.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }

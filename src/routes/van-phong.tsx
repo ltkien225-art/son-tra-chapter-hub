@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useHoiSession } from "@/hooks/use-hoi-session";
 import { openOfficeCode } from "@/lib/links.functions";
 import { viError } from "@/lib/hoi";
+import { BrandLogo } from "@/components/hoi/BrandLogo";
 
 export const Route = createFileRoute("/van-phong")({
   ssr: false,
@@ -54,8 +55,9 @@ function OfficeGate() {
     <div className="min-h-screen bg-background">
       <header className="hero-lotus px-5 py-8">
         <div className="mx-auto max-w-md">
+          <BrandLogo />
           <p className="text-xs font-semibold tracking-[0.18em] opacity-90">HỘI LHPN PHƯỜNG SƠN TRÀ</p>
-          <h1 className="mt-2 text-2xl font-bold">✿ Văn phòng Hội</h1>
+          <h1 className="mt-2 text-2xl font-bold">Văn phòng Hội</h1>
         </div>
       </header>
       <main className="mx-auto max-w-md space-y-4 px-5 py-6">
