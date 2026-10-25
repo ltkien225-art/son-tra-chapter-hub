@@ -118,7 +118,6 @@ function FaqEditor() {
   const qc = useQueryClient();
   const { busy, run } = useAction();
   const [f, setF] = useState({ ...EMPTY });
-  const { data: all = [] } = useQuery({ queryKey: ["legal_faqs"], enabled: false, queryFn: async () => [] as Faq[] });
   const set = (k: keyof typeof EMPTY) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });
   const canApprove = f.source_title.trim() && /^https:\/\//.test(f.source_url) && f.verified_on;
   async function save(status: string) {
@@ -126,7 +125,6 @@ function FaqEditor() {
     const ok = await run(() => (f.id ? supabase.from("legal_faqs").update(row).eq("id", f.id) : supabase.from("legal_faqs").insert({ ...row, created_by: "" })), status === "approved" ? "Đã lưu và duyệt." : "Đã lưu.");
     if (ok) { setF({ ...EMPTY }); qc.invalidateQueries({ queryKey: ["legal_faqs"] }); }
   }
-  void all;
   return (
     <Section title="Văn phòng: thêm / sửa / duyệt câu hỏi đáp">
       <div className="panel space-y-3 p-5">
