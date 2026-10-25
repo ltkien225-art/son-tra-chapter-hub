@@ -131,7 +131,10 @@ export function Tasks({ ctx }: { ctx: Ctx }) {
                     ) : mine.map((a) => (
                       <div key={a.chapter_id} className="space-y-3">
                         {ctx.officeView ? (
-                          <p className="rounded-xl bg-muted p-3 text-sm">Tiến độ: <b>{ASSIGN_STATUS[a.status]}</b> · {a.progress}%{a.note && <> · {a.note}</>}</p>
+                          <>
+                            <p className="rounded-xl bg-muted p-3 text-sm">Tiến độ: <b>{ASSIGN_STATUS[a.status]}</b> · {a.progress}%{a.note && <> · {a.note}</>}</p>
+                            <p className="text-xs text-muted-foreground">Chế độ Văn phòng chỉ xem. Chi hội đăng nhập bằng mã riêng sẽ thấy ô “Gửi kết quả / minh chứng về Văn phòng” kèm nút đính kèm tệp tại đây.</p>
+                          </>
                         ) : <AssignForm a={a} onDone={refresh} />}
                         <TaskResults taskId={t.id} ctx={ctx} chapterId={a.chapter_id} />
                         {!ctx.officeView && t.status === "active" && <ResultForm task={t} chapterId={a.chapter_id} />}

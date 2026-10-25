@@ -82,6 +82,11 @@ export function Submissions({ ctx }: { ctx: Ctx }) {
         </div>
       )}
 
+      {ctx.officeView && (
+        <p className="panel p-4 text-sm text-muted-foreground">
+          Chế độ Văn phòng chỉ xem. Khi Chi hội đăng nhập bằng mã riêng của mình, tại đây sẽ hiện form gửi báo cáo với nút lớn “📎 Đính kèm PDF / ảnh / minh chứng”.
+        </p>
+      )}
       <div className="flex flex-wrap gap-2">
         {office && (
           <select className="field max-w-[13rem]" value={f.chapter} onChange={(e) => { setF({ ...f, chapter: e.target.value }); setPage(0); }}>
