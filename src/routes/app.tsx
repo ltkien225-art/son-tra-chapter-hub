@@ -186,6 +186,19 @@ function Dashboard({ ctx, go, openBook }: { ctx: Ctx; go: (t: string) => void; o
 }
 
 function NoAccess({ email, userId, onSignOut }: { email: string; userId: string; onSignOut: () => void }) {
+  if (codeLoginUnit(email)) return (
+    <div className="mx-auto max-w-md p-8 text-center">
+      <div className="panel space-y-4 p-6">
+        <h2 className="text-xl font-bold text-primary">Mã truy cập đã được đổi hoặc thu hồi</h2>
+        <p className="text-sm">Thiết bị này không còn quyền vào {unitLabel(codeLoginUnit(email)!)}. Liên hệ Văn phòng Hội để nhận mã mới.</p>
+        <Button size="xl" className="w-full" onClick={onSignOut}>Đăng xuất và nhập mã mới</Button>
+      </div>
+    </div>
+  );
+  return <EmailNoAccess email={email} userId={userId} onSignOut={onSignOut} />;
+}
+
+function EmailNoAccess({ email, userId, onSignOut }: { email: string; userId: string; onSignOut: () => void }) {
   const [msg, setMsg] = useState("");
   const req = useQuery({
     queryKey: ["my-request"],

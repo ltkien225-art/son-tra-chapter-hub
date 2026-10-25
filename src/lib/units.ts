@@ -14,7 +14,7 @@ export const CODE_LOGIN_DOMAIN = "ma-truy-cap.hoisontra.app";
 export const unitLabel = (u: string) => (u === "office" ? "Văn phòng Hội" : `Chi hội ${CHAPTER_NAMES[u] ?? u}`);
 /** Synthetic identity of a code login → unit id (or null for personal emails). */
 export function codeLoginUnit(email: string | null | undefined): string | null {
-  const m = /^(office|ch\d\d)-v\d+-[a-z0-9]+@/.exec(email ?? "");
+  const m = /^(office|ch\d\d)-v[a-z0-9]+-[a-z0-9]+@/.exec(email ?? "");
   return m && (email ?? "").endsWith("@" + CODE_LOGIN_DOMAIN) ? m[1]! : null;
 }
 export const PIN_RE = /^\d{8}$/;
