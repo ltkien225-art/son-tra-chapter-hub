@@ -31,7 +31,7 @@ describe("link tokens & office code", () => {
   it("labels synthetic identities", () => {
     expect(identityLabel(OFFICE_CODE_EMAIL)).toContain("mã bảo vệ Văn phòng");
     expect(identityLabel(HANDOVER_EMAIL)).toContain("tiếp nhận");
-    expect(identityLabel("ch07-vmh2k-abc123@ma-truy-cap.hoisontra.app")).toContain("Thành Vinh");
+    expect(identityLabel("ch07-vmh2k-abc123@ma-truy-cap.hoisontra.app")).toContain("Lộc Phước");
     expect(identityLabel("ubmttqvnphuongsontra@gmail.com")).toBe(null);
   });
 });
