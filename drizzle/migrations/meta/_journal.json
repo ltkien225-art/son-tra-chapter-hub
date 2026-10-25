@@ -78,6 +78,13 @@
       "when": 1792882380295,
       "tag": "0010_evidence_gateway_only_reads",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792888310398,
+      "tag": "0011_legal_faq_level1",
+      "breakpoints": true
     }
   ]
 }
