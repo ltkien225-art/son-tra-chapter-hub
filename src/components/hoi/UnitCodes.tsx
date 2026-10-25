@@ -9,7 +9,8 @@ import { revokeUnitCode, rotateUnitCode } from "@/lib/unit-login.functions";
 import { CHAPTER_NAMES, unitLabel } from "@/lib/units";
 import { Section } from "./common";
 
-const UNITS = ["office", ...Object.keys(CHAPTER_NAMES)];
+// Văn phòng dùng mã bảo vệ riêng tại /van-phong (xem mục "Mã bảo vệ Văn phòng" bên dưới), không dùng mã 8 số.
+const UNITS = Object.keys(CHAPTER_NAMES);
 
 /** Admin: issue / change / revoke per-unit access codes. A new code is shown once and never stored in plain text. */
 export function UnitCodes() {
@@ -43,7 +44,7 @@ export function UnitCodes() {
   }
 
   return (
-    <Section title="Mã truy cập Văn phòng & 42 Chi hội">
+    <Section title="Mã truy cập 42 Chi hội">
       <div className="panel space-y-1 p-4 text-sm">
         <p>Mỗi đơn vị có <b>link riêng</b> và <b>mã 8 số riêng</b>. Link không phải là quyền: không có mã thì không vào được.</p>
         <p>Bàn giao an toàn: gửi link qua Zalo được, nhưng <b>đọc mã trực tiếp hoặc gọi điện</b> cho người phụ trách, không đăng mã lên nhóm. Mã chỉ hiện <b>một lần</b>; quên thì bấm “Đổi mã”.</p>
