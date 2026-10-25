@@ -343,6 +343,7 @@ async function cleanup() {
   await admin.from("member_counts").delete().eq("chapter_id", "ch01").eq("period", "2026-10").like("updated_by", `test+${run}-%`);
   await admin.from("notification_outbox").delete().like("recipient_email", `test+${run}-%`);
   await admin.from("push_subscriptions").delete().like("email", `test+${run}-%`);
+  await admin.from("handover_invites").delete().like("label", like);
   await admin.from("access_requests").delete().like("email", `test+${run}-%`);
   await admin.from("app_users").delete().like("email", `test+${run}-%`);
   for (const id of createdUsers) await admin.auth.admin.deleteUser(id);
