@@ -272,6 +272,39 @@ export type Database = {
         }
         Relationships: []
       }
+      handover_invites: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string
+          expires_at: string
+          id: string
+          label: string
+          token_hash: string
+          used_at: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by: string
+          expires_at: string
+          id?: string
+          label?: string
+          token_hash: string
+          used_at?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string
+          expires_at?: string
+          id?: string
+          label?: string
+          token_hash?: string
+          used_at?: string | null
+        }
+        Relationships: []
+      }
       legal_ai_usage: {
         Row: {
           day: string
@@ -385,6 +418,27 @@ export type Database = {
           },
         ]
       }
+      link_attempts: {
+        Row: {
+          created_at: string
+          id: string
+          ip_hash: string
+          ok: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip_hash: string
+          ok: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip_hash?: string
+          ok?: boolean
+        }
+        Relationships: []
+      }
       member_counts: {
         Row: {
           chapter_id: string
@@ -471,6 +525,39 @@ export type Database = {
           title?: string
           updated_at?: string
           url?: string
+        }
+        Relationships: []
+      }
+      office_code: {
+        Row: {
+          active: boolean
+          code_hash: string
+          created_at: string
+          id: boolean
+          identity_email: string
+          last_used_at: string | null
+          updated_at: string
+          updated_by: string
+        }
+        Insert: {
+          active?: boolean
+          code_hash: string
+          created_at?: string
+          id?: boolean
+          identity_email: string
+          last_used_at?: string | null
+          updated_at?: string
+          updated_by: string
+        }
+        Update: {
+          active?: boolean
+          code_hash?: string
+          created_at?: string
+          id?: boolean
+          identity_email?: string
+          last_used_at?: string | null
+          updated_at?: string
+          updated_by?: string
         }
         Relationships: []
       }
@@ -801,6 +888,10 @@ export type Database = {
       }
       chapter_recipients: { Args: { _chs: string[] }; Returns: string[] }
       consume_legal_ai: { Args: { _limit: number }; Returns: number }
+      create_handover_invite: {
+        Args: { p_hours?: number; p_label: string; p_token_hash: string }
+        Returns: string
+      }
       current_email: { Args: never; Returns: string }
       doc_addressed_to_me: { Args: { _doc: string }; Returns: boolean }
       enqueue: {
@@ -816,6 +907,12 @@ export type Database = {
       enqueue_due_reminders: { Args: never; Returns: number }
       enqueue_test_push: { Args: never; Returns: undefined }
       export_backup: { Args: never; Returns: Json }
+      handover_lookup_service: {
+        Args: { p_token_hash: string }
+        Returns: {
+          identity_email: string
+        }[]
+      }
       has_any_chapter: { Args: never; Returns: boolean }
       has_sensitive: { Args: never; Returns: boolean }
       is_admin: { Args: never; Returns: boolean }
@@ -858,6 +955,20 @@ export type Database = {
         Returns: undefined
       }
       my_access: { Args: never; Returns: Json }
+      office_code_lookup_service: {
+        Args: { p_code_hash: string }
+        Returns: {
+          identity_email: string
+        }[]
+      }
+      office_code_status: {
+        Args: never
+        Returns: {
+          active: boolean
+          last_used_at: string
+          updated_at: string
+        }[]
+      }
       office_recipients: { Args: never; Returns: string[] }
       office_summary: {
         Args: { _period?: string }
@@ -875,7 +986,13 @@ export type Database = {
         }[]
       }
       restore_backup: { Args: { _b: Json; _dry_run?: boolean }; Returns: Json }
+      revoke_handover_invite: {
+        Args: { p_id: string; p_reason: string }
+        Returns: undefined
+      }
+      revoke_office_code: { Args: { p_reason: string }; Returns: undefined }
       revoke_user_access: { Args: { _email: string }; Returns: undefined }
+      set_office_code: { Args: { p_code_hash: string }; Returns: undefined }
       set_user_access: {
         Args: {
           _chapters: string[]
