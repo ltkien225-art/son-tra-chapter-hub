@@ -3,6 +3,7 @@
 - [x] Backend: schema, 42 Chi hội seed, quyền theo Chi hội, thu hồi tức thì, nhật ký, kho tệp riêng tư
 - [x] Kiểm thử backend thật (tests/backend/rls.live.test.ts) — 90/90 đạt
 - [x] Giao diện Văn phòng + Sổ Chi hội, đăng nhập mã email, yêu cầu cấp quyền
+- [x] Truy cập kiểu Bộ Đoàn: /van-phong bằng mã bảo vệ tự đặt (không email), /tiep-nhan liên kết một lần cho người tiếp nhận quản trị, quản trị cấp/đổi/thu hồi; kiểm thử trình duyệt toàn luồng đạt (iPhone + desktop)
 - [x] Đồng bộ: tự làm mới mỗi phút / khi quay lại / có mạng lại; chống bấm gửi trùng
 - [x] Web Push: đăng ký nhiều thiết bị, outbox chống trùng, kiểm quyền lúc gửi, retry, nhắc hạn hằng ngày, không PII (mô phỏng 84 thiết bị đạt)
 - [x] Đồng bộ 2 chiều: thanh trạng thái đồng bộ/mất mạng/lỗi + nút Làm mới
