@@ -16,7 +16,7 @@ export const askLegalAi = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<LegalAiResult> => {
     const bad = validateQuestion(data.question);
     if (bad) throw new Error(bad);
-    const key = process.env.GEMINI_API_KEY;
+    const key = process.env["GEMINI_API_KEY"];
     if (!key) return { mode: "faq", reason: "no_key", message: "Trợ lý AI chưa được bật (chưa có khóa miễn phí). Xem các câu hỏi đáp đã duyệt bên dưới." };
 
     const { data: faqs, error } = await context.supabase.from("legal_faqs")

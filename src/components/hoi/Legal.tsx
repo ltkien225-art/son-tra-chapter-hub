@@ -197,7 +197,7 @@ function PrivateQuestions({ ctx, office }: { ctx: Ctx; office: boolean }) {
               <div className="flex flex-col gap-2">
                 <textarea className="field min-h-20" maxLength={6000} placeholder="Nhập trả lời…" value={reply[x.id] ?? ""} onChange={(e) => setReply({ ...reply, [x.id]: e.target.value })} />
                 <Button size="lg" disabled={busy || (reply[x.id] ?? "").trim().length < 2} onClick={() =>
-                  run(() => supabase.rpc("answer_legal_question", { _id: x.id, _reply: reply[x.id].trim() }), "Đã trả lời.").then((ok) => { if (ok) { setReply({ ...reply, [x.id]: "" }); refresh(); } })}>Gửi trả lời</Button>
+                  run(() => supabase.rpc("answer_legal_question", { _id: x.id, _reply: (reply[x.id] ?? "").trim() }), "Đã trả lời.").then((ok) => { if (ok) { setReply({ ...reply, [x.id]: "" }); refresh(); } })}>Gửi trả lời</Button>
               </div>
             )}
           </li>
