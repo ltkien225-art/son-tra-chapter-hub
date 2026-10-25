@@ -31,6 +31,9 @@ export function Guide({ office }: { office: boolean }) {
       : "Chi hội nhận khi: có văn bản mới hoặc bị thu hồi, được giao nhiệm vụ, nhiệm vụ đổi hạn/thu hồi, nhiệm vụ sắp đến hạn hoặc quá hạn, Văn phòng phản hồi mục Chi hội đã gửi."],
     ["Bấm vào thông báo", "Thông báo chỉ ghi chung (không có tên người, nội dung hồ sơ). Bấm vào sẽ mở đúng mục; ứng dụng kiểm tra lại quyền rồi mới hiện dữ liệu."],
     ["Đồng bộ", "Văn phòng và Chi hội dùng chung một nguồn dữ liệu, không cần nhập lại. Thanh trạng thái dưới tiêu đề cho biết “Đã đồng bộ lúc…”, “Đang đồng bộ”, “Mất mạng” hoặc “Đồng bộ lỗi”. Ứng dụng tự làm mới mỗi phút, khi quay lại ứng dụng và khi có mạng lại; bấm “Làm mới” để cập nhật ngay. Thông báo chỉ để nhắc, không thay thế dữ liệu."],
+    ["Hỏi đáp pháp luật", office
+      ? "Mục “Hỏi đáp pháp luật”: chọn mục có sẵn hoặc nhập câu hỏi/trả lời, tên văn bản, điều khoản, liên kết chính thức (https://), ngày hiệu lực, ngày kiểm chứng → “Lưu (chờ duyệt)”. Chỉ khi đã đối chiếu văn bản gốc mới bấm “Duyệt & hiển thị”. Câu hỏi riêng của Chi hội hiện ở cuối trang để trả lời; không đưa vào AI."
+      : "Mục “Hỏi đáp pháp luật”: gõ từ khóa để tìm câu hỏi đáp đã duyệt, bấm để xem trả lời và văn bản gốc. Có thể hỏi trợ lý (chỉ câu hỏi chung, KHÔNG ghi tên, số điện thoại, CCCD, địa chỉ). Việc riêng: dùng “Gửi câu hỏi riêng cho cán bộ”, chỉ Văn phòng đọc."],
     ["Xử lý lỗi thường gặp", "Không nhận được mã: xem thư Rác/Spam, chờ 1 phút rồi gửi lại. “Chưa được cấp quyền”: gửi yêu cầu và báo Văn phòng. Không có thông báo: kiểm tra đã cho phép thông báo trong cài đặt máy, iPhone phải mở từ màn hình chính; bấm “Gửi thử”. Lỗi khi gửi: kiểm tra mạng rồi bấm lại — hệ thống chống gửi trùng."],
   ];
   return (
