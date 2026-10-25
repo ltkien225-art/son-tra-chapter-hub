@@ -121,8 +121,8 @@ function Index() {
           <div className="panel p-5">
             <h3 className="font-bold text-primary">Ai được sử dụng?</h3>
             <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
-              <li>Văn phòng Hội phường và các Chi hội đã được Văn phòng duyệt email.</li>
-              <li>Lần đầu đăng nhập, bạn gửi yêu cầu cấp quyền; Văn phòng gắn bạn với Chi hội.</li>
+              <li>Mỗi Chi hội vào bằng link riêng và mã 8 số do Văn phòng cấp; không cần email.</li>
+              <li>Văn phòng có thể đổi hoặc thu hồi mã bất cứ lúc nào, có hiệu lực ngay.</li>
               <li>Mỗi Chi hội chỉ thấy dữ liệu của mình. Hồ sơ nhạy cảm chỉ người được giao mới xem.</li>
             </ul>
           </div>
