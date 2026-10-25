@@ -14,7 +14,7 @@ export function Guide({ office }: { office: boolean }) {
         ["Sao lưu", "Quản trị tải tệp sao lưu định kỳ (ví dụ mỗi tuần), cất ở nơi an toàn. Khôi phục luôn chạy “Kiểm tra thử” trước."],
       ]
     : [
-        ["Đăng nhập", "Nhập email đã được Văn phòng duyệt, mở thư lấy mã và nhập vào. Không chia sẻ mã cho người khác."],
+        ["Đăng nhập", "Mở link riêng của Chi hội (Văn phòng gửi, dạng …/so/ch01) hoặc vào trang đầu → chọn Chi hội → “Tiếp tục”. Nhập mã truy cập 8 số do Văn phòng đọc/gọi điện báo. Không cần email. Không đăng mã lên nhóm. Sai 5 lần bị khóa 15 phút. Nếu hiện “Mã đã được đổi hoặc thu hồi”: liên hệ Văn phòng nhận mã mới."],
         ["Văn bản nhận", "Bấm vào văn bản để đọc nội dung. Tệp đính kèm có nút “Xem” (xem ngay trong ứng dụng, ảnh có “Phóng to”) và “Tải về”."],
         ["Nhiệm vụ", "Mở nhiệm vụ: xem tệp hướng dẫn kèm theo; chọn trạng thái, kéo tiến độ, bấm “Cập nhật tiến độ”. Để nộp kết quả: ở ô “Gửi kết quả / minh chứng về Văn phòng” ghi tóm tắt, bấm “📎 Đính kèm…” (điện thoại có thêm “📷 Chụp ảnh”), rồi bấm “Gửi kết quả”."],
         ["Gửi báo cáo", "Chọn loại (báo cáo, hoạt động, tình hình, phản ánh), nhập tiêu đề, nội dung, bấm ô “📎 Đính kèm PDF / ảnh / minh chứng” để chọn tệp, rồi bấm “Gửi lên Văn phòng & … tệp”. Tệp lỗi có nút “Thử lại”; muốn bổ sung thì mở mục đã gửi và đính kèm thêm. Gửi nhầm thì bấm “Thu hồi”. Phản hồi của Văn phòng hiện ngay dưới mục đã gửi."],
