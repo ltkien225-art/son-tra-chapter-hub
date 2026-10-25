@@ -16,4 +16,5 @@
 - [ ] Đẩy mã nguồn sang Git riêng — chờ: người dùng kết nối GitHub cho dự án
 - [ ] Xuất bản chính thức — sau khi 2 mục kiểm thử trên đạt
 - [ ] Giao diện theo ảnh mẫu (xanh dương/hồng) — chờ: chủ dự án tải 2 ảnh mẫu
-- [ ] Tư vấn pháp luật mức 1 (FAQ có nguồn + Gemini miễn phí nếu có khóa) — chờ: duyệt phương án, nội dung FAQ có nguồn chính thức, khóa Gemini
+- [x] Hỏi đáp pháp luật mức 1: thư viện có nguồn + duyệt, tìm kiếm, chặn dữ liệu cá nhân, giới hạn lượt, câu hỏi riêng cho cán bộ
+- [ ] Trợ lý Gemini miễn phí — chờ: khóa GEMINI_API_KEY (Google AI Studio, không bật billing); 3 câu mẫu chờ cán bộ đối chiếu và duyệt
