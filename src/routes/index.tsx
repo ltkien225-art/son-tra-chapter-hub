@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useHoiSession } from "@/hooks/use-hoi-session";
 import { viError } from "@/lib/hoi";
+import { CHAPTER_NAMES } from "@/lib/units";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -24,6 +25,7 @@ function Index() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
+  const [unit, setUnit] = useState("");
   const [step, setStep] = useState<"email" | "code">("email");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -69,10 +71,22 @@ function Index() {
       </header>
 
       <main className="mx-auto grid max-w-5xl gap-6 px-5 py-8 md:grid-cols-[1.1fr_1fr]">
+        <section className="panel p-6 md:col-span-2">
+          <h2 className="text-xl font-bold text-primary">Vào Sổ Chi hội / Văn phòng bằng mã truy cập</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Không cần email. Chọn đơn vị, rồi nhập mã 8 số do Văn phòng Hội cấp.</p>
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+            <select aria-label="Chọn đơn vị" className="field flex-1" value={unit} onChange={(e) => setUnit(e.target.value)}>
+              <option value="">— Chọn Chi hội —</option>
+              <option value="office">Văn phòng Hội (cán bộ)</option>
+              {Object.entries(CHAPTER_NAMES).map(([id, n]) => <option key={id} value={id}>Chi hội {n}</option>)}
+            </select>
+            <Button size="xl" disabled={!unit} onClick={() => navigate({ to: "/so/$unit", params: { unit } })}>Tiếp tục →</Button>
+          </div>
+        </section>
         <section className="panel p-6">
-          <h2 className="text-xl font-bold text-primary">Đăng nhập bằng email</h2>
+          <h2 className="text-xl font-bold text-primary">Quản trị viên: đăng nhập bằng email</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Không cần mật khẩu. Hệ thống gửi mã đăng nhập một lần vào email của bạn.
+            Dành cho quản trị viên/cán bộ được cấp email. Chi hội không cần dùng cách này.
           </p>
           {step === "email" ? (
             <form onSubmit={sendCode} className="mt-5 space-y-4">
@@ -107,8 +121,8 @@ function Index() {
           <div className="panel p-5">
             <h3 className="font-bold text-primary">Ai được sử dụng?</h3>
             <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
-              <li>Văn phòng Hội phường và các Chi hội đã được Văn phòng duyệt email.</li>
-              <li>Lần đầu đăng nhập, bạn gửi yêu cầu cấp quyền; Văn phòng gắn bạn với Chi hội.</li>
+              <li>Mỗi Chi hội vào bằng link riêng và mã 8 số do Văn phòng cấp; không cần email.</li>
+              <li>Văn phòng có thể đổi hoặc thu hồi mã bất cứ lúc nào, có hiệu lực ngay.</li>
               <li>Mỗi Chi hội chỉ thấy dữ liệu của mình. Hồ sơ nhạy cảm chỉ người được giao mới xem.</li>
             </ul>
           </div>
