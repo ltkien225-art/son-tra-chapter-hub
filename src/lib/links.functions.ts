@@ -13,7 +13,7 @@ async function guardIp(admin: Admin): Promise<(ok: boolean) => Promise<void>> {
   const since = new Date(Date.now() - 15 * 60_000).toISOString();
   const { count } = await admin.from("link_attempts").select("id", { count: "exact", head: true }).eq("ip_hash", ipHash).eq("ok", false).gte("created_at", since);
   if ((count ?? 0) >= FAIL_LIMIT) throw new Error("Thử quá nhiều lần. Vui lòng chờ 15 phút.");
-  return (ok) => admin.from("link_attempts").insert({ ip_hash: ipHash, ok }).then(() => {});
+  return async (ok) => { await admin.from("link_attempts").insert({ ip_hash: ipHash, ok }); };
 }
 
 /** Mints a session for a synthetic identity email (creates the auth user on first use). */
