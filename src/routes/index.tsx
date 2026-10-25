@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useHoiSession } from "@/hooks/use-hoi-session";
 import { viError } from "@/lib/hoi";
 import { CHAPTER_NAMES } from "@/lib/units";
+import { BrandLogo } from "@/components/hoi/BrandLogo";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -62,8 +63,9 @@ function Index() {
     <div className="min-h-screen bg-background">
       <header className="hero-lotus px-5 py-10 md:py-14">
         <div className="mx-auto max-w-5xl">
+          <BrandLogo />
           <p className="text-xs font-semibold tracking-[0.18em] opacity-90">HỘI LIÊN HIỆP PHỤ NỮ PHƯỜNG SƠN TRÀ</p>
-          <h1 className="mt-3 text-3xl font-bold md:text-5xl">✿ Văn phòng Hội & Sổ Chi hội</h1>
+          <h1 className="mt-3 text-3xl font-bold md:text-5xl">Văn phòng Hội & Sổ Chi hội</h1>
           <p className="mt-3 max-w-2xl text-base opacity-90 md:text-lg">
             Kết nối 42 Chi hội · Đồng hành cùng phụ nữ · Điều hành hiệu quả
           </p>

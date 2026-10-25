@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { openHandover } from "@/lib/links.functions";
 import { hashToken, tokenFromHash } from "@/lib/link-token";
 import { viError } from "@/lib/hoi";
+import { BrandLogo } from "@/components/hoi/BrandLogo";
 
 export const Route = createFileRoute("/tiep-nhan")({
   ssr: false,
@@ -85,8 +86,9 @@ function Handover() {
     <div className="min-h-screen bg-background">
       <header className="hero-lotus px-5 py-8">
         <div className="mx-auto max-w-md">
+          <BrandLogo />
           <p className="text-xs font-semibold tracking-[0.18em] opacity-90">HỘI LHPN PHƯỜNG SƠN TRÀ</p>
-          <h1 className="mt-2 text-2xl font-bold">✿ Tiếp nhận quản trị</h1>
+          <h1 className="mt-2 text-2xl font-bold">Tiếp nhận quản trị</h1>
         </div>
       </header>
       <main className="mx-auto max-w-md space-y-4 px-5 py-6">

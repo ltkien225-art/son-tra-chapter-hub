@@ -1,5 +1,7 @@
 # Roadmap — Hội LHPN Sơn Trà (Lovable Cloud)
 
+- [ ] Apply approved artwork to shared headers and versioned icons; verify preview and production after publishing (identity only).
+
 - [x] Backend: schema, 42 Chi hội seed, quyền theo Chi hội, thu hồi tức thì, nhật ký, kho tệp riêng tư
 - [x] Kiểm thử backend thật (tests/backend/rls.live.test.ts) — 90/90 đạt
 - [x] Giao diện Văn phòng + Sổ Chi hội, đăng nhập mã email, yêu cầu cấp quyền
