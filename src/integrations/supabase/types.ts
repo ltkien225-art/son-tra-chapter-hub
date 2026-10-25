@@ -733,6 +733,57 @@ export type Database = {
         }
         Relationships: []
       }
+      unit_login_attempts: {
+        Row: {
+          at: string
+          id: number
+          ok: boolean
+          unit: string
+        }
+        Insert: {
+          at?: string
+          id?: number
+          ok: boolean
+          unit: string
+        }
+        Update: {
+          at?: string
+          id?: number
+          ok?: boolean
+          unit?: string
+        }
+        Relationships: []
+      }
+      unit_logins: {
+        Row: {
+          enabled: boolean
+          login_email: string | null
+          pin_hash: string | null
+          rotated_at: string | null
+          rotated_by: string | null
+          unit: string
+          version: number
+        }
+        Insert: {
+          enabled?: boolean
+          login_email?: string | null
+          pin_hash?: string | null
+          rotated_at?: string | null
+          rotated_by?: string | null
+          unit: string
+          version?: number
+        }
+        Update: {
+          enabled?: boolean
+          login_email?: string | null
+          pin_hash?: string | null
+          rotated_at?: string | null
+          rotated_by?: string | null
+          unit?: string
+          version?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -791,6 +842,17 @@ export type Database = {
           updated_at: string
         }[]
       }
+      list_unit_logins: {
+        Args: never
+        Returns: {
+          enabled: boolean
+          fails_15m: number
+          rotated_at: string
+          rotated_by: string
+          unit: string
+          version: number
+        }[]
+      }
       mark_document_read: {
         Args: { _chapter: string; _doc: string }
         Returns: undefined
@@ -827,6 +889,14 @@ export type Database = {
       submission_visible: { Args: { _id: string }; Returns: boolean }
       task_assigned_to_me: { Args: { _task: string }; Returns: boolean }
       task_is_active: { Args: { _task: string }; Returns: boolean }
+      unit_login_check: {
+        Args: { _pin: string; _unit: string }
+        Returns: string
+      }
+      unit_login_rotate: {
+        Args: { _actor: string; _email: string; _pin: string; _unit: string }
+        Returns: string
+      }
       update_assignment: {
         Args: {
           _chapter: string
