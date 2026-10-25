@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as SoUnitRouteImport } from './routes/so.$unit'
 import { Route as ApiFilesIdRouteImport } from './routes/api/files.$id'
 import { Route as ApiPublicPushCronRouteImport } from './routes/api/public/push/cron'
 
@@ -22,6 +23,11 @@ const IndexRoute = IndexRouteImport.update({
 const AppRoute = AppRouteImport.update({
   id: '/app',
   path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SoUnitRoute = SoUnitRouteImport.update({
+  id: '/so/$unit',
+  path: '/so/$unit',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiFilesIdRoute = ApiFilesIdRouteImport.update({
@@ -38,12 +44,14 @@ const ApiPublicPushCronRoute = ApiPublicPushCronRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/so/$unit': typeof SoUnitRoute
   '/api/files/$id': typeof ApiFilesIdRoute
   '/api/public/push/cron': typeof ApiPublicPushCronRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/so/$unit': typeof SoUnitRoute
   '/api/files/$id': typeof ApiFilesIdRoute
   '/api/public/push/cron': typeof ApiPublicPushCronRoute
 }
@@ -51,20 +59,29 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/so/$unit': typeof SoUnitRoute
   '/api/files/$id': typeof ApiFilesIdRoute
   '/api/public/push/cron': typeof ApiPublicPushCronRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/app' | '/api/files/$id' | '/api/public/push/cron'
+  fullPaths:
+    '/' | '/app' | '/so/$unit' | '/api/files/$id' | '/api/public/push/cron'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/app' | '/api/files/$id' | '/api/public/push/cron'
-  id: '__root__' | '/' | '/app' | '/api/files/$id' | '/api/public/push/cron'
+  to: '/' | '/app' | '/so/$unit' | '/api/files/$id' | '/api/public/push/cron'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/so/$unit'
+    | '/api/files/$id'
+    | '/api/public/push/cron'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRoute
+  SoUnitRoute: typeof SoUnitRoute
   ApiFilesIdRoute: typeof ApiFilesIdRoute
   ApiPublicPushCronRoute: typeof ApiPublicPushCronRoute
 }
@@ -83,6 +100,13 @@ declare module '@tanstack/react-router' {
       path: '/app'
       fullPath: '/app'
       preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/so/$unit': {
+      id: '/so/$unit'
+      path: '/so/$unit'
+      fullPath: '/so/$unit'
+      preLoaderRoute: typeof SoUnitRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/files/$id': {
@@ -105,6 +129,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRoute,
+  SoUnitRoute: SoUnitRoute,
   ApiFilesIdRoute: ApiFilesIdRoute,
   ApiPublicPushCronRoute: ApiPublicPushCronRoute,
 }
