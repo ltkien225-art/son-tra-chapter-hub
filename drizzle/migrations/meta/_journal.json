@@ -120,6 +120,13 @@
       "when": 1793292600001,
       "tag": "0016_owner_self_service_office_links",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1793292600002,
+      "tag": "0017_office_link_private_columns",
+      "breakpoints": true
     }
   ]
 }
