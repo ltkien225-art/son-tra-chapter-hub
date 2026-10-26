@@ -561,6 +561,45 @@ export type Database = {
         }
         Relationships: []
       }
+      office_daily_links: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string
+          id: string
+          identity_email: string
+          label: string
+          last_used_at: string | null
+          revoke_reason: string | null
+          revoked_at: string | null
+          token_hash: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by: string
+          id?: string
+          identity_email: string
+          label?: string
+          last_used_at?: string | null
+          revoke_reason?: string | null
+          revoked_at?: string | null
+          token_hash: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string
+          id?: string
+          identity_email?: string
+          label?: string
+          last_used_at?: string | null
+          revoke_reason?: string | null
+          revoked_at?: string | null
+          token_hash?: string
+        }
+        Relationships: []
+      }
       push_subscriptions: {
         Row: {
           auth: string
@@ -892,6 +931,10 @@ export type Database = {
         Args: { p_hours?: number; p_label: string; p_token_hash: string }
         Returns: string
       }
+      create_office_daily_link: {
+        Args: { p_label: string; p_token_hash: string }
+        Returns: string
+      }
       current_email: { Args: never; Returns: string }
       doc_addressed_to_me: { Args: { _doc: string }; Returns: boolean }
       enqueue: {
@@ -969,6 +1012,12 @@ export type Database = {
           updated_at: string
         }[]
       }
+      office_daily_link_lookup_service: {
+        Args: { p_token_hash: string }
+        Returns: {
+          identity_email: string
+        }[]
+      }
       office_recipients: { Args: never; Returns: string[] }
       office_summary: {
         Args: { _period?: string }
@@ -991,6 +1040,10 @@ export type Database = {
         Returns: undefined
       }
       revoke_office_code: { Args: { p_reason: string }; Returns: undefined }
+      revoke_office_daily_link: {
+        Args: { p_id: string; p_reason: string }
+        Returns: undefined
+      }
       revoke_user_access: { Args: { _email: string }; Returns: undefined }
       set_office_code: { Args: { p_code_hash: string }; Returns: undefined }
       set_user_access: {
