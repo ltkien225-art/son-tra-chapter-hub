@@ -1,11 +1,9 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { fmtDateTime } from "@/lib/hoi";
-import { askLegalAi, type LegalAiResult } from "@/lib/legal.functions";
-import { LEGAL_Q_MAX, findPersonalData, searchFaqs, validateQuestion } from "@/lib/legal";
+import { LEGAL_Q_MAX, findPersonalData, searchFaqs } from "@/lib/legal";
 import { ChapterName, Empty, Section, useAction, type Ctx } from "./common";
 
 type Faq = { id: string; topic: string; question: string; answer: string; source_title: string; source_article: string; source_url: string; effective_date: string | null; verified_on: string | null; status: string };
@@ -31,9 +29,9 @@ export function Legal({ ctx }: { ctx: Ctx }) {
       <Section title="Hỏi đáp pháp luật (thông tin chung)">
         <div className="panel space-y-1 border-2 border-destructive/40 p-4 text-sm">
           <p className="font-bold text-destructive">⚠ Không nhập họ tên, số điện thoại, CCCD, địa chỉ hay chi tiết vụ việc của bất kỳ ai.</p>
-          <p>Đây chỉ là thông tin pháp luật chung, có ghi nguồn văn bản chính thức; không thay thế tư vấn pháp lý cho trường hợp cụ thể. Câu hỏi riêng hãy dùng mục “Gửi câu hỏi riêng cho cán bộ” bên dưới (không qua AI).</p>
+          <p>Câu hỏi sẽ được gửi tới Google khi bấm tìm. Kết quả và phần AI do Google cung cấp, có thể không xuất hiện hoặc không chính xác; hãy đối chiếu văn bản chính thức. Câu hỏi riêng hãy dùng mục “Gửi câu hỏi riêng cho cán bộ” bên dưới.</p>
         </div>
-        <AskAi faqs={faqs} />
+        <GoogleSearch />
       </Section>
 
       <Section title={`Thư viện hỏi đáp ${office ? "(Văn phòng thấy cả mục chờ duyệt)" : "đã duyệt"}`}>
@@ -73,48 +71,17 @@ function FaqItem({ f, office }: { f: Faq; office: boolean }) {
   );
 }
 
-function AskAi({ faqs }: { faqs: Faq[] }) {
-  const ask = useServerFn(askLegalAi);
+function GoogleSearch() {
   const [text, setText] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [res, setRes] = useState<LegalAiResult | null>(null);
-  const [err, setErr] = useState("");
   const pii = findPersonalData(text);
-  async function go() {
-    const bad = validateQuestion(text);
-    if (bad) { setErr(bad); return; }
-    setBusy(true); setErr(""); setRes(null);
-    try { setRes(await ask({ data: { question: text } })); }
-    catch (e) { setErr(e instanceof Error ? e.message : "Có lỗi, vui lòng thử lại."); }
-    finally { setBusy(false); }
-  }
-  const fallback = res?.mode === "faq" ? searchFaqs(faqs.filter((f) => f.status === "approved"), text, 5) : [];
   return (
-    <div className="panel space-y-3 p-5">
-      <label className="label">Câu hỏi chung (tối đa {LEGAL_Q_MAX} ký tự)</label>
-      <textarea className="field min-h-24" maxLength={LEGAL_Q_MAX} value={text} onChange={(e) => setText(e.target.value)} placeholder="Ví dụ: Khi bị bạo lực gia đình có thể báo cho ai?" />
-      {pii.length > 0 && <p className="text-sm font-semibold text-destructive">Có vẻ chứa {pii.join(", ")} — hãy xóa trước khi gửi.</p>}
-      <Button size="xl" disabled={busy || pii.length > 0 || text.trim().length < 8} onClick={go}>{busy ? "Đang tra cứu…" : "Tra cứu nguồn chính thức"}</Button>
-      {err && <p className="text-sm font-semibold text-destructive">{err}</p>}
-      {res?.mode === "ai" && (
-        <div className="rounded-xl bg-accent p-4 text-sm">
-          <p className="whitespace-pre-wrap">{res.answer}</p>
-          <p className="mt-3 text-muted-foreground">{res.limitation}</p>
-          {res.claims.map((c, i) => <details key={i} className="mt-3 border-t border-border pt-2"><summary className="cursor-pointer font-semibold">Trích dẫn cho nhận định {i + 1} · [{c.sourceId}]</summary><blockquote className="mt-2 whitespace-pre-wrap border-l-2 border-primary pl-3">{c.quote}</blockquote></details>)}
-          <p className="mt-2 text-xs text-muted-foreground">Còn {res.remaining} lượt hôm nay. Nội dung tự động cần đối chiếu trước khi áp dụng.</p>
-        </div>
-      )}
-      {res?.mode === "faq" && (
-        <div className="space-y-2 rounded-xl bg-secondary p-4 text-sm">
-          <p className="font-semibold">{res.message}</p>
-          {res.providerStatus && <p>Mã phản hồi Google: {res.providerStatus}.</p>}
-          {res.remaining !== undefined && <p>Còn {res.remaining} lượt hôm nay.</p>}
-          {fallback.length > 0 && <ul className="list-disc pl-5">{fallback.map((f) => <li key={f.id}>{f.question}</li>)}</ul>}
-        </div>
-      )}
-      {res?.retrievedAt && <p className="text-xs text-muted-foreground">Tra cứu: {fmtDateTime(res.retrievedAt)}</p>}
-      {res?.sources && res.sources.length > 0 && <div className="space-y-2 border-t border-border pt-3 text-sm"><p className="font-semibold">Nguồn đã tải</p>{res.sources.map((s) => <p key={s.id} className="break-words"><a className="text-primary underline" href={s.url} target="_blank" rel="noopener noreferrer">[{s.id}] {s.title}</a><span className="block text-xs text-muted-foreground">{s.kind === "record" ? "Chỉ thông tin văn bản; không xác nhận điều khoản" : "Toàn văn đọc được"} · {fmtDateTime(s.retrievedAt)}</span></p>)}</div>}
-    </div>
+    <form className="panel space-y-3 p-5" action="https://www.google.com/search" method="get" target="_blank" rel="noopener noreferrer">
+      <label className="label" htmlFor="legal-google-question">Câu hỏi chung (tối đa {LEGAL_Q_MAX} ký tự)</label>
+      <textarea id="legal-google-question" name="q" className="field min-h-24" maxLength={LEGAL_Q_MAX} value={text} onChange={(e) => setText(e.target.value)} placeholder="Ví dụ: Khi bị bạo lực gia đình có thể báo cho ai?" />
+      {pii.length > 0 && <p role="alert" className="text-sm font-semibold text-destructive">Có vẻ chứa {pii.join(", ")} — hãy xóa trước khi tìm.</p>}
+      <Button type="submit" size="xl" disabled={pii.length > 0 || text.trim().length < 8}>Tìm trên Google</Button>
+      <p className="text-sm text-muted-foreground">Google mở ở thẻ mới và nhận câu hỏi đã nhập. Phần trả lời AI do Google quyết định hiển thị.</p>
+    </form>
   );
 }
 
