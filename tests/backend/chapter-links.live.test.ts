@@ -45,6 +45,8 @@ if (phase === "setup") {
     const lookup = await root.rpc("chapter_private_link_lookup_service", { p_chapter: chapter, p_hash: hash });
     const identity = lookup.data?.[0]?.identity_email;
     if (!identity) throw new Error("TEST link lookup failed");
+    const account = await root.auth.admin.createUser({ email: identity, email_confirm: true });
+    if (account.error) throw new Error("Cannot create isolated TEST link account");
     links.push({ chapter, token, id: issued.data, identity });
   }
   await mkdir("/tmp/browser/chapter-links", { recursive: true });
@@ -64,6 +66,26 @@ if (phase === "setup") {
   check("wrong unit binding rejects link", (await root.rpc("chapter_private_link_lookup_service", { p_chapter: "ch02", p_hash: await hashToken(first.token) })).data?.length === 0);
   check("invalid link rejects", (await root.rpc("chapter_private_link_lookup_service", { p_chapter: "ch01", p_hash: "0".repeat(64) })).data?.length === 0);
   console.log(`${passed} live assertions passed; TEST fixtures retained solely for browser acceptance.`);
+} else if (phase === "verify-revoked") {
+  const state = JSON.parse(await readFile(statePath, "utf8"));
+  const first = state.links[0];
+  const old = await signIn(first.identity);
+  check("revoked identity cannot access its chapter", (await old.client.rpc("can_chapter", { _ch: "ch01" })).data === false);
+  check("revoked identity cannot send report", Boolean((await old.client.from("submissions").insert({ chapter_id: "ch01", kind: "report", title: `[TEST ${state.run}] revoked attempt`, created_by: "" })).error));
+  const reactivated = await root.from("app_users").update({ active: true }).eq("email", first.identity);
+  check("TEST identity reactivation succeeded", !reactivated.error);
+  check("parent revocation cannot be undone by identity reactivation", (await old.client.rpc("can_chapter", { _ch: "ch01" })).data === false);
+  const access = (await old.client.rpc("my_access")).data as { chapters?: string[] };
+  check("revoked identity has no visible chapters", access.chapters?.length === 0);
+  const reports = await root.from("submissions").select("id").eq("created_by", first.identity);
+  const ids = (reports.data ?? []).map((r) => r.id);
+  const attachments = ids.length ? await root.from("attachments").select("id").in("owner_id", ids) : { data: [] };
+  for (const file of attachments.data ?? []) {
+    const response = await fetch(`${process.env["APP_URL"] ?? "http://localhost:8080"}/api/files/${file.id}`, { headers: { Authorization: `Bearer ${old.session.access_token}` } });
+    check("revoked session cannot download protected file", response.status === 403 || response.status === 401);
+  }
+  await root.from("app_users").update({ active: false }).eq("email", first.identity);
+  console.log(`${passed} live parent revocation/file assertions passed.`);
 } else if (phase === "cleanup") {
   const state = JSON.parse(await readFile(statePath, "utf8"));
   const createdLinks = await root.from("chapter_private_links").select("id,identity_email").eq("created_by", state.email);
