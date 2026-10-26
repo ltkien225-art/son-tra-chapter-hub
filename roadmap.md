@@ -1,5 +1,7 @@
 # Roadmap — Hội LHPN Sơn Trà (Lovable Cloud)
 
+- [ ] Legal research: verify Google model/grounding cost, replace mandatory approved FAQ with actual official-source retrieval within no-paid-service authorization; preserve privacy/access/quota; update guide/UI; TEST production acceptance, security and publish only after verification.
+
 - [x] Replace chapter PIN workflow with reusable private links: additive schema, current parent permissions, issue/copy/change/revoke, entry and guides; operational data and office access untouched.
 - [x] Local authorized TEST acceptance: two independent desktop/iPhone-width sessions, PDF/image upload/reload/view/download, Office reception, isolation, invalid/revoked links, rotation and parent revocation; 30 unit + 145 regression + 23 link/file live assertions passed; basic security scan no findings (not deep analysis).
 - [x] Published chapter link workflow; production browser acceptance passed with two isolated TEST contexts, report/attachments received by Office, cross-chapter rejection and both sessions rejected after revoke. Production gateway rejects revoked file reads. Removed only this run's TEST data, retaining audit evidence. Physical Safari/Android/Zalo remains unverified.
