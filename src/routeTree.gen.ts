@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as CapLinkVanPhongRouteImport } from './routes/cap-link-van-phong'
 import { Route as TiepNhanRouteImport } from './routes/tiep-nhan'
 import { Route as VanPhongRouteImport } from './routes/van-phong'
 import { Route as SoUnitRouteImport } from './routes/so.$unit'
@@ -25,6 +26,11 @@ const IndexRoute = IndexRouteImport.update({
 const AppRoute = AppRouteImport.update({
   id: '/app',
   path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CapLinkVanPhongRoute = CapLinkVanPhongRouteImport.update({
+  id: '/cap-link-van-phong',
+  path: '/cap-link-van-phong',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TiepNhanRoute = TiepNhanRouteImport.update({
@@ -56,6 +62,7 @@ const ApiPublicPushCronRoute = ApiPublicPushCronRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/cap-link-van-phong': typeof CapLinkVanPhongRoute
   '/tiep-nhan': typeof TiepNhanRoute
   '/van-phong': typeof VanPhongRoute
   '/so/$unit': typeof SoUnitRoute
@@ -65,6 +72,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/cap-link-van-phong': typeof CapLinkVanPhongRoute
   '/tiep-nhan': typeof TiepNhanRoute
   '/van-phong': typeof VanPhongRoute
   '/so/$unit': typeof SoUnitRoute
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/cap-link-van-phong': typeof CapLinkVanPhongRoute
   '/tiep-nhan': typeof TiepNhanRoute
   '/van-phong': typeof VanPhongRoute
   '/so/$unit': typeof SoUnitRoute
@@ -86,6 +95,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/app'
+    | '/cap-link-van-phong'
     | '/tiep-nhan'
     | '/van-phong'
     | '/so/$unit'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/app'
+    | '/cap-link-van-phong'
     | '/tiep-nhan'
     | '/van-phong'
     | '/so/$unit'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/app'
+    | '/cap-link-van-phong'
     | '/tiep-nhan'
     | '/van-phong'
     | '/so/$unit'
@@ -114,6 +126,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRoute
+  CapLinkVanPhongRoute: typeof CapLinkVanPhongRoute
   TiepNhanRoute: typeof TiepNhanRoute
   VanPhongRoute: typeof VanPhongRoute
   SoUnitRoute: typeof SoUnitRoute
@@ -135,6 +148,13 @@ declare module '@tanstack/react-router' {
       path: '/app'
       fullPath: '/app'
       preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cap-link-van-phong': {
+      id: '/cap-link-van-phong'
+      path: '/cap-link-van-phong'
+      fullPath: '/cap-link-van-phong'
+      preLoaderRoute: typeof CapLinkVanPhongRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tiep-nhan': {
@@ -178,6 +198,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRoute,
+  CapLinkVanPhongRoute: CapLinkVanPhongRoute,
   TiepNhanRoute: TiepNhanRoute,
   VanPhongRoute: VanPhongRoute,
   SoUnitRoute: SoUnitRoute,

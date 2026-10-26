@@ -1,10 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useHoiSession } from "@/hooks/use-hoi-session";
-import { openOfficeCode } from "@/lib/links.functions";
+import { openOfficeCode, openOfficeDailyLink } from "@/lib/links.functions";
+import { dailyTokenFromHash } from "@/lib/office-link";
+import { hashToken } from "@/lib/link-token";
+import { useQueryClient } from "@tanstack/react-query";
 import { viError } from "@/lib/hoi";
 import { BrandLogo } from "@/components/hoi/BrandLogo";
 
@@ -19,6 +22,7 @@ export const Route = createFileRoute("/van-phong")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
+      { name: "referrer", content: "no-referrer" },
     ],
   }),
   component: OfficeGate,
@@ -29,11 +33,38 @@ function OfficeGate() {
   const { session, ready } = useHoiSession();
   const navigate = useNavigate();
   const open = useServerFn(openOfficeCode);
+  const openDaily = useServerFn(openOfficeDailyLink);
+  const qc = useQueryClient();
+  const started = useRef(false);
+  const [checkingLink, setCheckingLink] = useState(true);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  useEffect(() => { if (ready && session) navigate({ to: "/app" }); }, [ready, session, navigate]);
+  useEffect(() => {
+    if (started.current) return;
+    started.current = true;
+    const fragment = window.location.hash;
+    const token = dailyTokenFromHash(fragment);
+    if (fragment.startsWith("#k=")) window.history.replaceState(null, "", window.location.pathname);
+    if (!token) {
+      if (fragment.startsWith("#k=")) setErr("Liên kết không hợp lệ hoặc đã bị thu hồi.");
+      setCheckingLink(false); return;
+    }
+    setBusy(true);
+    (async () => {
+      try {
+        const r = await openDaily({ data: { tokenHash: await hashToken(token) } });
+        await qc.cancelQueries(); qc.clear();
+        await supabase.auth.signOut({ scope: "local" });
+        const { error } = await supabase.auth.verifyOtp({ token_hash: r.tokenHash, type: "magiclink" });
+        if (error) throw new Error("Không mở được phiên Văn phòng. Thử mở lại link.");
+        navigate({ to: "/app" });
+      } catch { setErr("Liên kết không hợp lệ, đã bị thu hồi hoặc hệ thống tạm lỗi. Liên hệ người cấp link."); }
+      finally { setBusy(false); setCheckingLink(false); }
+    })();
+  }, [openDaily, navigate, qc]);
+  useEffect(() => { if (ready && session && !checkingLink && !err) navigate({ to: "/app" }); }, [ready, session, checkingLink, err, navigate]);
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -61,6 +92,7 @@ function OfficeGate() {
         </div>
       </header>
       <main className="mx-auto max-w-md space-y-4 px-5 py-6">
+        {checkingLink ? <p role="status">Đang mở Văn phòng…</p> : <>
         <section className="panel p-5">
           <h2 className="text-lg font-bold text-primary">Nhập mã bảo vệ Văn phòng</h2>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -79,7 +111,9 @@ function OfficeGate() {
             Sai mã nhiều lần sẽ bị khóa tạm 15 phút. Chưa có mã hoặc mã bị thu hồi: liên hệ quản trị. <b>Lần đầu tiếp nhận hệ thống:</b> mở liên kết tiếp nhận do người bàn giao gửi để tự đặt mã. Chi hội mở bằng liên kết riêng đã nhận, không dùng mã này.
           </p>
         </section>
+        <Link to="/cap-link-van-phong" className="block text-center font-semibold text-primary underline">Chủ sở hữu: xác minh để cấp link dùng chung</Link>
         <Link to="/" className="block text-center text-sm text-primary underline">Về trang đầu</Link>
+        </>}
       </main>
     </div>
   );

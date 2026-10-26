@@ -24,6 +24,7 @@ export function identityLabel(email: string | null | undefined): string | null {
   if (!email) return null;
   if (email === OFFICE_CODE_EMAIL) return "Đăng nhập bằng mã bảo vệ Văn phòng";
   if (email === HANDOVER_EMAIL) return "Quản trị · tiếp nhận bằng liên kết một lần";
+  if (/^vp-link-[a-f0-9]+@ma-truy-cap\.hoisontra\.app$/.test(email)) return "Văn phòng · liên kết dùng chung";
   const u = codeLoginUnit(email);
   return u ? `Đăng nhập bằng mã truy cập · ${unitLabel(u)}` : null;
 }

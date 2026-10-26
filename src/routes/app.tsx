@@ -47,6 +47,8 @@ function AppPage() {
 }
 
 function Workspace({ email, userId }: { email: string; userId: string }) {
+  const qc = useQueryClient();
+  const navigate = useNavigate();
   const access = useQuery({ queryKey: ["access"], queryFn: fetchAccess, refetchInterval: 60_000 });
   const chapters = useQuery({ queryKey: ["chapters", access.data], queryFn: fetchChapters, enabled: !!access.data });
   const [tab, setTab] = useState("home");
@@ -62,10 +64,15 @@ function Workspace({ email, userId }: { email: string; userId: string }) {
     if (!chapterId || !own.includes(chapterId)) setChapterId(own[0] ?? null);
   }, [access.data, chapterId]);
 
-  const signOut = () => supabase.auth.signOut();
+  const signOut = async () => {
+    await qc.cancelQueries(); qc.clear();
+    await supabase.auth.signOut({ scope: "local" });
+    navigate({ to: "/van-phong", replace: true });
+  };
   if (access.isLoading) return <div className="p-10 text-center text-muted-foreground">Đang kiểm tra quyền…</div>;
   if (access.error) return <div className="p-10 text-center">{viError(access.error)}</div>;
-  const a = access.data!;
+  const a = access.data;
+  if (!a) return <div className="p-10 text-center">Không đọc được quyền truy cập.</div>;
   const hasAny = a.office || a.chapters.length > 0;
   if (!hasAny) return <NoAccess email={email} userId={userId} onSignOut={signOut} />;
 
