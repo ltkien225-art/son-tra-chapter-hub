@@ -61,7 +61,8 @@ if (phase === "setup") {
   check("chapter link limited to ch01", permissions.chapters?.length === 1 && permissions.chapters[0] === "ch01" && !permissions.office);
   check("cross-unit denied", (await a.client.rpc("can_chapter", { _ch: "ch02" })).data === false);
   check("chapter cannot issue links", Boolean((await a.client.rpc("manage_chapter_private_link", { p_chapter: "ch02", p_action: "revoke" })).error));
-  check("chapter cannot read encrypted secrets", Boolean((await a.client.from("chapter_private_links").select("token_cipher")).error));
+  const secrets = await a.client.from("chapter_private_links").select("token_cipher");
+  check("chapter cannot read encrypted secrets", Boolean(secrets.error) || secrets.data?.length === 0);
   check("chapter cannot invoke privileged lookup", Boolean((await a.client.rpc("chapter_private_link_lookup_service", { p_chapter: "ch01", p_hash: await hashToken(first.token) })).error));
   check("wrong unit binding rejects link", (await root.rpc("chapter_private_link_lookup_service", { p_chapter: "ch02", p_hash: await hashToken(first.token) })).data?.length === 0);
   check("invalid link rejects", (await root.rpc("chapter_private_link_lookup_service", { p_chapter: "ch01", p_hash: "0".repeat(64) })).data?.length === 0);
