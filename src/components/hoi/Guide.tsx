@@ -5,6 +5,7 @@ export function Guide({ office }: { office: boolean }) {
     ? [
         ["Vào Văn phòng", "Cán bộ mở đường dẫn /van-phong, nhập mã bảo vệ Văn phòng — không cần email. Mã do quản trị đặt tại “Phân quyền” → “Mã bảo vệ Văn phòng”. Sai nhiều lần bị khóa tạm 15 phút. Quên mã: quản trị vào đặt lại mã mới."],
         ["Tiếp nhận quản trị", "Khi chuyển quyền quản trị cho người mới (ví dụ Chủ tịch Hội): quản trị hiện tại vào “Phân quyền” → “Liên kết tiếp nhận quản trị” → “Cấp liên kết tiếp nhận mới”, sao chép và gửi KÍN (Zalo cá nhân). Liên kết chỉ dùng một lần, hết hạn 72 giờ. Người nhận mở liên kết, tự đặt mã bảo vệ Văn phòng rồi vào làm việc."],
+        ["Cấp liên kết Sổ", "Vào Phân quyền → Quản lý liên kết Sổ 42 Chi hội → chọn đúng Chi hội → Cấp liên kết Sổ → Sao chép gửi Zalo riêng. Link đang có: Sao chép link Sổ không làm đổi link. Đổi link/Thu hồi phải xác nhận; mọi máy dùng link cũ mất quyền ở yêu cầu tiếp theo, báo cáo và tệp vẫn giữ nguyên. Không dùng liên kết tiếp nhận một lần làm link Sổ."],
         ["Duyệt người dùng", "Vào “Phân quyền”. Người mới đăng nhập sẽ hiện trong “Yêu cầu chờ duyệt”. Bấm “Duyệt & gắn Chi hội”, chọn đúng Chi hội rồi Lưu. Thu hồi có hiệu lực ngay."],
         ["Văn bản", "Tạo văn bản (lưu nháp) → kiểm tra → “Phát hành” cho tất cả hoặc Chi hội được chọn. “Thu hồi” làm Chi hội không còn đọc được nội dung. “Lưu trữ” để gọn danh sách, có thể khôi phục."],
         ["Nhiệm vụ", "Giao nhiệm vụ, đặt hạn, chọn Chi hội. Theo dõi tiến độ từng Chi hội; mục quá hạn tô đỏ. Lưu trữ khi xong."],
@@ -16,7 +17,7 @@ export function Guide({ office }: { office: boolean }) {
         ["Sao lưu", "Quản trị tải tệp sao lưu định kỳ (ví dụ mỗi tuần), cất ở nơi an toàn. Khôi phục luôn chạy “Kiểm tra thử” trước."],
       ]
     : [
-        ["Đăng nhập", "Mở link riêng của Chi hội (Văn phòng gửi, dạng …/so/ch01) hoặc vào trang đầu → chọn Chi hội → “Tiếp tục”. Nhập mã truy cập 8 số do Văn phòng đọc/gọi điện báo. Không cần email. Không đăng mã lên nhóm. Sai 5 lần bị khóa 15 phút. Nếu hiện “Mã đã được đổi hoặc thu hồi”: liên hệ Văn phòng nhận mã mới."],
+        ["Mở Sổ Chi hội", "Mở nguyên liên kết riêng Văn phòng gửi qua Zalo để vào đúng Sổ, không cần email, mật khẩu, PIN hay OTP. Cùng link dùng được trên nhiều điện thoại/laptop, không khóa máy đầu tiên. Link không tự hết hạn; nếu bị đổi/thu hồi hãy liên hệ Văn phòng nhận link mới. Không gửi link lên nhóm công khai. Trong Zalo, chọn mở bằng Safari/Chrome và giữ nguyên link đầy đủ."],
         ["Văn bản nhận", "Bấm vào văn bản để đọc nội dung. Tệp đính kèm có nút “Xem” (xem ngay trong ứng dụng, ảnh có “Phóng to”) và “Tải về”."],
         ["Nhiệm vụ", "Mở nhiệm vụ: xem tệp hướng dẫn kèm theo; chọn trạng thái, kéo tiến độ, bấm “Cập nhật tiến độ”. Để nộp kết quả: ở ô “Gửi kết quả / minh chứng về Văn phòng” ghi tóm tắt, bấm “📎 Đính kèm…” (điện thoại có thêm “📷 Chụp ảnh”), rồi bấm “Gửi kết quả”."],
         ["Gửi báo cáo", "Chọn loại (báo cáo, hoạt động, tình hình, phản ánh), nhập tiêu đề, nội dung, bấm ô “📎 Đính kèm PDF / ảnh / minh chứng” để chọn tệp, rồi bấm “Gửi lên Văn phòng & … tệp”. Tệp lỗi có nút “Thử lại”; muốn bổ sung thì mở mục đã gửi và đính kèm thêm. Gửi nhầm thì bấm “Thu hồi”. Phản hồi của Văn phòng hiện ngay dưới mục đã gửi."],
@@ -36,7 +37,7 @@ export function Guide({ office }: { office: boolean }) {
     ["Hỏi đáp pháp luật", office
       ? "Mục “Hỏi đáp pháp luật”: chọn mục có sẵn hoặc nhập câu hỏi/trả lời, tên văn bản, điều khoản, liên kết chính thức (https://), ngày hiệu lực, ngày kiểm chứng → “Lưu (chờ duyệt)”. Chỉ khi đã đối chiếu văn bản gốc mới bấm “Duyệt & hiển thị”. Câu hỏi riêng của Chi hội hiện ở cuối trang để trả lời; không đưa vào AI."
       : "Mục “Hỏi đáp pháp luật”: gõ từ khóa để tìm câu hỏi đáp đã duyệt, bấm để xem trả lời và văn bản gốc. Có thể hỏi trợ lý (chỉ câu hỏi chung, KHÔNG ghi tên, số điện thoại, CCCD, địa chỉ). Việc riêng: dùng “Gửi câu hỏi riêng cho cán bộ”, chỉ Văn phòng đọc."],
-    ["Xử lý lỗi thường gặp", "Không nhận được mã: xem thư Rác/Spam, chờ 1 phút rồi gửi lại. “Chưa được cấp quyền”: gửi yêu cầu và báo Văn phòng. Không có thông báo: kiểm tra đã cho phép thông báo trong cài đặt máy, iPhone phải mở từ màn hình chính; bấm “Gửi thử”. Lỗi khi gửi: kiểm tra mạng rồi bấm lại — hệ thống chống gửi trùng."],
+    ["Xử lý lỗi thường gặp", "Link Sổ sai hoặc bị thu hồi: liên hệ Văn phòng nhận link mới. Email xác minh quản trị không đến: kiểm tra thư Rác/Spam. “Chưa được cấp quyền”: gửi yêu cầu và báo Văn phòng. Không có thông báo: kiểm tra đã cho phép thông báo trong cài đặt máy, iPhone phải mở từ màn hình chính; bấm “Gửi thử”. Lỗi khi gửi: kiểm tra mạng rồi bấm lại — hệ thống chống gửi trùng."],
   ];
   return (
     <Section title="Hướng dẫn sử dụng">
