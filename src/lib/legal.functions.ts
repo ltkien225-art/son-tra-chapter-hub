@@ -32,7 +32,7 @@ export const askLegalAi = createServerFn({ method: "POST" })
     const ctxText = hits.map((f, i) => `[${i + 1}] Hỏi: ${f.question}\nĐáp: ${f.answer}\nNguồn: ${f.source_title} ${f.source_article}`).join("\n\n");
     const prompt = `Bạn là trợ lý thông tin pháp luật CHUNG của Hội LHPN phường Sơn Trà. Chỉ được dùng các mục tham khảo dưới đây, không dùng kiến thức khác, không nêu điều luật không có trong tham khảo, không tư vấn cho trường hợp cá nhân. Trả lời tiếng Việt, ngắn gọn (tối đa 150 từ), cuối câu trả lời ghi "Căn cứ: [số]" theo mục đã dùng. Nếu tham khảo không đủ để trả lời, chỉ trả lời đúng một từ: KHONG_CHAC.\n\nTHAM KHẢO:\n${ctxText}\n\nCÂU HỎI: ${data.question.trim()}`;
     try {
-      const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent", {
+      const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent", {
         method: "POST",
         headers: { "content-type": "application/json", "x-goog-api-key": key },
         body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { temperature: 0.1, maxOutputTokens: 600 } }),
