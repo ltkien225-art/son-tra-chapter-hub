@@ -1,5 +1,33 @@
 # Hỏi đáp pháp luật — trạng thái 26-10-2026
 
+## Lượt tiếp tục 08:14–08:20 UTC — giảm tải, Google vẫn 429, chưa xuất bản
+
+### Kết quả thực tế
+- Kiểm tra chỉ có/không: GEMINI_API_KEY hiện diện; không in, ghi log hoặc thay giá trị. Thử câu “Khi cần đăng ký kết hôn thì làm gì?” qua helper máy chủ với nguồn công khai thật: 14.808 giây tổng truy xuất + gọi; Google trả **429 ngay bước tạo nhận định**. Dừng ngay sau một request Google, không gọi kiểm nghĩa, không probe model riêng hoặc thử bạo lực thêm. Chưa xác nhận hạn mức đã phục hồi; không có câu trả lời được chấp nhận trong lượt này. Không reset quota ứng dụng, không bật billing/paid grounding/Max hay thay key/model.
+- Nguồn kết hôn: bài Chính phủ về NĐ 120/2025, PDF Bà Nà và VBHN 401/2026 thực tải. Bài Chính phủ chuyển thẩm quyền hộ tịch liên quan về cấp xã; 5/10 ngày chỉ là kết hôn có yếu tố nước ngoài. PDF Bà Nà không chứng minh kênh nộp/thời hạn riêng Sơn Trà. Không xác nhận đủ sửa đổi/thay thế hoặc mọi điều kiện kết hôn từ hai nguồn này.
+- Không gọi Google thêm khi kiểm nguồn bạo lực gia đình: toàn văn Luật 13/2022 thực tải; đoạn Điều 19 chứa UBND cấp xã nơi xảy ra hành vi, Công an/Đồn Biên phòng gần nơi xảy ra hành vi, cơ sở giáo dục, trưởng thôn/tổ trưởng; đoạn khác chứa gọi điện/nhắn tin/gửi đơn thư/báo trực tiếp và trách nhiệm xử lý. Đã đọc đối chiếu đoạn thực tải, chưa có lời đáp Gemini mới để nghiệm thu ngữ nghĩa. Tìm kiếm còn có luật 2007 (metadata) và NĐ sửa đổi 347/2026; không suy ra văn bản hiện hành toàn bộ từ ngày hiệu lực. Chưa kiểm hết quan hệ thay thế và nghị định chi tiết.
+- Câu “Pháp luật Sao Hỏa quy định gì?” truy xuất thật: **0 nguồn, 0 đoạn**; helper không có bằng chứng để gọi model. Đây không phải nghiệm thu UI/RPC.
+
+### Thay đổi tối thiểu
+- Nguồn công khai chỉ cache ba khóa chủ đề cố định trong bộ nhớ tối đa **10 phút**, giới hạn số chủ đề, gom các lượt tải đồng thời; giữ nguyên retrievedAt gốc, không cache lỗi/metadata-only, không cache câu hỏi/câu trả lời/phiên/hồ sơ riêng. Cache best-effort theo instance, không đảm bảo mọi instance dùng chung. Quyền/quota vẫn kiểm mỗi yêu cầu, không bị cache bỏ qua.
+- Ngân sách bằng chứng giảm từ 30 đoạn × 1400 xuống tối đa **12 đoạn × 1000 ký tự**, tối đa 6 đoạn/nguồn, không chọn cửa sổ chồng nhau. Ưu tiên “báo tin/tố giác/địa chỉ tiếp nhận” khi hỏi bạo lực báo cho ai. Đầu ra generation giảm từ 5000 xuống **1800 tokens**. Vẫn giữ kiểm nguyên văn/điều/URL và **bước Google kiểm nghĩa riêng**; không gộp thành tự xác nhận để giảm call.
+- Provider 429 trả ngay, không retry quota. 5xx vẫn giữ một retry giới hạn; nguồn công khai giữ retry cũ. Thời gian giới hạn theo request/PDF như trước, không tuyên bố tổng thời gian production đã đo.
+- Cache bạo lực tải lại cùng instance: **0 ms** trong phép đo helper sau lần đầu khoảng 12 giây. Đây không phải đo production hoặc cam kết tốc độ.
+
+### Phiên TEST và bước khả thi không phát sinh phí
+- Lệnh chính thức đã chạy đúng: `lovable auth-session --create-test-user --json`. Công cụ trả “Creating a test user is not available for this project”; **không trả approval_required, action/params, thẻ hoặc URL phê duyệt**. Không thể dùng approvals tool để tạo thẻ không tồn tại. Không dùng --self, không tạo magic-link service-role hoặc giả owner thay thế. Không tạo dữ liệu TEST trong lượt này, nên không có gì cần dọn.
+- Bước chủ dự án có thể làm: **trong Lovable Preview của dự án Hội, mở trang đầu → đăng nhập bằng một email TEST riêng do chủ dự án kiểm soát → tự nhập mã trong thư ngay tại trang (không gửi mã/mật khẩu/link/khóa vào chat)**. Nếu chưa có quyền, để TEST gửi yêu cầu rồi quản trị duyệt chính email TEST bằng Phân quyền; không đổi quyền người thật/link thật. Sau đó trở lại Preview đăng nhập TEST và gửi “đã đăng nhập TEST”. Phiên có thể được công cụ chính thức cung cấp ở lượt tiếp theo; cần kiểm trạng thái thực tế, không hứa rằng chắc chắn đã có session. Gửi thư và cấu hình xác thực hosted chưa được kiểm bằng tài khoản TEST tại lượt này.
+- Phương án Google không có phí tìm kiếm mới: chờ hạn mức phục hồi, giữ truy xuất trực tiếp hiện có và chỉ thử lại một luồng kết hôn sau đó. Không đọc được số quota Google còn lại hoặc thời điểm phục hồi, không hứa thời gian; chủ dự án có thể xem hạn mức trong Google AI Studio của mình, không cần gửi khóa. Hai bước kiểm chứng vẫn phải vượt qua trước nghiệm thu.
+
+### Kiểm thử/bằng chứng/phiên bản
+- **37/37 tests liên quan** (5 tệp) đạt: cache 3, fetch/passage 9, research semantic 5, evidence 13, legal privacy/limit 7. Không chạy lại bộ backend rộng. Các negative PII/quota/nguồn giả/cũ/ngữ nghĩa/lỗi mạng ở đây là unit mock; không thay thế kiểm TEST quyền/quota/thu hồi phiên thật.
+- Biên dịch tự động **build OK 08:17:33 UTC**. Quét bảo mật mới không thấy lỗi trong **basic checks**, không chạy deep code analysis; kết quả cũ supply-chain stale không được coi là scan mới.
+- Chromium mô phỏng 1280×1800 và 390×844 trên trang đầu preview và production đều HTTP 200, không tràn ngang; screenshot đã xem. Đây chỉ là trang công khai không đăng nhập, không phải Safari/Android vật lý hoặc runtime PDF/Hỏi đáp production. Ban đầu navigation cùng page timeout; mở page mới cho từng viewport thì đạt.
+- Bằng chứng không chứa secret: `/tmp/browser/legal-recovery/marriage.json`, `violence-public-sources.json`, `outside-public-sources.json`, `browser-results.log`, `screenshots/`. JSON chứa chỉ câu hỏi chung/nguồn công khai và kết quả lỗi. Script probe không lưu khóa.
+- Mã quan sát sau thay đổi: **cb93cd7250d8cc6c192a11175e7bcada9cfeabe4** (trước cập nhật báo cáo cuối), **không phải SHA triển khai**. Không yêu cầu publish trong lượt này; production https://son-tra-chapter-hub.lovable.app vẫn giữ bản đã xuất bản trước, chưa xác nhận luồng mới.
+- Tệp mới: `src/lib/legal-source-cache.server.ts`, `src/test/legal-source-cache.test.ts`. Tệp sửa: `src/lib/legal-research.server.ts`, `src/lib/legal-passages.ts`, `src/lib/legal-fetch.server.ts`, `src/test/legal-fetch.test.ts`, `src/components/hoi/Guide.tsx`, `AGENTS.md`, `roadmap.md`, báo cáo này. Không đổi schema/quyền/link/phiên/logo hoặc dữ liệu thật.
+- Còn chờ: Google phục hồi + TEST chính thức để nghiệm thu preview kết hôn/bạo lực/ngoài nguồn/PII/quota/phân quyền/thu hồi, đối chiếu đủ nguồn hiện hành, runtime production và xuất bản/xác minh production sau khi đạt. Không coi unit/HTTP 200/helper là nghiệm thu.
+
 ## Lượt tiếp tục 07:33–07:43 UTC — chưa xuất bản
 
 - Giữ nguyên ứng dụng, khóa/link/logo/quyền. Bổ sung truy xuất trực tiếp bài Chính phủ về Nghị định 120/2025/NĐ-CP và PDF hướng dẫn kết hôn tại cổng xã Bà Nà, Đà Nẵng. Cả hai HTTP 200, nội dung thực tải được. Cổng DVC quốc gia timeout; không dùng snippet thay cho bằng chứng, không kích hoạt OCR/tìm kiếm trả phí.
@@ -24,7 +52,7 @@ Luồng mới đã được triển khai ở mã nguồn, nhưng chưa đạt y�
 - Bỏ yêu cầu có FAQ approved; không đọc FAQ để quyết định gọi Gemini; 3 mục mẫu vẫn pending, 0 approved khi kiểm tra.
 - Máy chủ dùng biểu mẫu tìm kiếm công khai của vanban.chinhphu.vn, tải metadata và PDF tại datafiles.chinhphu.vn, giới hạn dung lượng/trang/thời gian và không theo redirect. Không sử dụng dịch vụ tìm kiếm trả phí hay google_search.
 - Gemini sinh nhận định/trích dẫn có cấu trúc từ nội dung thực tải. Máy chủ chỉ chấp nhận trích dẫn xuất hiện nguyên văn trong nguồn, điều được nêu phải xuất hiện trong trích dẫn; không sử dụng URL do model tạo. Metadata không được dùng làm căn cứ lời khuyên. Văn bản có hiệu lực trong tương lai không được tải toàn văn để dùng như luật hiện hành.
-- Đây là kiểm tra nguồn gốc và sự tồn tại trích dẫn, KHÔNG chứng minh suy luận/paraphrase đúng tuyệt đối hoặc đã đối chiếu mọi văn bản thay thế. Mỗi nhận định vẫn phải được đối chiếu về ý nghĩa. Luồng chưa có bước kiểm chứng ngữ nghĩa độc lập tự động.
+- Đây là kiểm tra nguồn gốc và sự tồn tại trích dẫn, KHÔNG chứng minh suy luận/paraphrase đúng tuyệt đối hoặc đã đối chiếu mọi văn bản thay thế. Bước kiểm chứng ngữ nghĩa bằng một call Google riêng đã được bổ sung ở lượt 07:33, không phải đánh giá độc lập của con người.
 - Kiểm quyền hiện hành my_access trước truy xuất, quota RPC 10 lượt/ngày, 500 ký tự; không gửi hồ sơ riêng/FAQ/body riêng tới Gemini. No-store. Không lưu câu hỏi/kết quả vào database, không log khóa hoặc nội dung nguồn/câu hỏi.
 - UI hiển thị URL thực tải, trích dẫn từng nhận định, thời điểm và giới hạn; hướng dẫn cho Văn phòng/Chi hội cập nhật, FAQ vẫn tùy chọn.
 

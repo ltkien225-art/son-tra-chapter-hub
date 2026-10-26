@@ -9,7 +9,8 @@ export async function legalFetch(url: string, init: RequestInit, timeout: number
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const r = await fetch(url, { ...init, redirect: "manual", signal: AbortSignal.timeout(timeout) });
-      if (attempt === 0 && legalRetryable(r.status)) {
+      // A provider quota denial is returned immediately: do not spend a second call probing it.
+      if (attempt === 0 && legalRetryable(r.status) && (source || r.status !== 429)) {
         const seconds = Number(r.headers.get("retry-after"));
         if (seconds > 3) return r;
         await r.body?.cancel();

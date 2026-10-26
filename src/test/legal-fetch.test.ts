@@ -22,6 +22,11 @@ describe("bounded official retrieval", () => {
     const f = vi.fn().mockResolvedValue(new Response("limited", { status: 429, headers: { "retry-after": "60" } })); vi.stubGlobal("fetch", f);
     expect((await legalFetch("https://vanban.chinhphu.vn/", {}, 1000)).status).toBe(429); expect(f).toHaveBeenCalledTimes(1);
   });
+  it("returns provider 429 without probing quota a second time", async () => {
+    const f = vi.fn().mockResolvedValue(new Response("limited", { status: 429 })); vi.stubGlobal("fetch", f);
+    expect((await legalFetch("https://generativelanguage.googleapis.com/", {}, 1000, false)).status).toBe(429);
+    expect(f).toHaveBeenCalledTimes(1);
+  });
   it("rejects a PDF beyond the four MB budget before parsing", async () => {
     await expect(legalBytes(new Response("x", { headers: { "content-length": String(LEGAL_MAX_BYTES + 1) } }))).rejects.toThrow();
   });
@@ -32,5 +37,14 @@ describe("bounded official retrieval", () => {
     expect(p.every((p) => s.text.includes(p.quote))).toBe(true);
     expect(p.length).toBeLessThanOrEqual(10);
     expect(legalPassages([{ ...s, kind: "record" }], "kết hôn")).toEqual([]);
+  });
+  it("keeps reporting provisions ahead of generic violence definitions within the compact budget", () => {
+    const text = "Bạo lực gia đình là hành vi gây tổn hại. ".repeat(600)
+      + "Điều 19. Báo tin, tố giác về hành vi bạo lực gia đình. Địa chỉ tiếp nhận tin báo là Ủy ban nhân dân cấp xã. ";
+    const s: LegalSource = { id: 1, title: "TEST", url: "https://datafiles.chinhphu.vn/test.pdf", kind: "text", retrievedAt: "2026-10-26", text };
+    const p = legalPassages([s], "Khi bị bạo lực gia đình có thể báo cho ai?");
+    expect(p.some((p) => p.quote.includes("Địa chỉ tiếp nhận tin báo"))).toBe(true);
+    expect(p.length).toBeLessThanOrEqual(6);
+    expect(p.reduce((total, p) => total + p.quote.length, 0)).toBeLessThanOrEqual(6000);
   });
 });
