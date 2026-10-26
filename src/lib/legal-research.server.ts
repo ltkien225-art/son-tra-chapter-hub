@@ -68,6 +68,7 @@ async function retrieveDynamicSources(keywords: string[]): Promise<Omit<LegalSou
     } catch { continue; }
   }
   return sources;
+  console.log("Đã tải thành công URL:", articleUrl);
 }
 
 export async function retrieveLegalSources(key: string, question: string): Promise<LegalSource[]> {
@@ -75,6 +76,7 @@ export async function retrieveLegalSources(key: string, question: string): Promi
   const cacheKey = keywords.join("-").slice(0, 50);
   const sources = await publicSources(cacheKey, () => retrieveDynamicSources(keywords));
   return sources.map((s, i) => ({ ...s, id: i + 1 }));
+  console.log("Từ khóa Gemini tạo ra:", keywords);
 }
 
 export async function answerFromSources(key: string, question: string, sources: LegalSource[]) {
