@@ -25,7 +25,7 @@ Chỉ gọi dịch vụ với câu hỏi pháp luật chung và nguồn công kh
 
 ## Kiểm thử và bảo mật
 
-41 tests cục bộ đã đạt trước hai bổ sung về ngày hiệu lực và tên người tiếng Việt; kết quả cuối cập nhật sau lần chạy tiếp theo. Quét backend cơ bản không phát hiện vấn đề, không phải phân tích sâu mã. Build tự động báo OK sau thay đổi chính. Không chạy bộ backend có footprint rộng hoặc đọc hồ sơ thật.
+43/43 tests cục bộ đã đạt, gồm bảo vệ ngày hiệu lực và tên người tiếng Việt. Quét backend cơ bản không phát hiện vấn đề, không phải phân tích sâu mã. Build tự động báo OK lúc 07:24:30 UTC. Lần gọi thật cuối cả hai câu đều trả no_source sau kiểm tra trích dẫn; không coi lần thành công trước là độ tin cậy ổn định. Không chạy bộ backend có footprint rộng hoặc đọc hồ sơ thật.
 
 Chưa kiểm chứng: server runtime production/giới hạn bộ nhớ khi PDF, câu ngoài nguồn từ UI, PII/quota qua RPC với TEST, quyền thu hồi qua session cũ, màn hình mobile đã đăng nhập, đối chiếu toàn bộ thủ tục dịch vụ công địa phương, nguồn lỗi/cũ toàn luồng.
 
@@ -44,7 +44,7 @@ Không bật billing, Max, tài khoản dịch vụ mới, paid fallback hay tì
 
 src/lib/legal.functions.ts; src/lib/legal-research.server.ts; src/lib/legal-evidence.ts; src/lib/legal.ts; src/components/hoi/Legal.tsx; src/components/hoi/Guide.tsx; src/test/legal.test.ts; src/test/legal-evidence.test.ts; package.json/bun.lock; AGENTS.md; roadmap.md.
 
-HEAD quan sát trước các thay đổi: 98f1544109b153817250de74eef52a0de27ad4df. Không tự commit; chưa có SHA production cho luồng mới, không coi SHA này là bản triển khai mới.
+HEAD quan sát lúc kiểm tra cuối: 5c71d44f3cef7a11d80653ac9b334e65288961b5 (trước cập nhật báo cáo cuối). Không tự commit; chưa có SHA production cho luồng mới, không coi SHA này là bản production.
 
 ## Điều kiện tiếp tục
 
