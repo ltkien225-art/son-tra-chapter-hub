@@ -11,6 +11,24 @@ import { legalGenerationConfig, legalResponseText } from "./legal-gemini";
 const BASE = "https://vanban.chinhphu.vn/";
 const MODEL_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent";
 const publicSources = createLegalSourceCache();
+
+// Log only explicitly allowed provider error codes, never Google messages, keys or question text.
+async function logGeminiFailure(response: Response, stage: "plan" | "answer" | "review"): Promise<void> {
+  let providerStatus = "UNKNOWN";
+  let providerReason = "UNKNOWN";
+  try {
+    const data = await response.clone().json() as { error?: { status?: unknown; details?: { reason?: unknown }[] } };
+    const statuses = ["INVALID_ARGUMENT", "FAILED_PRECONDITION", "PERMISSION_DENIED", "RESOURCE_EXHAUSTED", "UNAUTHENTICATED", "NOT_FOUND", "UNAVAILABLE", "INTERNAL"];
+    const reasons = ["API_KEY_INVALID", "API_KEY_SERVICE_BLOCKED", "API_KEY_HTTP_REFERRER_BLOCKED", "API_KEY_IP_ADDRESS_BLOCKED", "API_KEY_EXPIRED", "SERVICE_DISABLED", "BILLING_DISABLED", "CONSUMER_INVALID", "RATE_LIMIT_EXCEEDED", "RESOURCE_EXHAUSTED", "LOCATION_TAX_POLICY_VIOLATED"];
+    const status = data?.error?.status;
+    if (typeof status === "string" && statuses.includes(status)) providerStatus = status;
+    const details = Array.isArray(data?.error?.details) ? data.error.details : [];
+    const match = details.find((detail) => typeof detail?.reason === "string" && reasons.includes(detail.reason));
+    if (typeof match?.reason === "string") providerReason = match.reason;
+  } catch { /* Keep generic values if Google does not return JSON. */ }
+  console.warn("legal_provider_diagnostic", stage, response.status, providerStatus, providerReason);
+}
+
 // Per-result transient hints; never put questions or plans in the shared source cache.
 const passageHints = new WeakMap<LegalSource[], string[]>();
 
@@ -58,7 +76,7 @@ export async function planLegalSearch(question: string, key?: string): Promise<S
       }),
     }, 8_000, false);
 
-    if (!r.ok) return fallbackPlan;
+    if (!r.ok) { await logGeminiFailure(r, "plan"); return fallbackPlan; }
     const raw = legalResponseText(await r.json());
     if (!raw) return fallbackPlan;
     const parsed = JSON.parse(raw) as Partial<SearchPlan>;
@@ -180,7 +198,7 @@ export async function answerFromSources(key: string, question: string, sources: 
     }),
   }, 30_000, false);
   if (!r.ok) {
-    console.warn("legal_provider_failure", r.status);
+    await logGeminiFailure(r, "answer");
     return { error: providerFailure(r.status), status: r.status } as const;
   }
   const raw = legalResponseText(await r.json());
@@ -202,7 +220,7 @@ export async function answerFromSources(key: string, question: string, sources: 
         generationConfig: legalGenerationConfig(1024),
       }),
     }, 20000, false);
-    if (!review.ok) return { error: providerFailure(review.status), status: review.status } as const;
+    if (!review.ok) { await logGeminiFailure(review, "review"); return { error: providerFailure(review.status), status: review.status } as const; }
     const reviewText = legalResponseText(await review.json());
     if (!reviewText) return { error: "error", status: 200 } as const;
     const verdict = JSON.parse(reviewText) as { supported?: boolean };
