@@ -45,7 +45,7 @@ export async function retrieveLegalSources(question: string): Promise<LegalSourc
     return [{ url: new URL(href, BASE).href, title, rank: /VBHN/.test(row.textContent ?? "") ? 2 : /Luật|Nghị định/.test(title) ? 1 : 0 }];
   });
   // Preserve the newest law as well as recent consolidated texts; never select just an old matching law.
-  const chosen = [...candidates.filter((c) => /^Luật /i.test(c.title)).slice(0, 2), ...candidates.filter((c) => c.rank === 2).slice(0, 2), ...candidates].filter((c, i, all) => all.findIndex((x) => x.url === c.url) === i).slice(0, 5);
+  const chosen = [...candidates.filter((c) => /^Luật /i.test(c.title)).slice(0, 2), ...candidates.filter((c) => c.rank === 2).slice(0, 1), ...candidates].filter((c, i, all) => all.findIndex((x) => x.url === c.url) === i).slice(0, 3);
   const retrievedAt = new Date().toISOString();
   const groups: Omit<LegalSource, "id">[][] = [];
   // Parse one PDF at a time: avoid multiplying worker memory/CPU by candidate count.

@@ -24,7 +24,7 @@ export function checkedClaims(input: unknown, sources: LegalSource[]): LegalClai
     if (typeof c.text !== "string" || typeof c.quote !== "string" || typeof c.sourceId !== "number") return [];
     const source = sources.find((s) => s.id === c.sourceId);
     const quote = normalizeEvidence(c.quote);
-    if (!source || !officialLegalUrl(source.url) || c.text.length > 1000 || quote.length < 25 || quote.length > 1600 ||
+    if (!source || !officialLegalUrl(source.url) || futureEffectiveSource(source.text, source.retrievedAt.slice(0, 10)) || c.text.length > 1000 || quote.length < 25 || quote.length > 1600 ||
       !normalizeEvidence(source.text).includes(quote) || /https?:\/\/|www\./i.test(c.text) || findPersonalData(c.text).length) return [];
     const articles = [...c.text.matchAll(/điều\s+(\d+[a-z]?)/gi)];
     if (articles.some((m) => !new RegExp(`điều\\s+${m[1]}(?:\\D|$)`, "i").test(quote))) return [];
