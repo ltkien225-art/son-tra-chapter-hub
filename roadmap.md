@@ -1,5 +1,8 @@
 # Roadmap — Hội LHPN Sơn Trà (Lovable Cloud)
 
+- [x] Owner self-service /cap-link-van-phong implemented: explicit magic email/signup=false, owner-only issue/revoke, reusable office capability and local logout; 25 unit + 145 backend + 7 negative live authorization tests passed; basic security checks clean.
+- [ ] Positive owner issuance/copy, three-device sessions and parent revoke E2E — blocked: owner session approval unavailable in this context; no impersonation or real link issued. Physical-device tests and actual email delivery remain unverified.
+
 - [x] Approved artwork applied to shared headers and versioned opaque icons; production PNGs byte-match exports (180/192/512/maskable/64), manifest/head updated; desktop + iPhone-width public entry screens verified. Authenticated workspace UI and physical phone installation not tested in this identity-only change.
 
 - [x] Backend: schema, 42 Chi hội seed, quyền theo Chi hội, thu hồi tức thì, nhật ký, kho tệp riêng tư

@@ -113,6 +113,20 @@
       "when": 1793292600000,
       "tag": "0015_office_daily_link",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1793292600001,
+      "tag": "0016_owner_self_service_office_links",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1793292600002,
+      "tag": "0017_office_link_private_columns",
+      "breakpoints": true
     }
   ]
 }

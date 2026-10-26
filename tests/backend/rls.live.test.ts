@@ -146,7 +146,7 @@ async function main() {
     check("T6f author chapter reads feedback", ((await ca.from("submission_feedback").select("id").eq("submission_id", s1.data!.id)).data?.length ?? 0) === 1);
     check("T6f other chapter cannot read feedback", ((await cb.from("submission_feedback").select("id").eq("submission_id", s1.data!.id)).data?.length ?? 0) === 0);
     check("T6f outsider cannot read feedback", ((await out.from("submission_feedback").select("id")).data?.length ?? 0) === 0);
-    const fbn = ((await admin.from("notification_outbox").select("recipient_email,url,title,body").like("dedupe_key", `fb:${fb.data?.id}%`)).data ?? []);
+    const fbn = ((await admin.from("notification_outbox").select("recipient_email,url,title,body").like("dedupe_key", `fb:${fb.data?.id}%`).like("recipient_email", `test+${run}-%`)).data ?? []);
     check("T6f feedback push only to ch01 users, generic, deep link", fbn.map((o) => o.recipient_email).sort().join() === [mail("a"), mail("sens")].sort().join() && fbn.every((o) => o.url === "/app?tab=subs" && !(o.title + o.body).includes("[TEST")), JSON.stringify(fbn));
   }
   check("T6 A cannot read audit log", ((await ca.from("audit_log").select("id")).data?.length ?? 0) === 0);
