@@ -3,7 +3,7 @@ import { legalSearchTerm, normalizeEvidence, type LegalSource } from "./legal-ev
 export type LegalPassage = { id: number; sourceId: number; quote: string };
 
 /** Quote identity is assigned by the server, never rewritten by the model. */
-export function legalPassages(sources: LegalSource[], question: string): LegalPassage[] {
+export function legalPassages(sources: LegalSource[], question: string, passageTerms: string[] = []): LegalPassage[] {
   const normalizedQ = question.toLowerCase().replace(/\bbạo hành\b/g, "bạo lực");
   const specific = normalizedQ.match(/đăng ký kết hôn|bạo lực gia đình|khai sinh|ly hôn|thừa kế|chế độ thai sản|thai sản|nghỉ hằng năm|nghỉ phép/);
   const searchTerm = legalSearchTerm(question).toLowerCase();
@@ -16,6 +16,7 @@ export function legalPassages(sources: LegalSource[], question: string): LegalPa
     ...(specific ? [specific[0]] : []),
     ...(searchTerm.length > 3 ? [searchTerm] : []),
     ...rawWords,
+    ...passageTerms.map((term) => term.normalize("NFC").toLowerCase().trim()).filter(Boolean),
   ])];
 
   const reportQuestion = /bạo lực|bạo hành/i.test(question) && /báo|ai|tiếp nhận|liên hệ|cơ quan|ở đâu/i.test(question);

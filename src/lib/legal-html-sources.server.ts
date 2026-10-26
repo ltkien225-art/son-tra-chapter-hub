@@ -12,7 +12,7 @@ const domesticSources = [
   ["Hành vi bạo lực gia đình", "https://xaydungchinhsach.chinhphu.vn/bao-luc-gia-dinh-la-gi-nhung-hanh-vi-nao-la-hanh-vi-bao-luc-gia-dinh-119221201175317803.htm"],
 ] as const;
 
-const DRAFT_PATTERN = /\b(dự thảo|đề xuất|lấy ý kiến|đề nghị xây dựng|sắp có hiệu lực)\b/i;
+export const DRAFT_PATTERN = /(?:^|[^\p{L}\p{N}])(dự thảo|đề xuất|lấy ý kiến|đề nghị xây dựng|sắp có hiệu lực)(?=$|[^\p{L}\p{N}])/iu;
 
 async function fetchPolicyArticle(titleHint: string, url: string, allowDraft: boolean): Promise<Omit<LegalSource, "id"> | null> {
   if (!officialLegalUrl(url)) return null;
@@ -49,7 +49,7 @@ async function fetchPolicyArticle(titleHint: string, url: string, allowDraft: bo
 }
 
 export async function officialHtmlSources(question: string, plannedQueries?: string[]): Promise<Omit<LegalSource, "id">[]> {
-  const allowDraft = DRAFT_PATTERN.test(question);
+  const allowDraft = false; // This current-law lookup never treats proposals as enacted evidence.
   const baseTerm = legalSearchTerm(question);
   const queries = [...new Set([...(plannedQueries ?? []), baseTerm])].filter((q) => q && q.trim().length >= 3).slice(0, 3);
   const candidateLinks: { title: string; url: string }[] = [];

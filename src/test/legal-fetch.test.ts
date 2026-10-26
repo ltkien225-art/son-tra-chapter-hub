@@ -9,7 +9,7 @@ describe("bounded official retrieval", () => {
     vi.useFakeTimers();
     const f = vi.fn().mockResolvedValueOnce(new Response("busy", { status: 503 })).mockResolvedValueOnce(new Response("ok"));
     vi.stubGlobal("fetch", f);
-    const pending = legalFetch("https://vanban.chinhphu.vn/", {}, 1000);
+    const pending = legalFetch("https://vanban.chinhphu.vn/", {}, 3000);
     await vi.advanceTimersByTimeAsync(1001);
     expect((await pending).status).toBe(200); expect(f).toHaveBeenCalledTimes(2);
   });

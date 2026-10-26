@@ -11,6 +11,8 @@ import { legalGenerationConfig, legalResponseText } from "./legal-gemini";
 const BASE = "https://vanban.chinhphu.vn/";
 const MODEL_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent";
 const publicSources = createLegalSourceCache();
+// Per-result transient hints; never put questions or plans in the shared source cache.
+const passageHints = new WeakMap<LegalSource[], string[]>();
 
 export type SearchPlan = {
   catalogTerm: string;
@@ -91,7 +93,9 @@ export async function retrieveLegalSources(question: string, key?: string): Prom
         ? "domestic-violence"
         : `plan:${term.toLowerCase()}:${plan.portalQueries.join("|").toLowerCase()}`;
   const sources = await publicSources(topic, () => retrieveUncachedLegalSources(question, plan));
-  return sources.map((s, i) => ({ ...s, id: i + 1 }));
+  const identified = sources.map((s, i) => ({ ...s, id: i + 1 }));
+  passageHints.set(identified, plan.passageTerms);
+  return identified;
 }
 
 async function retrieveUncachedLegalSources(question: string, plan: SearchPlan): Promise<Omit<LegalSource, "id">[]> {
@@ -164,7 +168,7 @@ async function retrieveCatalogLegalSources(question: string, searchTerm: string)
 /** Ordinary Gemini generation only. No google_search tool, paid fallback, or billing action. */
 export async function answerFromSources(key: string, question: string, sources: LegalSource[]) {
   const procedure = /kết hôn/i.test(question) ? sources.filter((s) => /bana\.danang\.gov\.vn|xaydungchinhsach\.chinhphu\.vn/.test(s.url)) : [];
-  const passages = legalPassages(procedure.length ? procedure : sources, question);
+  const passages = legalPassages(procedure.length ? procedure : sources, question, passageHints.get(sources) ?? []);
   if (!passages.length) return { error: "no_source" } as const;
   const context = sources.map((s) => ({ id: s.id, kind: s.kind, title: s.title, futureEffective: futureEffectiveSource(s.text, new Date().toISOString().slice(0, 10)), metadata: s.kind === "record" ? s.text.slice(0, 1000) : s.text.slice(0, 350) }));
   const r = await legalFetch(MODEL_URL, {

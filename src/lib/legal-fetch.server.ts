@@ -18,13 +18,14 @@ export async function legalFetch(url: string, init: RequestInit, timeout: number
       let currentInit: RequestInit = { ...init };
 
       for (let redirects = 0; redirects <= 3; redirects++) {
+        init.signal?.throwIfAborted();
         const remaining = deadline - Date.now();
         if (remaining <= 0) throw new Error("lookup_unavailable");
 
         const r = await fetch(currentUrl, {
           ...currentInit,
           redirect: "manual",
-          signal: AbortSignal.timeout(remaining),
+          signal: init.signal ? AbortSignal.any([init.signal, AbortSignal.timeout(remaining)]) : AbortSignal.timeout(remaining),
         });
 
         if (source && isRedirectStatus(r.status)) {
@@ -48,8 +49,10 @@ export async function legalFetch(url: string, init: RequestInit, timeout: number
         if (attempt === 0 && legalRetryable(r.status) && (source || r.status !== 429)) {
           const seconds = Number(r.headers.get("retry-after"));
           if (seconds > 3) return r;
+          const delay = seconds > 0 ? seconds * 1000 : 1000;
+          if (delay >= deadline - Date.now()) return r;
           await r.body?.cancel();
-          await new Promise((resolve) => setTimeout(resolve, seconds > 0 ? seconds * 1000 : 1000));
+          await new Promise((resolve) => setTimeout(resolve, delay));
           break;
         }
         return r;
@@ -58,7 +61,7 @@ export async function legalFetch(url: string, init: RequestInit, timeout: number
       if (e instanceof Error && (e.message === "source_not_allowed" || e.message === "source_unavailable")) {
         throw e;
       }
-      if (attempt > 0) throw e;
+      if (attempt > 0 || init.signal?.aborted || deadline - Date.now() <= 1000) throw e;
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }
