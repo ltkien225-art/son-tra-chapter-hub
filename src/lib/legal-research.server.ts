@@ -53,14 +53,14 @@ export async function retrieveLegalSources(question: string): Promise<LegalSourc
     const title = normalizeEvidence(row.querySelector(".substract")?.textContent ?? "");
     if (!title || /Kế hoạch|Ban Chỉ đạo|Chương trình hành động|Báo cáo/i.test(title)) return [];
     return [{ url: new URL(href, BASE).href, title, rank: /VBHN/.test(row.textContent ?? "") ? 2 : /Luật|Nghị định/.test(title) ? 1 : 0 }];
-  }).slice(0, 12);
+  });
   // Preserve the newest law as well as recent consolidated texts; never select just an old matching law.
-  const chosen = [...candidates.filter((c) => c.rank === 1).slice(0, 2), ...candidates.filter((c) => c.rank === 2).slice(0, 2), ...candidates].filter((c, i, all) => all.findIndex((x) => x.url === c.url) === i).slice(0, 4);
+  const chosen = [...candidates.filter((c) => /^Luật /i.test(c.title)).slice(0, 2), ...candidates.filter((c) => c.rank === 2).slice(0, 2), ...candidates].filter((c, i, all) => all.findIndex((x) => x.url === c.url) === i).slice(0, 5);
   const retrievedAt = new Date().toISOString();
   const groups = await Promise.all(chosen.map(async (c) => {
     try {
       const doc = await html(c.url);
-      const table = [...doc.querySelectorAll("table")].find((t) => t.textContent?.includes("Số ký hiệu") && t.textContent?.includes("Ngày có hiệu lực") && !t.querySelector("table"));
+      const table = [...doc.querySelectorAll("table")].find((t) => t.textContent?.includes("Số ký hiệu") && t.textContent?.includes("Cơ quan ban hành") && !t.querySelector("table"));
       if (!table) return [];
       const metadata = normalizeEvidence(table.textContent ?? "");
       const sources: Omit<LegalSource, "id">[] = [{ title: c.title, url: c.url, text: metadata, retrievedAt, kind: "record" }];

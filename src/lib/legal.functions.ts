@@ -1,50 +1,49 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { LEGAL_AI_DAILY_LIMIT, searchFaqs, validateQuestion, type FaqLite } from "./legal";
+import { LEGAL_AI_DAILY_LIMIT, validateQuestion } from "./legal";
+import { LEGAL_LOOKUP_LIMITATION, type LegalClaim, type LegalSource } from "./legal-evidence";
+import { setResponseHeader } from "@tanstack/react-start/server";
 
 export type LegalAiResult =
-  | { mode: "ai"; answer: string; citedIds: string[]; remaining: number }
-  | { mode: "faq"; reason: "no_key" | "quota" | "daily_limit" | "no_source" | "error"; message: string };
+  | { mode: "ai"; answer: string; claims: LegalClaim[]; sources: Omit<LegalSource, "text">[]; limitation: string; retrievedAt: string; remaining: number }
+  | { mode: "faq"; reason: "no_key" | "quota" | "daily_limit" | "no_source" | "error"; message: string; remaining?: number; providerStatus?: number; sources?: Omit<LegalSource, "text">[]; retrievedAt?: string };
 
 /**
- * Level-1 legal Q&A. AI only summarises Office-approved FAQs (with official sources);
- * personal data is refused server-side; no key / quota exhausted -> FAQ fallback, never paid fallback.
+ * General legal research from actually retrieved official sources; FAQ optional.
+ * Personal data refused server-side; no paid search tool or paid fallback.
  */
 export const askLegalAi = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { question: string }) => ({ question: String(input?.question ?? "").slice(0, 600) }))
+  .inputValidator((input: { question: string }) => {
+    const question = typeof input?.question === "string" ? input.question : "";
+    const bad = validateQuestion(question); if (bad) throw new Error(bad);
+    return { question };
+  })
   .handler(async ({ data, context }): Promise<LegalAiResult> => {
     const bad = validateQuestion(data.question);
     if (bad) throw new Error(bad);
+    setResponseHeader("Cache-Control", "no-store");
+    const { data: access, error: ae } = await context.supabase.rpc("my_access");
+    const a = access as { office?: boolean; chapters?: string[] } | null;
+    if (ae || !(a?.office || a?.chapters?.length)) throw new Error("Không có quyền dùng chức năng này.");
     const key = process.env["GEMINI_API_KEY"];
-    if (!key) return { mode: "faq", reason: "no_key", message: "Trợ lý AI chưa được bật (chưa có khóa miễn phí). Xem các câu hỏi đáp đã duyệt bên dưới." };
-
-    const { data: faqs, error } = await context.supabase.from("legal_faqs")
-      .select("id,topic,question,answer,source_title,source_article").eq("status", "approved").limit(500);
-    if (error) throw new Error("Không đọc được thư viện hỏi đáp.");
-    const hits = searchFaqs((faqs ?? []) as FaqLite[], data.question, 6);
-    if (!hits.length) return { mode: "faq", reason: "no_source", message: "Chưa có nguồn đã duyệt phù hợp nên không thể trả lời chắc chắn. Hãy gửi câu hỏi cho cán bộ Hội." };
+    if (!key) return { mode: "faq", reason: "no_key", message: "Chưa cấu hình trợ lý Gemini. Thư viện hỏi đáp vẫn dùng được." };
 
     const { data: used, error: qe } = await context.supabase.rpc("consume_legal_ai", { _limit: LEGAL_AI_DAILY_LIMIT });
     if (qe) throw new Error("Không có quyền dùng chức năng này.");
-    if ((used as number) < 0) return { mode: "faq", reason: "daily_limit", message: `Bạn đã dùng hết ${LEGAL_AI_DAILY_LIMIT} lượt hỏi AI hôm nay. Xem thư viện hỏi đáp bên dưới.` };
-
-    const ctxText = hits.map((f, i) => `[${i + 1}] Hỏi: ${f.question}\nĐáp: ${f.answer}\nNguồn: ${f.source_title} ${f.source_article}`).join("\n\n");
-    const prompt = `Bạn là trợ lý thông tin pháp luật CHUNG của Hội LHPN phường Sơn Trà. Chỉ được dùng các mục tham khảo dưới đây, không dùng kiến thức khác, không nêu điều luật không có trong tham khảo, không tư vấn cho trường hợp cá nhân. Trả lời tiếng Việt, ngắn gọn (tối đa 150 từ), cuối câu trả lời ghi "Căn cứ: [số]" theo mục đã dùng. Nếu tham khảo không đủ để trả lời, chỉ trả lời đúng một từ: KHONG_CHAC.\n\nTHAM KHẢO:\n${ctxText}\n\nCÂU HỎI: ${data.question.trim()}`;
+    if (typeof used !== "number") throw new Error("Không kiểm tra được hạn mức.");
+    if (used < 0) return { mode: "faq", reason: "daily_limit", remaining: 0, message: `Bạn đã dùng hết ${LEGAL_AI_DAILY_LIMIT} lượt tra cứu hôm nay. Thư viện hỏi đáp vẫn dùng được.` };
+    const remaining = LEGAL_AI_DAILY_LIMIT - used;
+    const retrievedAt = new Date().toISOString();
     try {
-      const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent", {
-        method: "POST",
-        headers: { "content-type": "application/json", "x-goog-api-key": key },
-        body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { temperature: 0.1, maxOutputTokens: 600 } }),
-      });
-      if (r.status === 429 || r.status === 403) return { mode: "faq", reason: "quota", message: "Hạn mức AI miễn phí đã hết hoặc chưa được cấp. Xem thư viện hỏi đáp bên dưới." };
-      if (!r.ok) return { mode: "faq", reason: "error", message: "Trợ lý AI tạm thời lỗi. Xem thư viện hỏi đáp bên dưới." };
-      const j = (await r.json()) as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
-      const text = (j.candidates?.[0]?.content?.parts ?? []).map((p) => p.text ?? "").join("").trim();
-      if (!text || text.includes("KHONG_CHAC")) return { mode: "faq", reason: "no_source", message: "Nguồn đã duyệt chưa đủ để trả lời chắc chắn. Hãy gửi câu hỏi cho cán bộ Hội." };
-      const cited = [...text.matchAll(/\[(\d+)\]/g)].map((m) => hits[Number(m[1]) - 1]?.id).filter(Boolean) as string[];
-      return { mode: "ai", answer: text, citedIds: cited.length ? [...new Set(cited)] : hits.slice(0, 2).map((h) => h.id), remaining: LEGAL_AI_DAILY_LIMIT - (used as number) };
+      const { retrieveLegalSources, answerFromSources } = await import("./legal-research.server");
+      const evidence = await retrieveLegalSources(data.question);
+      const sources = evidence.map(({ text: _text, ...source }) => source);
+      if (!evidence.some((s) => s.kind === "text")) return { mode: "faq", reason: "no_source", remaining, sources, retrievedAt, message: "Chưa tải được toàn văn nguồn phù hợp để kiểm chứng câu trả lời. Không suy đoán điều luật hoặc thủ tục. Hãy hỏi cán bộ/cơ quan có thẩm quyền; thư viện bên dưới vẫn dùng được." };
+      const result = await answerFromSources(key, data.question, evidence);
+      if (result.error) return { mode: "faq", reason: result.error, remaining, sources, retrievedAt, providerStatus: "status" in result ? result.status : undefined, message: result.error === "quota" ? "Google từ chối quyền/hạn mức (không chuyển sang dịch vụ trả phí). Thư viện hỏi đáp vẫn dùng được." : result.error === "no_source" ? "Nguồn thực truy xuất chưa đủ hỗ trợ câu trả lời, hoặc trích dẫn không kiểm chứng được. Hãy liên hệ cán bộ/cơ quan có thẩm quyền." : "Google hoặc nguồn tra cứu tạm lỗi. Không chuyển sang dịch vụ trả phí; thư viện hỏi đáp vẫn dùng được." };
+      return { mode: "ai", answer: result.claims.map((c) => `${c.text} [${c.sourceId}]`).join("\n\n"), claims: result.claims, sources, remaining, retrievedAt, limitation: LEGAL_LOOKUP_LIMITATION };
     } catch {
-      return { mode: "faq", reason: "error", message: "Không kết nối được trợ lý AI. Xem thư viện hỏi đáp bên dưới." };
+      return { mode: "faq", reason: "error", remaining, retrievedAt, message: "Không tải được nguồn hoặc không kết nối được Gemini. Không suy đoán pháp luật; thư viện hỏi đáp vẫn dùng được." };
     }
   });
