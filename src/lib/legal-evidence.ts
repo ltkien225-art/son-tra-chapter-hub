@@ -28,7 +28,8 @@ export function checkedClaims(input: unknown, sources: LegalSource[]): LegalClai
       !normalizeEvidence(source.text).includes(quote) || /https?:\/\/|www\./i.test(c.text) || findPersonalData(c.text).length) return [];
     const articles = [...c.text.matchAll(/điều\s+(\d+[a-z]?)/gi)];
     if (articles.some((m) => !new RegExp(`điều\\s+${m[1]}(?:\\D|$)`, "i").test(quote))) return [];
-    if (source.kind === "record" && !/Số ký hiệu|Ngày ban hành|Ngày có hiệu lực|Cơ quan ban hành/i.test(quote)) return [];
+    // Metadata alone never supports a legal recommendation, however plausible the paraphrase.
+    if (source.kind === "record") return [];
     result.push({ text: c.text.trim(), sourceId: c.sourceId, quote });
   }
   return result;
@@ -41,6 +42,11 @@ export function legalSearchTerm(question: string): string {
   if (/ly hon|hon nhan/.test(q)) return "hôn nhân và gia đình";
   if (/thua ke/.test(q)) return "dân sự";
   return question.replace(/[?!.,:;"<>]/g, " ").replace(/\s+/g, " ").trim().slice(0, 100);
+}
+
+export function futureEffectiveSource(text: string, lookupDay: string): boolean {
+  const m = text.match(/Ngày có hiệu lực\s+(\d{2})-(\d{2})-(\d{4})/);
+  return Boolean(m && `${m[3]}-${m[2]}-${m[1]}` > lookupDay);
 }
 
 export function providerFailure(status: number): "quota" | "error" {

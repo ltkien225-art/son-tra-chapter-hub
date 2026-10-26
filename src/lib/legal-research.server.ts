@@ -1,6 +1,6 @@
 import { parseHTML } from "linkedom";
 import { extractText, getDocumentProxy } from "unpdf";
-import { checkedClaims, legalSearchTerm, normalizeEvidence, officialLegalUrl, providerFailure, type LegalSource } from "./legal-evidence";
+import { checkedClaims, futureEffectiveSource, legalSearchTerm, normalizeEvidence, officialLegalUrl, providerFailure, type LegalSource } from "./legal-evidence";
 
 const BASE = "https://vanban.chinhphu.vn/";
 const MAX_BYTES = 8 * 1024 * 1024;
@@ -65,7 +65,7 @@ export async function retrieveLegalSources(question: string): Promise<LegalSourc
       const metadata = normalizeEvidence(table.textContent ?? "");
       const sources: Omit<LegalSource, "id">[] = [{ title: c.title, url: c.url, text: metadata, retrievedAt, kind: "record" }];
       const pdfLink = table.querySelector('a[href*=".pdf"]')?.getAttribute("href");
-      if (pdfLink && officialLegalUrl(pdfLink)) {
+      if (pdfLink && officialLegalUrl(pdfLink) && !futureEffectiveSource(metadata, retrievedAt.slice(0, 10))) {
         try {
           const pdf = await getDocumentProxy(await boundedBytes(await publicFetch(pdfLink)));
           try {
@@ -84,7 +84,8 @@ export async function retrieveLegalSources(question: string): Promise<LegalSourc
 
 function excerpts(source: LegalSource, question: string): string {
   if (source.text.length < 18000) return source.text;
-  const words = legalSearchTerm(question).split(/\s+/).filter((w) => w.length > 2);
+  const specific = question.toLowerCase().match(/đăng ký kết hôn|bạo lực gia đình|khai sinh|ly hôn|thừa kế/);
+  const words = specific ? [specific[0]] : legalSearchTerm(question).split(/\s+/).filter((w) => w.length > 2);
   const lines = source.text.split(/\n/); const selected = new Set<number>();
   lines.forEach((line, i) => {
     if (words.some((w) => line.toLowerCase().includes(w)) || /hiệu lực|thi hành|bãi bỏ|thay thế/i.test(line)) {
@@ -96,7 +97,7 @@ function excerpts(source: LegalSource, question: string): string {
 
 /** Ordinary Gemini generation only. No google_search tool, paid fallback, or billing action. */
 export async function answerFromSources(key: string, question: string, sources: LegalSource[]) {
-  const context = sources.map((s) => ({ id: s.id, kind: s.kind, title: s.title, evidence: excerpts(s, question) }));
+  const context = sources.map((s) => ({ id: s.id, kind: s.kind, title: s.title, futureEffective: futureEffectiveSource(s.text, new Date().toISOString().slice(0, 10)), evidence: excerpts(s, question) }));
   const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent", {
     method: "POST", headers: { "content-type": "application/json", "x-goog-api-key": key }, signal: AbortSignal.timeout(45_000),
     body: JSON.stringify({
