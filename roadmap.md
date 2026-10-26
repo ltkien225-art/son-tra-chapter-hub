@@ -1,5 +1,7 @@
 # Roadmap — Hội LHPN Sơn Trà (Lovable Cloud)
 
+- [ ] Owner self-service /cap-link-van-phong: explicit magic email, owner-only issue/revoke, reusable office capability, independent local logout, tests/security/publish verification.
+
 - [x] Approved artwork applied to shared headers and versioned opaque icons; production PNGs byte-match exports (180/192/512/maskable/64), manifest/head updated; desktop + iPhone-width public entry screens verified. Authenticated workspace UI and physical phone installation not tested in this identity-only change.
 
 - [x] Backend: schema, 42 Chi hội seed, quyền theo Chi hội, thu hồi tức thì, nhật ký, kho tệp riêng tư
