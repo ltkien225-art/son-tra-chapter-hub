@@ -8,7 +8,7 @@ export function officialLegalUrl(value: string): boolean {
   try {
     const u = new URL(value);
     return u.protocol === "https:" && !u.username && !u.password && u.port === "" &&
-      ["vanban.chinhphu.vn", "datafiles.chinhphu.vn"].includes(u.hostname);
+      ["vanban.chinhphu.vn", "datafiles.chinhphu.vn", "xaydungchinhsach.chinhphu.vn", "bana.danang.gov.vn"].includes(u.hostname);
   } catch { return false; }
 }
 
