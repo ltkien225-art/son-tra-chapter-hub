@@ -14,6 +14,7 @@ export function officialLegalUrl(value: string): boolean {
 
 export const normalizeEvidence = (value: string) => value.normalize("NFC").replace(/\s+/g, " ").trim();
 
+/** Reject invented links, unsupported articles and missing verbatim evidence. No model URLs are used. */
 export function checkedClaims(input: unknown, sources: LegalSource[]): LegalClaim[] {
   if (!Array.isArray(input) || input.length > 7) return [];
   const result: LegalClaim[] = [];
@@ -21,19 +22,52 @@ export function checkedClaims(input: unknown, sources: LegalSource[]): LegalClai
     if (!item || typeof item !== "object") return [];
     const c = item as { text?: unknown; quote?: unknown; sourceId?: unknown };
     if (typeof c.text !== "string" || typeof c.quote !== "string" || typeof c.sourceId !== "number") return [];
-    
     const source = sources.find((s) => s.id === c.sourceId);
     const quote = normalizeEvidence(c.quote);
-    
     if (!source || !officialLegalUrl(source.url) || futureEffectiveSource(source.text, source.retrievedAt.slice(0, 10)) || c.text.length > 1000 || quote.length < 25 || quote.length > 1600 ||
       !normalizeEvidence(source.text).includes(quote) || /https?:\/\/|www\./i.test(c.text) || findPersonalData(c.text).length) return [];
-      
     const articles = [...c.text.matchAll(/điều\s+(\d+[a-z]?)/gi)];
     if (articles.some((m) => !new RegExp(`điều\\s+${m[1]}(?:\\D|$)`, "i").test(quote))) return [];
-    
+    // Metadata alone never supports a legal recommendation, however plausible the paraphrase.
+    if (source.kind === "record") return [];
     result.push({ text: c.text.trim(), sourceId: c.sourceId, quote });
   }
   return result;
+}
+
+const QUESTION_STOPWORDS = /\b(cho tôi hỏi|tôi muốn hỏi|xin hỏi|làm sao|như thế nào|thế nào|ở đâu|cơ quan nào|liên hệ ai|liên hệ|khi bị|nếu bị|bị|thì|phải làm gì|cần làm gì|quy định về|theo quy định|hiện nay|là gì|bao nhiêu)\b/gi;
+
+export function legalSearchTerm(question: string): string {
+  const q = question.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d");
+  if (/ket hon|ho tich|khai sinh/.test(q)) return "hộ tịch";
+  if (/bao luc gia dinh|bao hanh gia dinh|chong danh|vo danh|nguoc dai/.test(q)) return "bạo lực gia đình";
+  if (/ly hon|hon nhan|chia tai san|nuoi con/.test(q)) return "hôn nhân và gia đình";
+  if (/thua ke|di chuc|chia di san/.test(q)) return "thừa kế";
+  if (/thai san|sinh con|nghi de|kham thai/.test(q)) return "chế độ thai sản";
+  if (/nghi hang nam|nghi phep|phep nam/.test(q)) return "nghỉ hằng năm";
+  const cleaned = question
+    .replace(/[?!.,:;"<>()]/g, " ")
+    .replace(QUESTION_STOPWORDS, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return (cleaned || question.replace(/[?!.,:;"<>]/g, " ").replace(/\s+/g, " ").trim()).slice(0, 80);
+}
+
+/** Generate 1-2 focused search queries for dynamic discovery on official portals. */
+export function legalSearchQueries(question: string): string[] {
+  const primary = legalSearchTerm(question);
+  const rawCleaned = question
+    .replace(/[?!.,:;"<>()]/g, " ")
+    .replace(/\b(bạo hành)\b/gi, "bạo lực")
+    .replace(QUESTION_STOPWORDS, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 90);
+  const queries = [primary];
+  if (rawCleaned && rawCleaned.toLowerCase() !== primary.toLowerCase() && rawCleaned.length >= 6) {
+    queries.push(rawCleaned);
+  }
+  return queries.slice(0, 2);
 }
 
 export function futureEffectiveSource(text: string, lookupDay: string): boolean {

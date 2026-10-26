@@ -71,12 +71,17 @@ async function retrieveDynamicSources(keywords: string[]): Promise<Omit<LegalSou
   console.log("Đã tải thành công URL:", articleUrl);
 }
 
-export async function retrieveLegalSources(key: string, question: string): Promise<LegalSource[]> {
-  const keywords = await planSearch(key, question);
-  const cacheKey = keywords.join("-").slice(0, 50);
-  const sources = await publicSources(cacheKey, () => retrieveDynamicSources(keywords));
+export async function retrieveLegalSources(question: string): Promise<LegalSource[]> {
+  const term = legalSearchTerm(question);
+  const topic = /kết hôn/i.test(question)
+    ? "marriage"
+    : term === "hộ tịch"
+      ? "civil-status"
+      : term === "bạo lực gia đình"
+        ? "domestic-violence"
+        : `query:${term.toLowerCase()}`;
+  const sources = await publicSources(topic, () => retrieveUncachedLegalSources(question));
   return sources.map((s, i) => ({ ...s, id: i + 1 }));
-  console.log("Từ khóa Gemini tạo ra:", keywords);
 }
 
 export async function answerFromSources(key: string, question: string, sources: LegalSource[]) {
