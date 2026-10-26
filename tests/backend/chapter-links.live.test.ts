@@ -67,6 +67,20 @@ if (phase === "setup") {
   check("wrong unit binding rejects link", (await root.rpc("chapter_private_link_lookup_service", { p_chapter: "ch02", p_hash: await hashToken(first.token) })).data?.length === 0);
   check("invalid link rejects", (await root.rpc("chapter_private_link_lookup_service", { p_chapter: "ch01", p_hash: "0".repeat(64) })).data?.length === 0);
   console.log(`${passed} live assertions passed; TEST fixtures retained solely for browser acceptance.`);
+} else if (phase === "verify-rotate") {
+  const state = JSON.parse(await readFile(statePath, "utf8"));
+  const admin = createClient(url, key, opts);
+  await admin.auth.setSession(state.session);
+  const oldLink = state.links[1];
+  const old = await signIn(oldLink.identity);
+  const token = newLinkToken();
+  const changed = await admin.rpc("manage_chapter_private_link", { p_chapter: "ch02", p_action: "rotate", p_hash: await hashToken(token), p_cipher: await encryptChapterToken(token, "ch02", encryption) });
+  check("authorized TEST rotation creates different link", !changed.error && changed.data !== oldLink.id);
+  check("old rotated link rejected", (await root.rpc("chapter_private_link_lookup_service", { p_chapter: "ch02", p_hash: await hashToken(oldLink.token) })).data?.length === 0);
+  check("old rotated session denied", (await old.client.rpc("can_chapter", { _ch: "ch02" })).data === false);
+  const recovered = await admin.rpc("chapter_private_link_cipher", { p_chapter: "ch02" });
+  check("new link recoverable for admin copy", !recovered.error && Boolean(recovered.data));
+  console.log(`${passed} live TEST rotation assertions passed.`);
 } else if (phase === "verify-revoked") {
   const state = JSON.parse(await readFile(statePath, "utf8"));
   const first = state.links[0];
