@@ -13,6 +13,9 @@
 - Chromium local desktop 1280×1800 và khổ iPhone 390×844: Văn phòng sao chép cùng link, hai máy mở link → tải lại → form báo cáo; PDF/PNG gửi lên, tải lại, xem/tải qua gateway; Văn phòng nhận và xem tệp; Chi hội khác không thấy báo cáo.
 - Thu hồi bằng nút Văn phòng: cả hai phiên cũ bị chặn sau tải lại; link cũ không mở lại. Test riêng chặn đọc/tải file và gửi sau thu hồi, kể cả bật lại active của danh tính TEST.
 - Quét bảo mật cơ bản không phát hiện lỗi; không bao gồm phân tích mã chuyên sâu.
+- 23 kiểm tra link/tệp thật đạt (12 cấp/cách ly, 7 thu hồi/tệp, 4 đổi link).
+- Đã xuất bản và chạy lại trên **https://son-tra-chapter-hub.lovable.app**: hai browser context trắng desktop/khổ iPhone mở đúng Sổ, tải lại giữ phiên, gửi PDF/PNG; Văn phòng nhận và mở tệp; Chi hội khác không thấy báo cáo; link sai bị từ chối; thu hồi qua UI Văn phòng chặn cả hai phiên và mở lại link. Gateway production chặn cả hai tệp sau thu hồi.
+- Bản mã đã kiểm chứng production: `d52f66c4a696672c988328ea8c48961c03234101`. Dữ liệu TEST đã dọn; không cấp/đổi/thu hồi link thật.
 
 ## Giới hạn
 - Chưa thử Safari/iPhone/Android/Zalo trên thiết bị thật; kiểm khổ iPhone là Chromium mô phỏng kích thước.
