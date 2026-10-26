@@ -6,7 +6,7 @@ import { setResponseHeader } from "@tanstack/react-start/server";
 
 export type LegalAiResult =
   | { mode: "ai"; answer: string; claims: LegalClaim[]; sources: Omit<LegalSource, "text">[]; limitation: string; retrievedAt: string; remaining: number }
-  | { mode: "faq"; reason: "no_key" | "quota" | "daily_limit" | "no_source" | "error"; message: string; remaining?: number; providerStatus?: number; sources?: Omit<LegalSource, "text">[]; retrievedAt?: string };
+  | { mode: "faq"; reason: "no_key" | "quota" | "daily_limit" | "no_source" | "error"; message: string; remaining?: number; providerStatus?: number | undefined; sources?: Omit<LegalSource, "text">[]; retrievedAt?: string };
 
 /**
  * General legal research from actually retrieved official sources; FAQ optional.

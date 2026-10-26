@@ -38,7 +38,7 @@ export function Legal({ ctx }: { ctx: Ctx }) {
 
       <Section title={`Thư viện hỏi đáp ${office ? "(Văn phòng thấy cả mục chờ duyệt)" : "đã duyệt"}`}>
         <input className="field" placeholder="Tìm theo từ khóa, ví dụ: bạo lực gia đình, kết hôn, thừa kế…" value={q} onChange={(e) => setQ(e.target.value)} />
-        {shown.length === 0 ? <Empty>{approved.length === 0 ? "Chưa có câu hỏi đáp nào được duyệt. Văn phòng cần kiểm chứng nguồn và duyệt." : "Không tìm thấy mục phù hợp."}</Empty> : (
+        {shown.length === 0 ? <Empty>{approved.length === 0 ? "Thư viện tùy chọn chưa có mục đã duyệt." : "Không tìm thấy mục phù hợp."}</Empty> : (
           <ul className="space-y-3">{shown.map((f) => <FaqItem key={f.id} f={f} office={office} />)}</ul>
         )}
       </Section>
@@ -88,28 +88,32 @@ function AskAi({ faqs }: { faqs: Faq[] }) {
     catch (e) { setErr(e instanceof Error ? e.message : "Có lỗi, vui lòng thử lại."); }
     finally { setBusy(false); }
   }
-  const cited = res?.mode === "ai" ? faqs.filter((f) => res.citedIds.includes(f.id)) : [];
   const fallback = res?.mode === "faq" ? searchFaqs(faqs.filter((f) => f.status === "approved"), text, 5) : [];
   return (
     <div className="panel space-y-3 p-5">
       <label className="label">Câu hỏi chung (tối đa {LEGAL_Q_MAX} ký tự)</label>
       <textarea className="field min-h-24" maxLength={LEGAL_Q_MAX} value={text} onChange={(e) => setText(e.target.value)} placeholder="Ví dụ: Khi bị bạo lực gia đình có thể báo cho ai?" />
       {pii.length > 0 && <p className="text-sm font-semibold text-destructive">Có vẻ chứa {pii.join(", ")} — hãy xóa trước khi gửi.</p>}
-      <Button size="xl" disabled={busy || pii.length > 0 || text.trim().length < 8} onClick={go}>{busy ? "Đang tra cứu…" : "Hỏi trợ lý (dựa trên nguồn đã duyệt)"}</Button>
+      <Button size="xl" disabled={busy || pii.length > 0 || text.trim().length < 8} onClick={go}>{busy ? "Đang tra cứu…" : "Tra cứu nguồn chính thức"}</Button>
       {err && <p className="text-sm font-semibold text-destructive">{err}</p>}
       {res?.mode === "ai" && (
         <div className="rounded-xl bg-accent p-4 text-sm">
           <p className="whitespace-pre-wrap">{res.answer}</p>
-          {cited.map((f) => <Source key={f.id} f={f} />)}
-          <p className="mt-2 text-xs text-muted-foreground">Trả lời tự động từ thư viện đã duyệt, có thể chưa đầy đủ. Còn {res.remaining} lượt hôm nay.</p>
+          <p className="mt-3 text-muted-foreground">{res.limitation}</p>
+          {res.claims.map((c, i) => <details key={i} className="mt-3 border-t border-border pt-2"><summary className="cursor-pointer font-semibold">Trích dẫn cho nhận định {i + 1} · [{c.sourceId}]</summary><blockquote className="mt-2 whitespace-pre-wrap border-l-2 border-primary pl-3">{c.quote}</blockquote></details>)}
+          <p className="mt-2 text-xs text-muted-foreground">Còn {res.remaining} lượt hôm nay. Nội dung tự động cần đối chiếu trước khi áp dụng.</p>
         </div>
       )}
       {res?.mode === "faq" && (
         <div className="space-y-2 rounded-xl bg-secondary p-4 text-sm">
           <p className="font-semibold">{res.message}</p>
+          {res.providerStatus && <p>Mã phản hồi Google: {res.providerStatus}.</p>}
+          {res.remaining !== undefined && <p>Còn {res.remaining} lượt hôm nay.</p>}
           {fallback.length > 0 && <ul className="list-disc pl-5">{fallback.map((f) => <li key={f.id}>{f.question}</li>)}</ul>}
         </div>
       )}
+      {res?.retrievedAt && <p className="text-xs text-muted-foreground">Tra cứu: {fmtDateTime(res.retrievedAt)}</p>}
+      {res?.sources && res.sources.length > 0 && <div className="space-y-2 border-t border-border pt-3 text-sm"><p className="font-semibold">Nguồn đã tải</p>{res.sources.map((s) => <p key={s.id} className="break-words"><a className="text-primary underline" href={s.url} target="_blank" rel="noopener noreferrer">[{s.id}] {s.title}</a><span className="block text-xs text-muted-foreground">{s.kind === "record" ? "Chỉ thông tin văn bản; không xác nhận điều khoản" : "Toàn văn đọc được"} · {fmtDateTime(s.retrievedAt)}</span></p>)}</div>}
     </div>
   );
 }

@@ -20,7 +20,7 @@ export function checkedClaims(input: unknown, sources: LegalSource[]): LegalClai
   const result: LegalClaim[] = [];
   for (const item of input) {
     if (!item || typeof item !== "object") return [];
-    const c = item as Record<string, unknown>;
+    const c = item as { text?: unknown; quote?: unknown; sourceId?: unknown };
     if (typeof c.text !== "string" || typeof c.quote !== "string" || typeof c.sourceId !== "number") return [];
     const source = sources.find((s) => s.id === c.sourceId);
     const quote = normalizeEvidence(c.quote);
