@@ -74,8 +74,8 @@ function Index() {
 
       <main className="mx-auto grid max-w-5xl gap-6 px-5 py-8 md:grid-cols-[1.1fr_1fr]">
         <section className="panel p-6 md:col-span-2">
-          <h2 className="text-xl font-bold text-primary">Vào Sổ Chi hội bằng mã truy cập</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Không cần email. Chọn Chi hội, rồi nhập mã 8 số do Văn phòng Hội cấp.</p>
+          <h2 className="text-xl font-bold text-primary">Vào Sổ Chi hội bằng liên kết riêng</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Mở liên kết riêng do Văn phòng gửi qua Zalo để vào đúng Sổ, không cần email hoặc mã. Chọn Chi hội bên dưới chỉ mở lối vào chung, không cấp quyền.</p>
           <div className="mt-4 flex flex-col gap-3 sm:flex-row">
             <select aria-label="Chọn Chi hội" className="field flex-1" value={unit} onChange={(e) => setUnit(e.target.value)}>
               <option value="">— Chọn Chi hội —</option>
@@ -125,8 +125,8 @@ function Index() {
           <div className="panel p-5">
             <h3 className="font-bold text-primary">Ai được sử dụng?</h3>
             <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
-              <li>Mỗi Chi hội vào bằng link riêng và mã 8 số do Văn phòng cấp; không cần email.</li>
-              <li>Văn phòng có thể đổi hoặc thu hồi mã bất cứ lúc nào, có hiệu lực ngay.</li>
+              <li>Mỗi Chi hội mở link riêng do Văn phòng cấp; không cần email, mật khẩu hay PIN.</li>
+              <li>Văn phòng có thể đổi hoặc thu hồi link; các phiên mất quyền ở yêu cầu tiếp theo.</li>
               <li>Mỗi Chi hội chỉ thấy dữ liệu của mình. Hồ sơ nhạy cảm chỉ người được giao mới xem.</li>
             </ul>
           </div>

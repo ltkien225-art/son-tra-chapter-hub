@@ -69,7 +69,7 @@ export function Tasks({ ctx }: { ctx: Ctx }) {
       action={canEdit && !form && <Button size="xl" onClick={() => { close(); setForm({ title: "", description: "", due_at: "", chapters: [] }); }}>＋ Giao nhiệm vụ</Button>}>
       {ctx.officeView && (
         <p className="panel p-4 text-sm text-muted-foreground">
-          Chế độ Văn phòng chỉ xem. Khi Chi hội đăng nhập bằng mã riêng của mình, tại đây sẽ hiện ô “Gửi kết quả / minh chứng về Văn phòng” kèm nút lớn “📎 Đính kèm PDF / ảnh / minh chứng” trong từng nhiệm vụ.
+          Chế độ Văn phòng chỉ xem. Khi Chi hội mở liên kết Sổ riêng của mình, tại đây sẽ hiện ô “Gửi kết quả / minh chứng về Văn phòng” kèm nút lớn “📎 Đính kèm PDF / ảnh / minh chứng” trong từng nhiệm vụ.
         </p>
       )}
       {form && (
@@ -138,7 +138,7 @@ export function Tasks({ ctx }: { ctx: Ctx }) {
                         {ctx.officeView ? (
                           <>
                             <p className="rounded-xl bg-muted p-3 text-sm">Tiến độ: <b>{ASSIGN_STATUS[a.status]}</b> · {a.progress}%{a.note && <> · {a.note}</>}</p>
-                            <p className="text-xs text-muted-foreground">Chế độ Văn phòng chỉ xem. Chi hội đăng nhập bằng mã riêng sẽ thấy ô “Gửi kết quả / minh chứng về Văn phòng” kèm nút đính kèm tệp tại đây.</p>
+                            <p className="text-xs text-muted-foreground">Chế độ Văn phòng chỉ xem. Chi hội mở liên kết Sổ riêng sẽ thấy ô “Gửi kết quả / minh chứng về Văn phòng” kèm nút đính kèm tệp tại đây.</p>
                           </>
                         ) : <AssignForm a={a} onDone={refresh} />}
                         <TaskResults taskId={t.id} ctx={ctx} chapterId={a.chapter_id} />

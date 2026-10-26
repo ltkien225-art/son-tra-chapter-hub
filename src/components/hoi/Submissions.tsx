@@ -84,7 +84,7 @@ export function Submissions({ ctx }: { ctx: Ctx }) {
 
       {ctx.officeView && (
         <p className="panel p-4 text-sm text-muted-foreground">
-          Chế độ Văn phòng chỉ xem. Khi Chi hội đăng nhập bằng mã riêng của mình, tại đây sẽ hiện form gửi báo cáo với nút lớn “📎 Đính kèm PDF / ảnh / minh chứng”.
+          Chế độ Văn phòng chỉ xem. Khi Chi hội mở liên kết Sổ riêng của mình, tại đây sẽ hiện form gửi báo cáo với nút lớn “📎 Đính kèm PDF / ảnh / minh chứng”.
         </p>
       )}
       <div className="flex flex-wrap gap-2">

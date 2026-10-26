@@ -14,8 +14,10 @@ export const CODE_LOGIN_DOMAIN = "ma-truy-cap.hoisontra.app";
 export const unitLabel = (u: string) => (u === "office" ? "Văn phòng Hội" : `Chi hội ${CHAPTER_NAMES[u] ?? u}`);
 /** Synthetic identity of a code login → unit id (or null for personal emails). */
 export function codeLoginUnit(email: string | null | undefined): string | null {
+  const privateLink = /^so-link-(ch\d\d)-[a-f0-9]{32}@ma-truy-cap\.hoisontra\.app$/.exec(email ?? "");
+  if (privateLink?.[1]) return privateLink[1];
   const m = /^(office|ch\d\d)-v[a-z0-9]+-[a-z0-9]+@/.exec(email ?? "");
-  return m && (email ?? "").endsWith("@" + CODE_LOGIN_DOMAIN) ? m[1]! : null;
+  return m && (email ?? "").endsWith("@" + CODE_LOGIN_DOMAIN) ? (m[1] ?? null) : null;
 }
 export const OFFICE_CODE_EMAIL = "ma-van-phong@" + CODE_LOGIN_DOMAIN;
 export const HANDOVER_EMAIL = "tiep-nhan-quan-tri@" + CODE_LOGIN_DOMAIN;
@@ -26,12 +28,12 @@ export function identityLabel(email: string | null | undefined): string | null {
   if (email === HANDOVER_EMAIL) return "Quản trị · tiếp nhận bằng liên kết một lần";
   if (/^vp-link-[a-f0-9]+@ma-truy-cap\.hoisontra\.app$/.test(email)) return "Văn phòng · liên kết dùng chung";
   const u = codeLoginUnit(email);
-  return u ? `Đăng nhập bằng mã truy cập · ${unitLabel(u)}` : null;
+  return u ? `Sổ riêng · ${unitLabel(u)}` : null;
 }
 export const PIN_RE = /^\d{8}$/;
 export function newPin(): string {
   const a = new Uint32Array(1);
   let s = "";
-  while (s.length < 8) { crypto.getRandomValues(a); if (a[0]! < 4294967290) s += String(a[0]! % 10); }
+  while (s.length < 8) { crypto.getRandomValues(a); const value = a[0]; if (value !== undefined && value < 4294967290) s += String(value % 10); }
   return s;
 }

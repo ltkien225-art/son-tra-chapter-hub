@@ -88,7 +88,7 @@ export function Documents({ ctx }: { ctx: Ctx }) {
       action={office && !form && <Button size="xl" onClick={() => { setEditId(null); setAuto(undefined); setPending([]); setForm({ ...blank }); }}>＋ Văn bản mới</Button>}>
       {ctx.officeView && (
         <p className="panel p-4 text-sm text-muted-foreground">
-          Chế độ Văn phòng chỉ xem: xem/tải được văn bản và tệp đính kèm đã phát hành tới Chi hội này. Văn phòng không gửi thay Chi hội; cán bộ Chi hội đăng nhập bằng mã riêng để gửi báo cáo kèm minh chứng.
+          Chế độ Văn phòng chỉ xem: xem/tải được văn bản và tệp đính kèm đã phát hành tới Chi hội này. Văn phòng không gửi thay Chi hội; cán bộ Chi hội mở liên kết Sổ riêng để gửi báo cáo kèm minh chứng.
         </p>
       )}
       {form && (

@@ -1,86 +1,59 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Copy, Link2, RefreshCw, ShieldX } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 import { fmtDateTime, viError } from "@/lib/hoi";
-import { revokeUnitCode, rotateUnitCode } from "@/lib/unit-login.functions";
+import { listChapterLinks, manageChapterLink } from "@/lib/chapter-links.functions";
 import { CHAPTER_NAMES, unitLabel } from "@/lib/units";
 import { Section } from "./common";
 
-// Văn phòng dùng mã bảo vệ riêng tại /van-phong (xem mục "Mã bảo vệ Văn phòng" bên dưới), không dùng mã 8 số.
-const UNITS = Object.keys(CHAPTER_NAMES);
-
-/** Admin: issue / change / revoke per-unit access codes. A new code is shown once and never stored in plain text. */
-export function UnitCodes() {
+export function ChapterLinks() {
   const qc = useQueryClient();
-  const rotate = useServerFn(rotateUnitCode);
-  const revoke = useServerFn(revokeUnitCode);
+  const list = useServerFn(listChapterLinks);
+  const manage = useServerFn(manageChapterLink);
   const [busy, setBusy] = useState<string | null>(null);
-  const [shown, setShown] = useState<{ unit: string; pin: string } | null>(null);
-  const { data } = useQuery({
-    queryKey: ["unit-logins"],
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc("list_unit_logins");
-      if (error) throw error;
-      return data ?? [];
-    },
-  });
-  const row = (u: string) => data?.find((r) => r.unit === u);
-  const link = (u: string) => `${window.location.origin}/so/${u}`;
-
-  async function doRotate(u: string) {
-    if (row(u)?.enabled && !confirm(`Đổi mã của ${unitLabel(u)}? Mã cũ và mọi thiết bị đang dùng mã cũ sẽ bị đăng xuất ngay.`)) return;
-    setBusy(u);
-    try { const r = await rotate({ data: { unit: u } }); setShown({ unit: u, pin: r.pin }); qc.invalidateQueries({ queryKey: ["unit-logins"] }); }
-    catch (e) { toast.error(viError(e)); } finally { setBusy(null); }
+  const [shown, setShown] = useState<{ chapter: string; url: string } | null>(null);
+  const { data, error, isPending } = useQuery({ queryKey: ["chapter-private-links"], queryFn: () => list() });
+  useEffect(() => { const hide = () => { if (document.hidden) setShown(null); }; document.addEventListener("visibilitychange", hide); return () => document.removeEventListener("visibilitychange", hide); }, []);
+  const row = (chapter: string) => data?.find((r) => r.chapter_id === chapter && r.active);
+  async function act(chapter: string, action: "issue" | "copy" | "rotate" | "revoke") {
+    if (action === "rotate" && !confirm(`Đổi liên kết Sổ của ${unitLabel(chapter)}? Link cũ và mọi phiên mở bằng link cũ mất quyền ở yêu cầu tiếp theo. Dữ liệu và tệp được giữ nguyên.`)) return;
+    if (action === "revoke" && !confirm(`Thu hồi liên kết Sổ của ${unitLabel(chapter)}? Mọi thiết bị dùng link này sẽ mất quyền; không xóa báo cáo hoặc tệp.`)) return;
+    setBusy(chapter); setShown(null);
+    try {
+      const r = await manage({ data: { chapter, action } });
+      if (r.token) {
+        const url = `${window.location.origin}/so/${chapter}#k=${r.token}`;
+        setShown({ chapter, url });
+        if (action === "copy") {
+          try { await navigator.clipboard.writeText(url); toast.success("Đã sao chép liên kết Sổ, không đổi link."); }
+          catch { toast.error("Chưa sao chép được. Nhấn giữ liên kết đang hiển thị để sao chép."); }
+        } else toast.success("Đã cấp liên kết Sổ. Gửi riêng cho người phụ trách.");
+      } else toast.success("Đã thu hồi liên kết. Các phiên mất quyền ở yêu cầu tiếp theo.");
+      await qc.invalidateQueries({ queryKey: ["chapter-private-links"] });
+    } catch (e) { toast.error(viError(e)); }
+    finally { setBusy(null); }
   }
-  async function doRevoke(u: string) {
-    if (!confirm(`Thu hồi mã của ${unitLabel(u)}? Mọi thiết bị của đơn vị sẽ mất quyền ngay.`)) return;
-    setBusy(u);
-    try { await revoke({ data: { unit: u } }); toast.success("Đã thu hồi. Có hiệu lực ngay."); qc.invalidateQueries({ queryKey: ["unit-logins"] }); }
-    catch (e) { toast.error(viError(e)); } finally { setBusy(null); }
-  }
-
-  return (
-    <Section title="Mã truy cập 42 Chi hội">
-      <div className="panel space-y-1 p-4 text-sm">
-        <p>Mỗi đơn vị có <b>link riêng</b> và <b>mã 8 số riêng</b>. Link không phải là quyền: không có mã thì không vào được.</p>
-        <p>Bàn giao an toàn: gửi link qua Zalo được, nhưng <b>đọc mã trực tiếp hoặc gọi điện</b> cho người phụ trách, không đăng mã lên nhóm. Mã chỉ hiện <b>một lần</b>; quên thì bấm “Đổi mã”.</p>
-        <p>Mã Chi hội chỉ thấy dữ liệu Chi hội đó. Văn phòng không dùng mã 8 số — cán bộ Văn phòng vào bằng mã bảo vệ tại /van-phong (mục bên dưới).</p>
-      </div>
-      {shown && (
-        <div className="panel border-2 border-primary p-5" role="alert">
-          <p className="font-bold">Mã mới của {unitLabel(shown.unit)} (chỉ hiện lần này):</p>
-          <p className="my-2 select-all text-center font-mono text-3xl tracking-[0.3em]">{shown.pin}</p>
-          <p className="text-sm">Link: <span className="select-all break-all">{link(shown.unit)}</span></p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Button variant="outline" onClick={() => { navigator.clipboard?.writeText(link(shown.unit)); toast.success("Đã chép link (không kèm mã)"); }}>Chép link</Button>
-            <Button onClick={() => setShown(null)}>Tôi đã ghi lại mã — Ẩn</Button>
-          </div>
+  return <Section title="Quản lý liên kết Sổ 42 Chi hội">
+    <p className="text-sm">Chọn đúng Chi hội, cấp liên kết Sổ rồi sao chép gửi Zalo riêng. Người nhận mở link là vào đúng Sổ, không cần email hay mã. Một link dùng được trên nhiều điện thoại và laptop, đến khi đổi hoặc thu hồi.</p>
+    <p className="text-sm text-muted-foreground">Ai có link sẽ có quyền của Chi hội đó. Không đăng lên nhóm công khai. Sao chép không thay đổi link; đổi hoặc thu hồi không xóa dữ liệu.</p>
+    {isPending && <p role="status">Đang đọc trạng thái liên kết…</p>}
+    {error && <p role="alert" className="text-destructive">{viError(error)}</p>}
+    {shown && <section className="space-y-3 rounded-lg border border-primary p-4">
+      <p className="font-bold">Liên kết riêng · {unitLabel(shown.chapter)}</p>
+      <p className="break-all select-all text-sm" data-testid="chapter-private-link">{shown.url}</p>
+      <div className="flex flex-wrap gap-2"><Button size="xl" onClick={() => act(shown.chapter, "copy")} disabled={busy !== null}><Copy />Sao chép gửi Zalo</Button><Button variant="outline" onClick={() => setShown(null)}>Ẩn liên kết</Button></div>
+    </section>}
+    <div className="grid gap-3 md:grid-cols-2">{Object.keys(CHAPTER_NAMES).map((chapter) => {
+      const r = row(chapter);
+      return <div key={chapter} className="panel space-y-3 p-4">
+        <div><h3 className="font-semibold">{unitLabel(chapter)}</h3><p className="text-xs text-muted-foreground">{r ? `Đang hoạt động · cấp ${fmtDateTime(r.created_at)}` : "Chưa có liên kết hoạt động"}</p></div>
+        <div className="flex flex-wrap gap-2">
+          {r ? <><Button size="xl" disabled={busy !== null || isPending || !!error} onClick={() => act(chapter, "copy")}><Copy />Sao chép link Sổ</Button><Button variant="outline" disabled={busy !== null} onClick={() => act(chapter, "rotate")}><RefreshCw />Đổi link</Button><Button variant="destructive" disabled={busy !== null} onClick={() => act(chapter, "revoke")}><ShieldX />Thu hồi</Button></> : <Button size="xl" disabled={busy !== null || isPending || !!error} onClick={() => act(chapter, "issue")}><Link2 />Cấp liên kết Sổ</Button>}
         </div>
-      )}
-      <div className="grid gap-2 md:grid-cols-2">
-        {UNITS.map((u) => {
-          const r = row(u);
-          return (
-            <div key={u} className="panel flex flex-wrap items-center justify-between gap-2 p-3">
-              <div className="min-w-0">
-                <p className="font-semibold">{unitLabel(u)}</p>
-                <p className="text-xs text-muted-foreground">
-                  {r?.enabled ? `Đang có mã · đổi lúc ${fmtDateTime(r.rotated_at)}` : r ? "Đã thu hồi" : "Chưa cấp mã"}
-                  {r && Number(r.fails_15m) > 0 ? ` · ${r.fails_15m} lần nhập sai/15 phút` : ""}
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <Button size="sm" disabled={busy === u} onClick={() => doRotate(u)}>{r?.enabled ? "Đổi mã" : "Cấp mã"}</Button>
-                {r?.enabled && <Button size="sm" variant="outline" disabled={busy === u} onClick={() => doRevoke(u)}>Thu hồi</Button>}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </Section>
-  );
+      </div>;
+    })}</div>
+  </Section>;
 }

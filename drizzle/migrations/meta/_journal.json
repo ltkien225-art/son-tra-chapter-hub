@@ -127,6 +127,13 @@
       "when": 1793292600002,
       "tag": "0017_office_link_private_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1793292600003,
+      "tag": "0018_chapter_reusable_private_links",
+      "breakpoints": true
     }
   ]
 }

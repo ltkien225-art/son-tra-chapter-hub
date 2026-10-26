@@ -1,5 +1,9 @@
 # Roadmap — Hội LHPN Sơn Trà (Lovable Cloud)
 
+- [x] Replace chapter PIN workflow with reusable private links: additive schema, current parent permissions, issue/copy/change/revoke, entry and guides; operational data and office access untouched.
+- [x] Local authorized TEST acceptance: two independent desktop/iPhone-width sessions, PDF/image upload/reload/view/download, Office reception, isolation, invalid/revoked links, rotation and parent revocation; 30 unit + 145 regression + 23 link/file live assertions passed; basic security scan no findings (not deep analysis).
+- [x] Published chapter link workflow; production browser acceptance passed with two isolated TEST contexts, report/attachments received by Office, cross-chapter rejection and both sessions rejected after revoke. Production gateway rejects revoked file reads. Removed only this run's TEST data, retaining audit evidence. Physical Safari/Android/Zalo remains unverified.
+
 - [x] Owner self-service /cap-link-van-phong implemented: explicit magic email/signup=false, owner-only issue/revoke, reusable office capability and local logout; 25 unit + 145 backend + 7 negative live authorization tests passed; basic security checks clean.
 - [ ] Positive owner issuance/copy, three-device sessions and parent revoke E2E — blocked: owner session approval unavailable in this context; no impersonation or real link issued. Physical-device tests and actual email delivery remain unverified.
 

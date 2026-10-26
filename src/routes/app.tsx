@@ -15,7 +15,7 @@ import { AccessAdmin, Audit, Backup } from "@/components/hoi/AdminPanels";
 import { Guide } from "@/components/hoi/Guide";
 import { Legal } from "@/components/hoi/Legal";
 import { PushSettings } from "@/components/hoi/PushSettings";
-import { UnitCodes } from "@/components/hoi/UnitCodes";
+import { ChapterLinks } from "@/components/hoi/UnitCodes";
 import { HandoverPanel, OfficeCodePanel } from "@/components/hoi/OfficeSecurity";
 import { codeLoginUnit, identityLabel, unitLabel } from "@/lib/units";
 import { BrandLogo } from "@/components/hoi/BrandLogo";
@@ -67,7 +67,9 @@ function Workspace({ email, userId }: { email: string; userId: string }) {
   const signOut = async () => {
     await qc.cancelQueries(); qc.clear();
     await supabase.auth.signOut({ scope: "local" });
-    navigate({ to: "/van-phong", replace: true });
+    const unit = codeLoginUnit(email);
+    if (unit && unit !== "office") navigate({ to: "/so/$unit", params: { unit }, replace: true });
+    else navigate({ to: "/van-phong", replace: true });
   };
   if (access.isLoading) return <div className="p-10 text-center text-muted-foreground">Đang kiểm tra quyền…</div>;
   if (access.error) return <div className="p-10 text-center">{viError(access.error)}</div>;
@@ -142,7 +144,7 @@ function Workspace({ email, userId }: { email: string; userId: string }) {
         {current === "subs" && <Submissions ctx={ctx} />}
         {current === "members" && <Members ctx={ctx} />}
         {current === "sens" && a.sensitive && <Sensitive ctx={ctx} />}
-        {current === "access" && <div className="space-y-8">{a.admin && <><UnitCodes /><OfficeCodePanel /><HandoverPanel /></>}<AccessAdmin ctx={ctx} /></div>}
+        {current === "access" && <div className="space-y-8">{a.admin && <><ChapterLinks /><OfficeCodePanel /><HandoverPanel /></>}<AccessAdmin ctx={ctx} /></div>}
         {current === "audit" && <Audit />}
         {current === "backup" && a.admin && <Backup />}
         {current === "push" && <PushSettings ctx={ctx} />}
@@ -199,9 +201,9 @@ function NoAccess({ email, userId, onSignOut }: { email: string; userId: string;
   if (identityLabel(email)) return (
     <div className="mx-auto max-w-md p-8 text-center">
       <div className="panel space-y-4 p-6">
-        <h2 className="text-xl font-bold text-primary">Mã truy cập đã được đổi hoặc thu hồi</h2>
-        <p className="text-sm">Thiết bị này không còn quyền vào {codeLoginUnit(email) ? unitLabel(codeLoginUnit(email)!) : "Văn phòng Hội"}. Liên hệ quản trị để nhận mã mới.</p>
-        <Button size="xl" className="w-full" onClick={onSignOut}>Đăng xuất và nhập mã mới</Button>
+        <h2 className="text-xl font-bold text-primary">Quyền truy cập đã được đổi hoặc thu hồi</h2>
+        <p className="text-sm">Thiết bị này không còn quyền vào {unitLabel(codeLoginUnit(email) ?? "office")}. Liên hệ Văn phòng để nhận liên kết hoặc quyền truy cập mới.</p>
+        <Button size="xl" className="w-full" onClick={onSignOut}>Đăng xuất để mở lại liên kết</Button>
       </div>
     </div>
   );

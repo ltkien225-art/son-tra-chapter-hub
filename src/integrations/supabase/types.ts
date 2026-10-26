@@ -167,6 +167,50 @@ export type Database = {
           },
         ]
       }
+      chapter_private_links: {
+        Row: {
+          active: boolean
+          chapter_id: string
+          created_at: string
+          created_by: string
+          id: string
+          identity_email: string
+          revoked_at: string | null
+          token_cipher: string
+          token_hash: string
+        }
+        Insert: {
+          active?: boolean
+          chapter_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          identity_email: string
+          revoked_at?: string | null
+          token_cipher: string
+          token_hash: string
+        }
+        Update: {
+          active?: boolean
+          chapter_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          identity_email?: string
+          revoked_at?: string | null
+          token_cipher?: string
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chapter_private_links_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chapters: {
         Row: {
           created_at: string
@@ -925,6 +969,20 @@ export type Database = {
         Args: { _id: string; _type: string }
         Returns: boolean
       }
+      chapter_link_allows: {
+        Args: { _chapter: string; _email: string }
+        Returns: boolean
+      }
+      chapter_private_link_cipher: {
+        Args: { p_chapter: string }
+        Returns: string
+      }
+      chapter_private_link_lookup_service: {
+        Args: { p_chapter: string; p_hash: string }
+        Returns: {
+          identity_email: string
+        }[]
+      }
       chapter_recipients: { Args: { _chs: string[] }; Returns: string[] }
       consume_legal_ai: { Args: { _limit: number }; Returns: number }
       create_handover_invite: {
@@ -992,6 +1050,15 @@ export type Database = {
           unit: string
           version: number
         }[]
+      }
+      manage_chapter_private_link: {
+        Args: {
+          p_action: string
+          p_chapter: string
+          p_cipher?: string
+          p_hash?: string
+        }
+        Returns: string
       }
       mark_document_read: {
         Args: { _chapter: string; _doc: string }
