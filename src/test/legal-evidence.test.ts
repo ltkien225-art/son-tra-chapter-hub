@@ -22,6 +22,7 @@ describe("official legal evidence boundaries", () => {
     expect(futureEffectiveSource("Ngày có hiệu lực 01-03-2027", "2026-10-26")).toBe(true);
     expect(futureEffectiveSource("Ngày có hiệu lực 01-07-2023", "2026-10-26")).toBe(false);
   });
+  it("rejects a genuine quote from a not-yet-effective source", () => expect(checkedClaims([claim], [{ ...source, text: "Ngày có hiệu lực 01-03-2027 " + quote }])).toEqual([]));
   it("rejects untrusted, credential-bearing and internal source URLs", () => {
     for (const u of ["http://vanban.chinhphu.vn/", "https://vanban.chinhphu.vn.evil.test/", "https://user@vanban.chinhphu.vn/", "https://127.0.0.1/", "https://vanban.chinhphu.vn:8080/"]) expect(officialLegalUrl(u)).toBe(false);
     expect(officialLegalUrl(source.url)).toBe(true);
