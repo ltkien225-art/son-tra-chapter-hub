@@ -22,6 +22,11 @@ describe("bounded official retrieval", () => {
     const f = vi.fn().mockResolvedValue(new Response("limited", { status: 429, headers: { "retry-after": "60" } })); vi.stubGlobal("fetch", f);
     expect((await legalFetch("https://vanban.chinhphu.vn/", {}, 1000)).status).toBe(429); expect(f).toHaveBeenCalledTimes(1);
   });
+  it("returns provider 429 without probing quota a second time", async () => {
+    const f = vi.fn().mockResolvedValue(new Response("limited", { status: 429 })); vi.stubGlobal("fetch", f);
+    expect((await legalFetch("https://generativelanguage.googleapis.com/", {}, 1000, false)).status).toBe(429);
+    expect(f).toHaveBeenCalledTimes(1);
+  });
   it("rejects a PDF beyond the four MB budget before parsing", async () => {
     await expect(legalBytes(new Response("x", { headers: { "content-length": String(LEGAL_MAX_BYTES + 1) } }))).rejects.toThrow();
   });

@@ -1,7 +1,7 @@
 # Roadmap — Hội LHPN Sơn Trà (Lovable Cloud)
 
 - [x] Legal research implementation: removed approved-FAQ dependency, actual government search form + official PDF extraction, server privacy/current access/quota, fetched URLs/verbatim evidence/time, optional FAQ and updated guide; no paid grounding or billing enabled.
-- [ ] Legal research acceptance/publish: new official procedure retrieval, server passage IDs, semantic gate and bounded retry implemented; direct marriage procedure test passed once, full flow later Google 429 at verification. Official TEST session approval unavailable in this chat; unused owned TEST auth user cleaned. Need authorized TEST session and restored Google quota for preview/production E2E/quota/revocation, then publish only after acceptance. No owner/real-link substitution.
+- [ ] Legal research acceptance/publish: continue with bounded public-source caching, smaller evidence budgets and minimal Google recovery probes without resetting quota or weakening the independent semantic gate. Official create-test-user currently unavailable; require official TEST sign-in for preview/production E2E/quota/revocation, then publish only after acceptance. No owner/real-link substitution.
 
 - [x] Replace chapter PIN workflow with reusable private links: additive schema, current parent permissions, issue/copy/change/revoke, entry and guides; operational data and office access untouched.
 - [x] Local authorized TEST acceptance: two independent desktop/iPhone-width sessions, PDF/image upload/reload/view/download, Office reception, isolation, invalid/revoked links, rotation and parent revocation; 30 unit + 145 regression + 23 link/file live assertions passed; basic security scan no findings (not deep analysis).
