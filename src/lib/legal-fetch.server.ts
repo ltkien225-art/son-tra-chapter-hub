@@ -27,7 +27,6 @@ export async function legalFetch(url: string, init: RequestInit, timeout: number
           signal: AbortSignal.timeout(remaining),
         });
 
-        // Only follow redirects for official public sources, never for provider API calls
         if (source && isRedirectStatus(r.status)) {
           await r.body?.cancel();
           if (redirects === 3) throw new Error("source_unavailable");
@@ -36,7 +35,6 @@ export async function legalFetch(url: string, init: RequestInit, timeout: number
           const nextUrl = new URL(location, currentUrl).href;
           if (!officialLegalUrl(nextUrl)) throw new Error("source_not_allowed");
           currentUrl = nextUrl;
-          // Strip custom headers/body on standard redirect to prevent credential or form leakage
           if (r.status === 301 || r.status === 302 || r.status === 303) {
             currentInit = { method: "GET" };
           } else {
@@ -52,7 +50,7 @@ export async function legalFetch(url: string, init: RequestInit, timeout: number
           if (seconds > 3) return r;
           await r.body?.cancel();
           await new Promise((resolve) => setTimeout(resolve, seconds > 0 ? seconds * 1000 : 1000));
-          break; // Break redirect loop to trigger retry attempt
+          break;
         }
         return r;
       }

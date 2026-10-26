@@ -37,7 +37,7 @@ export const askLegalAi = createServerFn({ method: "POST" })
     const retrievedAt = new Date().toISOString();
     try {
       const { retrieveLegalSources, answerFromSources } = await import("./legal-research.server");
-      const evidence = await retrieveLegalSources(data.question);
+      const evidence = await retrieveLegalSources(data.question, key);
       const sources = evidence.map(({ text: _text, ...source }) => source);
       if (!evidence.some((s) => s.kind === "text")) return { mode: "faq", reason: "no_source", remaining, sources, retrievedAt, message: "Chưa tải được toàn văn nguồn phù hợp để kiểm chứng câu trả lời. Không suy đoán điều luật hoặc thủ tục. Hãy hỏi cán bộ/cơ quan có thẩm quyền; thư viện bên dưới vẫn dùng được." };
       const result = await answerFromSources(key, data.question, evidence);

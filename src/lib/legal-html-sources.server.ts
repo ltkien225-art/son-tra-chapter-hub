@@ -1,10 +1,10 @@
 import { parseHTML } from "linkedom";
 import { legalBytes, legalFetch } from "./legal-fetch.server";
-import { legalSearchQueries, legalSearchTerm, normalizeEvidence, officialLegalUrl, type LegalSource } from "./legal-evidence";
+import { legalSearchTerm, normalizeEvidence, officialLegalUrl, type LegalSource } from "./legal-evidence";
 
 const SEARCH_BASE = "https://xaydungchinhsach.chinhphu.vn";
 
-// Fallback official articles for domestic violence when search results are sparse
+// Fallback official primary sources for domestic violence
 const domesticSources = [
   ["Địa chỉ tiếp nhận tin báo, tố giác", "https://xaydungchinhsach.chinhphu.vn/dia-chi-nao-tiep-nhan-tin-bao-to-giac-ve-hanh-vi-bao-luc-gia-dinh-119221201212722712.htm"],
   ["Biện pháp bảo vệ, hỗ trợ", "https://xaydungchinhsach.chinhphu.vn/bien-phap-ngan-chan-hanh-vi-bao-luc-gia-dinh-va-bao-ve-ho-tro-nguoi-bi-bao-luc-gia-dinh-119221202080437536.htm"],
@@ -12,20 +12,20 @@ const domesticSources = [
   ["Hành vi bạo lực gia đình", "https://xaydungchinhsach.chinhphu.vn/bao-luc-gia-dinh-la-gi-nhung-hanh-vi-nao-la-hanh-vi-bao-luc-gia-dinh-119221201175317803.htm"],
 ] as const;
 
-const DRAFT_OR_PROPOSAL = /\b(dự thảo|đề xuất|lấy ý kiến|sắp có hiệu lực|đề nghị xây dựng)\b/i;
+const DRAFT_PATTERN = /\b(dự thảo|đề xuất|lấy ý kiến|đề nghị xây dựng|sắp có hiệu lực)\b/i;
 
-async function fetchReadableArticle(titleHint: string, url: string, allowDraft: boolean): Promise<Omit<LegalSource, "id"> | null> {
+async function fetchPolicyArticle(titleHint: string, url: string, allowDraft: boolean): Promise<Omit<LegalSource, "id"> | null> {
   if (!officialLegalUrl(url)) return null;
   try {
     const response = await legalFetch(url, {}, 12_000);
     if (!response.ok || !response.headers.get("content-type")?.includes("text/html")) return null;
     const document = parseHTML(new TextDecoder().decode(await legalBytes(response))).document;
-    const pageTitle = normalizeEvidence(
+    const heading = normalizeEvidence(
       document.querySelector("h1")?.textContent ??
       document.querySelector('meta[property="og:title"]')?.getAttribute("content") ??
       titleHint,
     );
-    if (!allowDraft && DRAFT_OR_PROPOSAL.test(pageTitle)) return null;
+    if (!allowDraft && DRAFT_PATTERN.test(heading)) return null;
 
     const content = document.querySelector(".detail-content") ?? document.querySelector(".detail__content");
     if (!content) return null;
@@ -34,10 +34,10 @@ async function fetchReadableArticle(titleHint: string, url: string, allowDraft: 
     const text = normalizeEvidence(content.textContent ?? "").split("Tham khảo thêm")[0].trim();
     const metaDesc = document.querySelector('meta[name="description"]')?.getAttribute("content") ?? "";
     if (text.length < 300 || text.length > 100_000) return null;
-    if (!/Luật|Bộ luật|Nghị định|Thông tư|Điều\s+\d+/i.test(`${pageTitle} ${metaDesc} ${text}`)) return null;
+    if (!/Luật|Bộ luật|Nghị định|Thông tư|Điều\s+\d+/i.test(`${heading} ${metaDesc} ${text}`)) return null;
 
     return {
-      title: `Cổng TTĐT Chính phủ (Xây dựng chính sách): ${pageTitle || titleHint} — chưa xác nhận mọi sửa đổi`,
+      title: `Báo Điện tử Chính phủ: ${heading || titleHint} — chưa xác nhận mọi sửa đổi`,
       url,
       text,
       kind: "text",
@@ -48,23 +48,24 @@ async function fetchReadableArticle(titleHint: string, url: string, allowDraft: 
   }
 }
 
-export async function officialHtmlSources(question: string): Promise<Omit<LegalSource, "id">[]> {
-  const allowDraft = DRAFT_OR_PROPOSAL.test(question);
-  const queries = legalSearchQueries(question);
+export async function officialHtmlSources(question: string, plannedQueries?: string[]): Promise<Omit<LegalSource, "id">[]> {
+  const allowDraft = DRAFT_PATTERN.test(question);
+  const baseTerm = legalSearchTerm(question);
+  const queries = [...new Set([...(plannedQueries ?? []), baseTerm])].filter((q) => q && q.trim().length >= 3).slice(0, 3);
   const candidateLinks: { title: string; url: string }[] = [];
 
-  for (const q of queries) {
+  for (const query of queries) {
     try {
-      const searchUrl = `${SEARCH_BASE}/tim-kiem.htm?keywords=${encodeURIComponent(q)}`;
+      const searchUrl = `${SEARCH_BASE}/tim-kiem.htm?keywords=${encodeURIComponent(query)}`;
       const response = await legalFetch(searchUrl, {}, 10_000);
       if (!response.ok || !response.headers.get("content-type")?.includes("text/html")) continue;
       const doc = parseHTML(new TextDecoder().decode(await legalBytes(response))).document;
-      const anchors = [...doc.querySelectorAll(".timeline_list a.box-category-link-title, a.box-category-link-title")];
-      for (const a of anchors) {
+      const links = [...doc.querySelectorAll(".timeline_list a.box-category-link-title, a.box-category-link-title")];
+      for (const a of links) {
         const href = a.getAttribute("href");
         const title = normalizeEvidence(a.textContent ?? a.getAttribute("title") ?? "");
         if (!href || !title) continue;
-        if (!allowDraft && DRAFT_OR_PROPOSAL.test(title)) continue;
+        if (!allowDraft && DRAFT_PATTERN.test(title)) continue;
         const fullUrl = new URL(href, SEARCH_BASE).href;
         if (officialLegalUrl(fullUrl) && !candidateLinks.some((c) => c.url === fullUrl)) {
           candidateLinks.push({ title, url: fullUrl });
@@ -72,23 +73,21 @@ export async function officialHtmlSources(question: string): Promise<Omit<LegalS
         if (candidateLinks.length >= 4) break;
       }
     } catch {
-      /* Search page failure does not block fallback or catalog lookup */
+      /* Continue to next query or fallback */
     }
     if (candidateLinks.length >= 4) break;
   }
 
-  if (legalSearchTerm(question) === "bạo lực gia đình") {
+  if (baseTerm === "bạo lực gia đình" || queries.some((q) => /bạo lực gia đình/i.test(q))) {
     for (const [title, url] of domesticSources) {
-      if (!candidateLinks.some((c) => c.url === url)) {
-        candidateLinks.push({ title, url });
-      }
+      if (!candidateLinks.some((c) => c.url === url)) candidateLinks.push({ title, url });
     }
   }
 
   const sources: Omit<LegalSource, "id">[] = [];
-  for (const item of candidateLinks.slice(0, 4)) {
-    const article = await fetchReadableArticle(item.title, item.url, allowDraft);
-    if (article) sources.push(article);
+  for (const candidate of candidateLinks.slice(0, 4)) {
+    const source = await fetchPolicyArticle(candidate.title, candidate.url, allowDraft);
+    if (source) sources.push(source);
   }
   return sources;
 }
