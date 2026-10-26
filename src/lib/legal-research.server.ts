@@ -5,6 +5,7 @@ import { legalBytes, legalFetch } from "./legal-fetch.server";
 import { legalPassages } from "./legal-passages";
 import { marriageProcedureSources } from "./legal-procedure.server";
 import { createLegalSourceCache } from "./legal-source-cache.server";
+import { officialHtmlSources } from "./legal-html-sources.server";
 import { legalGenerationConfig, legalResponseText } from "./legal-gemini";
 
 const BASE = "https://vanban.chinhphu.vn/";
@@ -33,6 +34,18 @@ export async function retrieveLegalSources(question: string): Promise<LegalSourc
 }
 
 async function retrieveUncachedLegalSources(question: string): Promise<Omit<LegalSource, "id">[]> {
+  const [catalog, readable] = await Promise.allSettled([
+    retrieveCatalogLegalSources(question), officialHtmlSources(question),
+  ]);
+  const sources = [
+    ...(catalog.status === "fulfilled" ? catalog.value : []),
+    ...(readable.status === "fulfilled" ? readable.value : []),
+  ];
+  if (!sources.length && catalog.status === "rejected") throw catalog.reason;
+  return sources.filter((source, index) => sources.findIndex((other) => other.url === source.url) === index);
+}
+
+async function retrieveCatalogLegalSources(question: string): Promise<Omit<LegalSource, "id">[]> {
   const page = await html(BASE);
   const form = new URLSearchParams();
   for (const e of page.querySelectorAll("input[name],select[name]")) {
