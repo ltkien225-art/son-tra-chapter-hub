@@ -1,5 +1,8 @@
 # Roadmap — Hội LHPN Sơn Trà (Lovable Cloud)
 
+- [x] Legal research implementation: removed approved-FAQ dependency, actual government search form + official PDF extraction, server privacy/current access/quota, fetched URLs/verbatim evidence/time, optional FAQ and updated guide; no paid grounding or billing enabled.
+- [ ] Legal research acceptance/publish: blocked by unavailable authorized TEST session creation; production E2E/quota/revocation not verified. Direct source + Gemini test yielded one evidence-backed domestic-violence answer, intermittent 503 and unverified/no-source outputs; marriage answer not yet accepted. Do not publish this change until reliable answers and TEST acceptance pass.
+
 - [x] Replace chapter PIN workflow with reusable private links: additive schema, current parent permissions, issue/copy/change/revoke, entry and guides; operational data and office access untouched.
 - [x] Local authorized TEST acceptance: two independent desktop/iPhone-width sessions, PDF/image upload/reload/view/download, Office reception, isolation, invalid/revoked links, rotation and parent revocation; 30 unit + 145 regression + 23 link/file live assertions passed; basic security scan no findings (not deep analysis).
 - [x] Published chapter link workflow; production browser acceptance passed with two isolated TEST contexts, report/attachments received by Office, cross-chapter rejection and both sessions rejected after revoke. Production gateway rejects revoked file reads. Removed only this run's TEST data, retaining audit evidence. Physical Safari/Android/Zalo remains unverified.
@@ -27,4 +30,4 @@
 - [ ] Xuất bản chính thức — sau khi 2 mục kiểm thử trên đạt
 - [ ] Giao diện theo ảnh mẫu (xanh dương/hồng) — chờ: chủ dự án tải 2 ảnh mẫu
 - [x] Hỏi đáp pháp luật mức 1: thư viện có nguồn + duyệt, tìm kiếm, chặn dữ liệu cá nhân, giới hạn lượt, câu hỏi riêng cho cán bộ
-- [x] Trợ lý Gemini miễn phí đã kích hoạt: khóa GEMINI_API_KEY lưu qua Secrets; model đổi sang gemini-3.5-flash (2.5-flash ngừng với khóa mới); kiểm thử thật trên preview + production với danh tính TEST — trả lời AI có căn cứ nguồn, chặn PII, fallback khi thiếu nguồn, bộ đếm 10 lượt/ngày hoạt động; dữ liệu TEST đã dọn sạch. 3 câu mẫu vẫn chờ cán bộ đối chiếu và duyệt (hiện 0 FAQ đã duyệt nên người dùng thật tạm nhận thư viện/hướng dẫn gửi cán bộ).
+- [x] Prior FAQ-only Gemini flow activated and tested on production before the new research requirement; that result does NOT certify the new retrieval flow. Three sample FAQs remain pending, none autoapproved.

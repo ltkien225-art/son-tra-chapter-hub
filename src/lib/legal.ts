@@ -10,7 +10,7 @@ const PII_RULES: { re: RegExp; label: string }[] = [
   { re: /(?:\+?84|0)[\s.-]?\d(?:[\s.-]?\d){7,9}/, label: "số điện thoại" },
   { re: /\b\d{9}\b|\b\d{12}\b/, label: "số CMND/CCCD" },
   { re: /\b(số nhà|kiệt|hẻm|ngõ|tổ dân phố)\s*\d+/i, label: "địa chỉ cụ thể" },
-  { re: /\b(tôi tên là|tên tôi là|họ tên|cháu tên|chị tên|em tên)\b/i, label: "họ tên người cụ thể" },
+  { re: /(?:^|\s)(tôi tên là|tên tôi là|họ tên|cháu tên|chị tên|em tên)(?=\s|:|$)/iu, label: "họ tên người cụ thể" },
 ];
 
 /** Returns the kinds of personal data found (empty = OK to send to AI). */
