@@ -80,9 +80,13 @@ export async function retrieveLegalSources(question: string): Promise<LegalSourc
 
 /** Ordinary Gemini generation only. No google_search tool, paid fallback, or billing action. */
 export async function answerFromSources(key: string, question: string, sources: LegalSource[]) {
-  const passages = legalPassages(sources, question);
+  // For ordinary marriage questions use the retrieved procedure + two-tier authority
+  // first; the full consolidated statute remains visible for cross-checking but its
+  // foreign-element provisions must not crowd out the everyday procedure evidence.
+  const procedure = /kết hôn/i.test(question) ? sources.filter((s) => /bana\.danang\.gov\.vn|xaydungchinhsach\.chinhphu\.vn/.test(s.url)) : [];
+  const passages = legalPassages(procedure.length ? procedure : sources, question);
   if (!passages.length) return { error: "no_source" } as const;
-  const context = sources.map((s) => ({ id: s.id, kind: s.kind, title: s.title, futureEffective: futureEffectiveSource(s.text, new Date().toISOString().slice(0, 10)), metadata: s.text.slice(0, 700) }));
+  const context = sources.map((s) => ({ id: s.id, kind: s.kind, title: s.title, futureEffective: futureEffectiveSource(s.text, new Date().toISOString().slice(0, 10)), metadata: s.kind === "record" ? s.text : s.text.slice(0, 350) }));
   const r = await legalFetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent", {
     method: "POST", headers: { "content-type": "application/json", "x-goog-api-key": key },
     body: JSON.stringify({
