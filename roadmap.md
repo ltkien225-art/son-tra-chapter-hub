@@ -27,4 +27,4 @@
 - [ ] Xuất bản chính thức — sau khi 2 mục kiểm thử trên đạt
 - [ ] Giao diện theo ảnh mẫu (xanh dương/hồng) — chờ: chủ dự án tải 2 ảnh mẫu
 - [x] Hỏi đáp pháp luật mức 1: thư viện có nguồn + duyệt, tìm kiếm, chặn dữ liệu cá nhân, giới hạn lượt, câu hỏi riêng cho cán bộ
-- [ ] Trợ lý Gemini miễn phí — chờ: khóa GEMINI_API_KEY (Google AI Studio, không bật billing); 3 câu mẫu chờ cán bộ đối chiếu và duyệt
+- [x] Trợ lý Gemini miễn phí đã kích hoạt: khóa GEMINI_API_KEY lưu qua Secrets; model đổi sang gemini-3.5-flash (2.5-flash ngừng với khóa mới); kiểm thử thật trên preview + production với danh tính TEST — trả lời AI có căn cứ nguồn, chặn PII, fallback khi thiếu nguồn, bộ đếm 10 lượt/ngày hoạt động; dữ liệu TEST đã dọn sạch. 3 câu mẫu vẫn chờ cán bộ đối chiếu và duyệt (hiện 0 FAQ đã duyệt nên người dùng thật tạm nhận thư viện/hướng dẫn gửi cán bộ).
