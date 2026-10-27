@@ -1,6 +1,6 @@
 # Roadmap — Hội LHPN Sơn Trà (Lovable Cloud)
 
-- [ ] Minimal owner-approved Google Programmable Search integration: reuse existing embedded component in Legal and isolated preview, check actual Google display/no navigation; preserve Gemini/data/permissions, no publish or paid services.
+- [x] Minimal owner-approved Google Programmable Search integration: engine 7608c64a433a14d70 wired into existing Legal and /xem-thu-google, Gemini/auth/data unchanged; 15 focused tests passed and automatic build OK. Live Chromium search returned real government results inside Google's in-page overlay, stayed on preview with one browser tab (no automatic Google navigation). Google controls layout/results and may restrict display elsewhere; no authenticated workspace acceptance or physical-device claim. Preview only, not published; no Gemini calls, paid APIs or billing. Two pre-existing undefined-access compilation errors minimally guarded without changing Gemini behavior.
 
 - [x] Apply owner's 08:23 saving instruction: stop new agents, source/feature expansion, repeated AI probes and unnecessary tests; retain existing changes. Shared 32-credit ceiling is not a per-project budget. Current Google 429 and unavailable official TEST session block acceptance/publish; stop pending quota recovery and dedicated TEST sign-in. Additional credit requirement unknown, no purchase or billing enabled.
 
