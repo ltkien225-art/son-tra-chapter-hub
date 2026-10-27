@@ -14,6 +14,7 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as CapLinkVanPhongRouteImport } from './routes/cap-link-van-phong'
 import { Route as TiepNhanRouteImport } from './routes/tiep-nhan'
 import { Route as VanPhongRouteImport } from './routes/van-phong'
+import { Route as XemThuGoogleRouteImport } from './routes/xem-thu-google'
 import { Route as SoUnitRouteImport } from './routes/so.$unit'
 import { Route as ApiFilesIdRouteImport } from './routes/api/files.$id'
 import { Route as ApiPublicPushCronRouteImport } from './routes/api/public/push/cron'
@@ -43,6 +44,11 @@ const VanPhongRoute = VanPhongRouteImport.update({
   path: '/van-phong',
   getParentRoute: () => rootRouteImport,
 } as any)
+const XemThuGoogleRoute = XemThuGoogleRouteImport.update({
+  id: '/xem-thu-google',
+  path: '/xem-thu-google',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SoUnitRoute = SoUnitRouteImport.update({
   id: '/so/$unit',
   path: '/so/$unit',
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/cap-link-van-phong': typeof CapLinkVanPhongRoute
   '/tiep-nhan': typeof TiepNhanRoute
   '/van-phong': typeof VanPhongRoute
+  '/xem-thu-google': typeof XemThuGoogleRoute
   '/so/$unit': typeof SoUnitRoute
   '/api/files/$id': typeof ApiFilesIdRoute
   '/api/public/push/cron': typeof ApiPublicPushCronRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/cap-link-van-phong': typeof CapLinkVanPhongRoute
   '/tiep-nhan': typeof TiepNhanRoute
   '/van-phong': typeof VanPhongRoute
+  '/xem-thu-google': typeof XemThuGoogleRoute
   '/so/$unit': typeof SoUnitRoute
   '/api/files/$id': typeof ApiFilesIdRoute
   '/api/public/push/cron': typeof ApiPublicPushCronRoute
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/cap-link-van-phong': typeof CapLinkVanPhongRoute
   '/tiep-nhan': typeof TiepNhanRoute
   '/van-phong': typeof VanPhongRoute
+  '/xem-thu-google': typeof XemThuGoogleRoute
   '/so/$unit': typeof SoUnitRoute
   '/api/files/$id': typeof ApiFilesIdRoute
   '/api/public/push/cron': typeof ApiPublicPushCronRoute
@@ -98,6 +107,7 @@ export interface FileRouteTypes {
     | '/cap-link-van-phong'
     | '/tiep-nhan'
     | '/van-phong'
+    | '/xem-thu-google'
     | '/so/$unit'
     | '/api/files/$id'
     | '/api/public/push/cron'
@@ -108,6 +118,7 @@ export interface FileRouteTypes {
     | '/cap-link-van-phong'
     | '/tiep-nhan'
     | '/van-phong'
+    | '/xem-thu-google'
     | '/so/$unit'
     | '/api/files/$id'
     | '/api/public/push/cron'
@@ -118,6 +129,7 @@ export interface FileRouteTypes {
     | '/cap-link-van-phong'
     | '/tiep-nhan'
     | '/van-phong'
+    | '/xem-thu-google'
     | '/so/$unit'
     | '/api/files/$id'
     | '/api/public/push/cron'
@@ -129,6 +141,7 @@ export interface RootRouteChildren {
   CapLinkVanPhongRoute: typeof CapLinkVanPhongRoute
   TiepNhanRoute: typeof TiepNhanRoute
   VanPhongRoute: typeof VanPhongRoute
+  XemThuGoogleRoute: typeof XemThuGoogleRoute
   SoUnitRoute: typeof SoUnitRoute
   ApiFilesIdRoute: typeof ApiFilesIdRoute
   ApiPublicPushCronRoute: typeof ApiPublicPushCronRoute
@@ -171,6 +184,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VanPhongRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/xem-thu-google': {
+      id: '/xem-thu-google'
+      path: '/xem-thu-google'
+      fullPath: '/xem-thu-google'
+      preLoaderRoute: typeof XemThuGoogleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/so/$unit': {
       id: '/so/$unit'
       path: '/so/$unit'
@@ -201,6 +221,7 @@ const rootRouteChildren: RootRouteChildren = {
   CapLinkVanPhongRoute: CapLinkVanPhongRoute,
   TiepNhanRoute: TiepNhanRoute,
   VanPhongRoute: VanPhongRoute,
+  XemThuGoogleRoute: XemThuGoogleRoute,
   SoUnitRoute: SoUnitRoute,
   ApiFilesIdRoute: ApiFilesIdRoute,
   ApiPublicPushCronRoute: ApiPublicPushCronRoute,
