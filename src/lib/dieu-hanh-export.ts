@@ -7,7 +7,7 @@ export type SummaryCounts = {
   reportsReceived: number;
 };
 export function makeSummary(period: string, counts: SummaryCounts, asOf = new Date().toISOString()) {
-  if (!/^\\d{4}-\\d{2}$/.test(period)) throw new Error("Invalid period");
+  if (!/^\d{4}-\d{2}$/.test(period)) throw new Error("Invalid period");
   for (const count of Object.values(counts)) {
     if (!Number.isSafeInteger(count) || count < 0) throw new Error("Invalid count");
   }
