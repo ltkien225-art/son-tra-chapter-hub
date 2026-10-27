@@ -144,7 +144,7 @@ export function GoogleLegalSearch({ engineId }: { engineId: string }) {
         )}
         {searched && (
           <p role="status" className="mt-3 text-sm">
-            Đã gửi câu hỏi. Kết quả bên dưới do Google cung cấp.
+            Đã gửi câu hỏi. Kết quả bên dưới do Google cung cấp. Nếu Google báo lỗi hoặc không hiển thị, công cụ có thể bị giới hạn bởi cấu hình Google, mạng hoặc trình duyệt; ứng dụng không tự chuyển trang hay thay bằng Gemini.
           </p>
         )}
         <div ref={resultHost} className="mt-3 min-w-0 overflow-x-auto" />

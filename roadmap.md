@@ -1,5 +1,7 @@
 # Roadmap — Hội LHPN Sơn Trà (Lovable Cloud)
 
+- [ ] Minimal owner-approved Google Programmable Search integration: reuse existing embedded component in Legal and isolated preview, check actual Google display/no navigation; preserve Gemini/data/permissions, no publish or paid services.
+
 - [x] Apply owner's 08:23 saving instruction: stop new agents, source/feature expansion, repeated AI probes and unnecessary tests; retain existing changes. Shared 32-credit ceiling is not a per-project budget. Current Google 429 and unavailable official TEST session block acceptance/publish; stop pending quota recovery and dedicated TEST sign-in. Additional credit requirement unknown, no purchase or billing enabled.
 
 - [x] Legal research implementation: removed approved-FAQ dependency, actual government search form + official PDF extraction, server privacy/current access/quota, fetched URLs/verbatim evidence/time, optional FAQ and updated guide; no paid grounding or billing enabled.

@@ -1,4 +1,5 @@
 /** Google's supported Search Element. No Gemini key, proxy or paid API. */
+export const LEGAL_SEARCH_ENGINE_ID = "7608c64a433a14d70";
 export type GoogleSearchControl = {
   execute: (question: string) => void;
   clearAllResults: () => void;

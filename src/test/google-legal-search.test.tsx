@@ -36,7 +36,9 @@ describe("Google search stays inside the application", () => {
       target: { value: "Tư vấn cho tôi qua số điện thoại 0905123456" },
     });
     expect(screen.getByRole("button", { name: "Tìm với Google" })).toBeDisabled();
-    fireEvent.submit(screen.getByRole("textbox").closest("form")!);
+    const form = screen.getByRole("textbox").closest("form");
+    if (!form) throw new Error("Missing search form");
+    fireEvent.submit(form);
     expect(execute).not.toHaveBeenCalled();
     expect(loadGoogleSearch).not.toHaveBeenCalled();
   });
@@ -71,7 +73,7 @@ describe("Google search stays inside the application", () => {
     expect(execute).not.toHaveBeenCalled();
   });
   it("does not execute a pending query after leaving the page", async () => {
-    let resolve!: (api: Awaited<ReturnType<typeof loadGoogleSearch>>) => void;
+    let resolve: ((api: Awaited<ReturnType<typeof loadGoogleSearch>>) => void) | undefined;
     vi.mocked(loadGoogleSearch).mockReturnValue(
       new Promise((done) => {
         resolve = done;
@@ -82,7 +84,7 @@ describe("Google search stays inside the application", () => {
     fireEvent.click(screen.getByRole("button", { name: "Tìm với Google" }));
     view.unmount();
     await act(async () =>
-      resolve({ render: renderGoogle, getElement: () => ({ execute, clearAllResults }) }),
+      resolve?.({ render: renderGoogle, getElement: () => ({ execute, clearAllResults }) }),
     );
     expect(execute).not.toHaveBeenCalled();
   });
