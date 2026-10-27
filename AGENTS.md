@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Project rules (Hội LHPN Sơn Trà)
+- Embedded Google legal search reuses GoogleLegalSearch and the explicit client-only Search Element loader, with public engine configuration separate from Gemini — why: keep results in-app without changing AI, sessions, or backend permissions.
 - Shared identity uses BrandLogo backed by a CDN asset pointer, and versioned opaque install icons with a separate maskable file — why: keep all entry/workspace screens consistent without cropping approved artwork or reusing cached icon URLs.
 - All permissions live in backend RLS + SECURITY DEFINER helpers (`can_chapter`, `is_office`, `has_sensitive`) re-read on every request; never gate data only in the UI — revocation must apply even with a valid JWT.
 - Actor columns (`created_by`, `updated_by`) are stamped by trigger; audit rows are written by trigger in the same transaction and store ids only (no body/PII).

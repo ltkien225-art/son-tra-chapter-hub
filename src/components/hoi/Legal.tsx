@@ -3,7 +3,9 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { fmtDateTime } from "@/lib/hoi";
-import { LEGAL_Q_MAX, findPersonalData, searchFaqs } from "@/lib/legal";
+import { searchFaqs } from "@/lib/legal";
+import { LEGAL_SEARCH_ENGINE_ID } from "@/lib/google-search-element";
+import { GoogleLegalSearch } from "./GoogleLegalSearch";
 import { ChapterName, Empty, Section, useAction, type Ctx } from "./common";
 
 type Faq = { id: string; topic: string; question: string; answer: string; source_title: string; source_article: string; source_url: string; effective_date: string | null; verified_on: string | null; status: string };
@@ -29,9 +31,9 @@ export function Legal({ ctx }: { ctx: Ctx }) {
       <Section title="Hỏi đáp pháp luật (thông tin chung)">
         <div className="panel space-y-1 border-2 border-destructive/40 p-4 text-sm">
           <p className="font-bold text-destructive">⚠ Không nhập họ tên, số điện thoại, CCCD, địa chỉ hay chi tiết vụ việc của bất kỳ ai.</p>
-          <p>Câu hỏi sẽ được gửi tới Google khi bấm tìm. Kết quả và phần AI do Google cung cấp, có thể không xuất hiện hoặc không chính xác; hãy đối chiếu văn bản chính thức. Câu hỏi riêng hãy dùng mục “Gửi câu hỏi riêng cho cán bộ” bên dưới.</p>
+          <p>Câu hỏi sẽ được gửi tới Google khi bấm tìm. Kết quả tìm kiếm không phải câu trả lời Gemini; hãy đối chiếu văn bản chính thức. Câu hỏi riêng hãy dùng mục “Gửi câu hỏi riêng cho cán bộ” bên dưới.</p>
         </div>
-        <GoogleSearch />
+        <GoogleLegalSearch engineId={LEGAL_SEARCH_ENGINE_ID} />
       </Section>
 
       <Section title={`Thư viện hỏi đáp ${office ? "(Văn phòng thấy cả mục chờ duyệt)" : "đã duyệt"}`}>
@@ -68,20 +70,6 @@ function FaqItem({ f, office }: { f: Faq; office: boolean }) {
       </button>
       {open && <div className="mt-2 border-t border-border pt-2 text-sm"><p className="whitespace-pre-wrap">{f.answer}</p><Source f={f} /></div>}
     </li>
-  );
-}
-
-function GoogleSearch() {
-  const [text, setText] = useState("");
-  const pii = findPersonalData(text);
-  return (
-    <form className="panel space-y-3 p-5" action="https://www.google.com/search" method="get" target="_blank" rel="noopener noreferrer">
-      <label className="label" htmlFor="legal-google-question">Câu hỏi chung (tối đa {LEGAL_Q_MAX} ký tự)</label>
-      <textarea id="legal-google-question" name="q" className="field min-h-24" maxLength={LEGAL_Q_MAX} value={text} onChange={(e) => setText(e.target.value)} placeholder="Ví dụ: Khi bị bạo lực gia đình có thể báo cho ai?" />
-      {pii.length > 0 && <p role="alert" className="text-sm font-semibold text-destructive">Có vẻ chứa {pii.join(", ")} — hãy xóa trước khi tìm.</p>}
-      <Button type="submit" size="xl" disabled={pii.length > 0 || text.trim().length < 8}>Tìm trên Google</Button>
-      <p className="text-sm text-muted-foreground">Google mở ở thẻ mới và nhận câu hỏi đã nhập. Phần trả lời AI do Google quyết định hiển thị.</p>
-    </form>
   );
 }
 

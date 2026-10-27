@@ -1,13 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { BrandLogo } from "@/components/hoi/BrandLogo";
 import { GoogleLegalSearch } from "@/components/hoi/GoogleLegalSearch";
-import { validSearchEngineId } from "@/lib/google-search-element";
+import { LEGAL_SEARCH_ENGINE_ID, validSearchEngineId } from "@/lib/google-search-element";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/xem-thu-google")({
   validateSearch: (search: Record<string, unknown>) => ({ cx: validSearchEngineId(search["cx"]) }),
   head: () => ({
     meta: [
       { title: "Xem thử tìm kiếm Google · Hội LHPN Sơn Trà" },
+      { name: "description", content: "Bản xem trước tìm kiếm pháp luật Google trong Bộ công cụ Hội LHPN Sơn Trà, không truy cập hồ sơ riêng." },
+      { property: "og:title", content: "Xem thử tìm kiếm Google · Hội LHPN Sơn Trà" },
+      { property: "og:description", content: "Kiểm tra ô tìm kiếm và kết quả Google ngay trong Bộ công cụ Hội LHPN Sơn Trà." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
       { name: "referrer", content: "origin" },
     ],
@@ -16,7 +22,8 @@ export const Route = createFileRoute("/xem-thu-google")({
 });
 
 function GooglePreview() {
-  const { cx } = Route.useSearch();
+  const search = Route.useSearch();
+  const cx = search.cx || LEGAL_SEARCH_ENGINE_ID;
   return (
     <div className="min-h-screen bg-background">
       <header className="hero-lotus px-5 py-8">
@@ -55,12 +62,12 @@ function GooglePreview() {
                 autoComplete="off"
                 placeholder="Mã công cụ tìm kiếm Google"
               />
-              <button
+              <Button
                 type="submit"
                 className="rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground"
               >
                 Kết nối để xem thử
-              </button>
+              </Button>
             </form>
           </section>
         )}

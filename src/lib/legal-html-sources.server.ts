@@ -31,7 +31,7 @@ async function fetchPolicyArticle(titleHint: string, url: string, allowDraft: bo
     if (!content) return null;
     for (const node of content.querySelectorAll("script,style,iframe,.readmore,.VCSortableInPreviewMode")) node.remove();
     for (const node of content.querySelectorAll("p,div,li,h2,h3,br")) node.appendChild(document.createTextNode(" "));
-    const text = normalizeEvidence(content.textContent ?? "").split("Tham khảo thêm")[0].trim();
+    const text = (normalizeEvidence(content.textContent ?? "").split("Tham khảo thêm")[0] ?? "").trim();
     const metaDesc = document.querySelector('meta[name="description"]')?.getAttribute("content") ?? "";
     if (text.length < 300 || text.length > 100_000) return null;
     if (!/Luật|Bộ luật|Nghị định|Thông tư|Điều\s+\d+/i.test(`${heading} ${metaDesc} ${text}`)) return null;
