@@ -4,6 +4,8 @@ import { makeSummary } from "./dieu-hanh-export";
 export async function readAggregate(period: string) {
   const start = period + "-01";
   const [year, month] = period.split("-").map(Number);
+  if (year === undefined || month === undefined || !Number.isInteger(year) || !Number.isInteger(month) || month < 1 || month > 12)
+    throw new Error("Invalid period");
   const end = new Date(Date.UTC(year, month, 1)).toISOString().slice(0, 10);
   const [tasks, assignments, chapters, reports] = await Promise.all([
     supabaseAdmin.from("tasks").select("id", { count: "exact", head: true })
