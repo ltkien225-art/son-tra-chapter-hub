@@ -23,6 +23,7 @@ export function Tasks({ ctx }: { ctx: Ctx }) {
 
   const { data: tasks = [] } = useQuery({
     queryKey: ["tasks", office, view, ctx.chapterId],
+    staleTime: 30_000,
     queryFn: async () => {
       let q = supabase.from("tasks").select("*, task_assignments(*)").order("due_at", { ascending: true, nullsFirst: false }).limit(200);
       if (office) q = q.eq("status", view);
