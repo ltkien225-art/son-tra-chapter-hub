@@ -49,7 +49,7 @@ function AppPage() {
 function Workspace({ email, userId }: { email: string; userId: string }) {
   const qc = useQueryClient();
   const navigate = useNavigate();
-  const access = useQuery({ queryKey: ["access"], queryFn: fetchAccess, refetchInterval: 60_000 });
+  const access = useQuery({ queryKey: ["access"], queryFn: fetchAccess, refetchInterval: 300_000, refetchIntervalInBackground: false, refetchOnWindowFocus: true });
   const chapters = useQuery({ queryKey: ["chapters", access.data], queryFn: fetchChapters, enabled: !!access.data });
   const [tab, setTab] = useState("home");
   useEffect(() => {
