@@ -1,3 +1,4 @@
+import { liveQueryPolicy } from "@/lib/live-query-policy";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useIsFetching, onlineManager } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -49,7 +50,7 @@ function AppPage() {
 function Workspace({ email, userId }: { email: string; userId: string }) {
   const qc = useQueryClient();
   const navigate = useNavigate();
-  const access = useQuery({ queryKey: ["access"], queryFn: fetchAccess, refetchInterval: 300_000, refetchIntervalInBackground: false, refetchOnWindowFocus: true });
+  const access = useQuery({ queryKey: ["access"], queryFn: fetchAccess, ...liveQueryPolicy });
   const chapters = useQuery({ queryKey: ["chapters", access.data], queryFn: fetchChapters, enabled: !!access.data });
   const [tab, setTab] = useState("home");
   useEffect(() => {
