@@ -26,6 +26,7 @@ export function Documents({ ctx }: { ctx: Ctx }) {
 
   const { data: docs = [] } = useQuery({
     queryKey: ["documents", office, filter],
+    staleTime: 30_000,
     queryFn: async () => {
       let q = supabase.from("documents").select("*").order("created_at", { ascending: false }).limit(200);
       if (office) {

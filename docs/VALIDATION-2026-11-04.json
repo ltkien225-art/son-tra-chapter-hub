@@ -1,0 +1,25 @@
+{
+  "node": "24.22.1",
+  "bun": "1.3.13",
+  "vitest": "4.1.11",
+  "source_head": "e4c1586426e95dee8e6a52d7d1ba00f352e7b2c7",
+  "base_main": "8dee3d278706e5fea0ccf57db58fb334cc6258f4",
+  "tests": 103,
+  "skip": 0,
+  "typecheck": "pass",
+  "build": "pass",
+  "logs": {
+    "test": {
+      "sha256": "bfb0e8685161ed62e36c7e0080051f7d57cf3439c382acbb8d2e6f28860445ee",
+      "bytes": 250
+    },
+    "typecheck": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "build": {
+      "sha256": "c0fc3e00254173e17a42d94c97e9c03157f9b97a92745bae5d157beeadce8d1a",
+      "bytes": 20867
+    }
+  }
+}
